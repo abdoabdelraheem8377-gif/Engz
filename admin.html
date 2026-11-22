@@ -185,6 +185,9 @@
       margin-top: 10px;
       align-items: center;
     }
+    .img-block {
+      margin-top: 8px;
+    }
     .receipt-thumb {
       max-width: 220px;
       max-height: 180px;
@@ -343,11 +346,21 @@
 
         <label for="foodMenuFileInput">صورة قائمة الطعام (صفحة وجبات وسندوتشات - من الاستوديو)</label>
         <input type="file" id="foodMenuFileInput" accept="image/*" />
-        <img id="foodMenuAdminPreview" class="receipt-thumb hidden" alt="معاينة قائمة الطعام" />
+        <div id="foodMenuPreviewWrap" class="img-block hidden">
+          <img id="foodMenuAdminPreview" class="receipt-thumb" alt="معاينة قائمة الطعام" />
+          <div class="actions-row">
+            <button type="button" class="btn btn-danger btn-sm" id="deleteFoodMenuImgBtn">حذف الصورة</button>
+          </div>
+        </div>
 
         <label for="breakfastMenuFileInput">صورة السندوتشات (صفحة فطار المدارس - من الاستوديو)</label>
         <input type="file" id="breakfastMenuFileInput" accept="image/*" />
-        <img id="breakfastMenuAdminPreview" class="receipt-thumb hidden" alt="معاينة فطار المدارس" />
+        <div id="breakfastMenuPreviewWrap" class="img-block hidden">
+          <img id="breakfastMenuAdminPreview" class="receipt-thumb" alt="معاينة فطار المدارس" />
+          <div class="actions-row">
+            <button type="button" class="btn btn-danger btn-sm" id="deleteBreakfastMenuImgBtn">حذف الصورة</button>
+          </div>
+        </div>
 
         <label style="margin-top:16px;">7 أرقام موبيل للكاش (عدّل أي رقم واختر 3 أرقام للظهور في صفحات الخدمات)</label>
         <div id="sevenCashInputs"></div>
@@ -470,41 +483,66 @@
       });
     }
 
+    function syncMenuPreviews() {
+      const foodWrap = document.getElementById("foodMenuPreviewWrap");
+      const foodPrev = document.getElementById("foodMenuAdminPreview");
+      if (settingsState.foodMenuImage) {
+        foodPrev.src = settingsState.foodMenuImage;
+        foodWrap.classList.remove("hidden");
+      } else {
+        foodPrev.src = "";
+        foodWrap.classList.add("hidden");
+      }
+
+      const brWrap = document.getElementById("breakfastMenuPreviewWrap");
+      const brPrev = document.getElementById("breakfastMenuAdminPreview");
+      if (settingsState.breakfastMenuImage) {
+        brPrev.src = settingsState.breakfastMenuImage;
+        brWrap.classList.remove("hidden");
+      } else {
+        brPrev.src = "";
+        brWrap.classList.add("hidden");
+      }
+    }
+
     onValue(ref(db, "settings"), (snap) => {
       if (snap.exists()) {
         settingsState = { ...settingsState, ...snap.val() };
       }
       renderSevenCashForm();
-
-      const foodPrev = document.getElementById("foodMenuAdminPreview");
-      if (settingsState.foodMenuImage) {
-        foodPrev.src = settingsState.foodMenuImage;
-        foodPrev.classList.remove("hidden");
-      }
-
-      const brPrev = document.getElementById("breakfastMenuAdminPreview");
-      if (settingsState.breakfastMenuImage) {
-        brPrev.src = settingsState.breakfastMenuImage;
-        brPrev.classList.remove("hidden");
-      }
+      syncMenuPreviews();
     });
 
     document.getElementById("foodMenuFileInput").addEventListener("change", async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
       settingsState.foodMenuImage = await fileToBase64(file);
-      const prev = document.getElementById("foodMenuAdminPreview");
-      prev.src = settingsState.foodMenuImage;
-      prev.classList.remove("hidden");
+      syncMenuPreviews();
     });
 
     document.getElementById("breakfastMenuFileInput").addEventListener("change", async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
       settingsState.breakfastMenuImage = await fileToBase64(file);
-      const prev = document.getElementById("breakfastMenuAdminPreview");
-      prev.src = settingsState.breakfastMenuImage;
-      prev.classList.remove("hidden");
+      syncMenuPreviews();
+    });
+
+    document.getElementById("deleteFoodMenuImgBtn").addEventListener("click", async () => {
+      settingsState.foodMenuImage = "";
+      document.getElementById("foodMenuFileInput").value = "";
+      syncMenuPreviews();
+      await update(ref(db, "settings"), { foodMenuImage: "" });
+      document.getElementById("settingsMsg").innerHTML =
+        `<div class="msg msg-ok">تم حذف صورة قائمة الطعام.</div>`;
+    });
+
+    document.getElementById("deleteBreakfastMenuImgBtn").addEventListener("click", async () => {
+      settingsState.breakfastMenuImage = "";
+      document.getElementById("breakfastMenuFileInput").value = "";
+      syncMenuPreviews();
+      await update(ref(db, "settings"), { breakfastMenuImage: "" });
+      document.getElementById("settingsMsg").innerHTML =
+        `<div class="msg msg-ok">تم حذف صورة السندوتشات.</div>`;
     });
 
     document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
@@ -632,13 +670,27 @@
       box.innerHTML = pendingList.map((r) => `
         <div class="item-card">
           <div><strong>${r.name}</strong> — <span>${r.phone}</span> (المحاولة ${r.attemptNumber || 1} من 3)</div>
-          ${r.photo ? `<img src="${r.photo}" class="receipt-thumb" alt="صورة المستخدم" />` : ""}
+          ${r.photo
+            ? `<div class="img-block">
+                 <img src="${r.photo}" class="receipt-thumb" alt="صورة المستخدم" />
+                 <div class="actions-row">
+                   <button type="button" class="btn btn-danger btn-sm delete-req-photo-btn" data-id="${r.id}">حذف الصورة</button>
+                 </div>
+               </div>`
+            : ""}
           <div class="actions-row">
             <button type="button" class="btn btn-success btn-sm approve-req-btn" data-id="${r.id}" data-name="${r.name}" data-phone="${r.phone}">تأكيد</button>
             <button type="button" class="btn btn-danger btn-sm reject-req-btn" data-id="${r.id}">رفض</button>
           </div>
         </div>
       `).join("");
+
+      box.querySelectorAll(".delete-req-photo-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const reqId = btn.getAttribute("data-id");
+          await update(ref(db, `registrationRequests/${reqId}`), { photo: "" });
+        });
+      });
 
       box.querySelectorAll(".approve-req-btn").forEach((btn) => {
         btn.addEventListener("click", async () => {
@@ -698,7 +750,14 @@
             <div><strong>طلب رقم #${o.orderNumber}</strong> — ${o.serviceLabel}</div>
             <div>المشترك: <strong>${o.subscriberName}</strong> | رقم التليفون: <strong>${o.phone}</strong></div>
             <div style="margin-top:6px;">الطلب: ${o.details}</div>
-            ${o.receiptImage ? `<img src="${o.receiptImage}" class="receipt-thumb" alt="صورة إيصال التحويل" />` : ""}
+            ${o.receiptImage
+              ? `<div class="img-block">
+                   <img src="${o.receiptImage}" class="receipt-thumb" alt="صورة إيصال التحويل" />
+                   <div class="actions-row">
+                     <button type="button" class="btn btn-danger btn-sm delete-order-img-btn" data-id="${o.id}">حذف الصورة</button>
+                   </div>
+                 </div>`
+              : ""}
 
             <div class="actions-row">
               <input type="text" id="replyInput_${o.id}" value="${o.adminMessage || ""}" placeholder="اكتب رسالة أو استفسار للمشترك..." style="flex:1; min-width:200px; margin-top:0;" />
@@ -711,6 +770,13 @@
             </div>
           </div>
         `).join("");
+
+        activeBox.querySelectorAll(".delete-order-img-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-id");
+            await update(ref(db, `orders/${id}`), { receiptImage: "" });
+          });
+        });
 
         activeBox.querySelectorAll(".send-reply-btn").forEach((btn) => {
           btn.addEventListener("click", async () => {
@@ -754,9 +820,23 @@
             <div><strong>طلب رقم #${o.orderNumber}</strong> — ${o.serviceLabel}</div>
             <div>المشترك: <strong>${o.subscriberName}</strong> | رقم التليفون: <strong>${o.phone}</strong></div>
             <div style="margin-top:4px;">الطلب: ${o.details}</div>
-            ${o.receiptImage ? `<img src="${o.receiptImage}" class="receipt-thumb" alt="صورة إيصال التحويل" />` : ""}
+            ${o.receiptImage
+              ? `<div class="img-block">
+                   <img src="${o.receiptImage}" class="receipt-thumb" alt="صورة إيصال التحويل" />
+                   <div class="actions-row">
+                     <button type="button" class="btn btn-danger btn-sm delete-order-img-btn" data-id="${o.id}">حذف الصورة</button>
+                   </div>
+                 </div>`
+              : ""}
           </div>
         `).join("");
+
+        completedBox.querySelectorAll(".delete-order-img-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-id");
+            await update(ref(db, `orders/${id}`), { receiptImage: "" });
+          });
+        });
       }
     });
 
