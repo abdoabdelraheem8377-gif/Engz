@@ -8,24 +8,21 @@
     * { box-sizing: border-box; }
     body {
       font-family: Tahoma, Arial, sans-serif;
+      background: #f1f5f9;
       margin: 0;
       padding: 16px;
-      min-height: 100vh;
       color: #0f172a;
-      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 48%, #ec4899 100%);
-      background-attachment: fixed;
     }
     .container {
       max-width: 660px;
       margin: 0 auto;
     }
     .card {
-      background: rgba(255, 255, 255, 0.96);
-      border-radius: 20px;
-      padding: 22px;
-      margin-bottom: 18px;
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
-      border: 2px solid rgba(255, 255, 255, 0.8);
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.07);
     }
     .hidden { display: none !important; }
     .topbar {
@@ -34,170 +31,111 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .brand {
-      font-size: 26px;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
-      letter-spacing: 0.5px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #0b5ed7;
     }
-
-    /* مفاتيح 3D بإحساس عند الضغط */
-    .btn-3d {
+    .btn {
       display: inline-block;
       width: 100%;
-      padding: 13px 16px;
+      padding: 12px 14px;
       border: none;
-      border-radius: 14px;
-      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+      border-radius: 10px;
+      background: #0b5ed7;
       color: #ffffff;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
       text-align: center;
       text-decoration: none;
-      margin-top: 10px;
-      box-shadow: 0 6px 0 #1e3a8a, 0 10px 18px rgba(29, 78, 216, 0.35);
-      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
+      margin-top: 8px;
     }
-    .btn-3d:hover { filter: brightness(1.05); }
-    .btn-3d:active {
-      transform: translateY(5px);
-      box-shadow: 0 1px 0 #1e3a8a, 0 4px 8px rgba(29, 78, 216, 0.25);
-    }
-    .btn-3d:disabled {
-      background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
-      box-shadow: 0 4px 0 #64748b;
-      transform: none;
+    .btn:disabled {
+      background: #94a3b8;
       cursor: not-allowed;
     }
-    .btn-green {
-      background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
-      box-shadow: 0 6px 0 #14532d, 0 10px 18px rgba(21, 128, 61, 0.35);
-    }
-    .btn-green:active {
-      box-shadow: 0 1px 0 #14532d, 0 4px 8px rgba(21, 128, 61, 0.25);
-    }
-    .btn-amber {
-      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
-      box-shadow: 0 6px 0 #92400e, 0 10px 18px rgba(217, 119, 6, 0.35);
-    }
-    .btn-amber:active {
-      box-shadow: 0 1px 0 #92400e, 0 4px 8px rgba(217, 119, 6, 0.25);
-    }
-    .btn-pink {
-      background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);
-      box-shadow: 0 6px 0 #831843, 0 10px 18px rgba(190, 24, 93, 0.35);
-    }
-    .btn-pink:active {
-      box-shadow: 0 1px 0 #831843, 0 4px 8px rgba(190, 24, 93, 0.25);
-    }
-    .btn-dark {
-      background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
-      box-shadow: 0 6px 0 #0f172a, 0 10px 18px rgba(15, 23, 42, 0.3);
-    }
-    .btn-dark:active {
-      box-shadow: 0 1px 0 #0f172a, 0 4px 8px rgba(15, 23, 42, 0.2);
+    .btn-secondary { background: #334155; }
+    .btn-success { background: #15803d; }
+    .btn-outline {
+      background: #ffffff;
+      color: #0b5ed7;
+      border: 1.5px solid #0b5ed7;
     }
     .btn-sm {
       width: auto;
-      padding: 8px 14px;
+      padding: 7px 12px;
       font-size: 13px;
       margin-top: 0;
-      border-radius: 11px;
-      box-shadow: 0 4px 0 #1e3a8a, 0 6px 12px rgba(15, 23, 42, 0.2);
     }
-    .btn-sm:active {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 #1e3a8a;
-    }
-
     label {
       display: block;
       font-weight: bold;
-      margin: 14px 0 6px;
+      margin: 12px 0 6px;
       font-size: 14px;
-      color: #1e293b;
     }
     input[type="text"],
     input[type="tel"],
     input[type="file"],
     textarea {
       width: 100%;
-      padding: 12px;
-      border: 2px solid #cbd5e1;
-      border-radius: 12px;
+      padding: 11px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
       font-size: 15px;
-      background: #f8fafc;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    input[type="text"]:focus,
-    input[type="tel"]:focus,
-    textarea:focus {
-      outline: none;
-      border-color: #2563eb;
       background: #ffffff;
     }
-    textarea { min-height: 115px; resize: vertical; }
-
+    textarea { min-height: 110px; resize: vertical; }
     .timer-circle {
-      width: 124px;
-      height: 124px;
+      width: 112px;
+      height: 112px;
       border-radius: 50%;
-      background: linear-gradient(145deg, #ffffff, #e0f2fe);
-      border: 7px solid #0284c7;
-      box-shadow: 0 10px 24px rgba(2, 132, 199, 0.28), inset 0 3px 8px rgba(255, 255, 255, 0.9);
+      border: 6px solid #0b5ed7;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 36px;
-      font-weight: 900;
-      color: #0369a1;
-      margin: 22px auto 14px;
+      font-size: 32px;
+      font-weight: bold;
+      color: #0b5ed7;
+      margin: 20px auto 14px;
     }
-    .progress-wrap {
+    .progress-track {
       width: 100%;
-      height: 22px;
+      height: 18px;
       background: #e2e8f0;
       border-radius: 999px;
       overflow: hidden;
-      border: 2px solid #cbd5e1;
-      box-shadow: inset 0 2px 5px rgba(15, 23, 42, 0.14);
-      margin-top: 12px;
+      margin-top: 8px;
     }
-    .progress-bar {
+    .progress-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #06b6d4 0%, #2563eb 55%, #ec4899 100%);
+      background: #0b5ed7;
       transition: width 0.25s linear;
     }
     .progress-label {
       margin-top: 8px;
       font-weight: bold;
-      font-size: 15px;
-      color: #1d4ed8;
+      color: #0b5ed7;
+      font-size: 14px;
     }
-
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
     }
     .cash-boxes {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      gap: 8px;
       margin: 10px 0;
     }
     .cash-box {
-      background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
-      border: 2px solid #93c5fd;
-      border-bottom: 4px solid #3b82f6;
-      border-radius: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
       padding: 10px 6px;
       text-align: center;
       font-size: 13px;
@@ -209,9 +147,9 @@
     .zoomable-img {
       max-width: 100%;
       max-height: 250px;
-      border-radius: 12px;
+      border-radius: 10px;
       margin-top: 10px;
-      border: 2px solid #cbd5e1;
+      border: 1px solid #e2e8f0;
       display: block;
       cursor: zoom-in;
     }
@@ -219,54 +157,50 @@
       margin: 14px 0 6px;
       font-size: 15px;
       font-weight: bold;
-      color: #be185d;
+      color: #0b5ed7;
     }
     .msg {
-      padding: 12px;
-      border-radius: 12px;
-      margin-top: 12px;
+      padding: 11px;
+      border-radius: 10px;
+      margin-top: 10px;
       font-size: 14px;
       line-height: 1.5;
-      font-weight: bold;
     }
-    .msg-err { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-    .msg-ok { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-    .msg-info { background: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
-
+    .msg-err { background: #fee2e2; color: #991b1b; }
+    .msg-ok { background: #dcfce7; color: #166534; }
+    .msg-info { background: #e0f2fe; color: #075985; }
     .deliver-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-top: 14px;
+      margin-top: 12px;
       flex-wrap: wrap;
     }
     .order-item {
-      border: 1px solid #cbd5e1;
-      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
       padding: 12px;
       margin-top: 10px;
-      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      background: #f8fafc;
     }
     .admin-reply-box {
-      background: #fef3c7;
-      border: 1px solid #f59e0b;
-      color: #78350f;
-      padding: 9px 11px;
-      border-radius: 10px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      padding: 8px 10px;
+      border-radius: 8px;
       margin-top: 8px;
       font-size: 13px;
     }
     .challenge-box {
-      background: linear-gradient(180deg, #dcfce7 0%, #bbf7d0 100%);
-      border: 1px solid #4ade80;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
       color: #14532d;
-      padding: 11px 13px;
-      border-radius: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
       margin-top: 10px;
       white-space: pre-wrap;
-      font-weight: bold;
     }
-
     #permanentRejectScreen {
       position: fixed;
       inset: 0;
@@ -280,13 +214,13 @@
       padding: 24px;
     }
     #permanentRejectScreen h1 {
-      font-size: 36px;
+      font-size: 34px;
       margin: 0;
     }
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.65);
+      background: rgba(15, 23, 42, 0.55);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -295,14 +229,11 @@
     }
     .modal-card {
       background: #ffffff;
-      border-radius: 18px;
-      padding: 22px;
+      border-radius: 14px;
+      padding: 20px;
       max-width: 420px;
       width: 100%;
-      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.35);
     }
-
-    /* تكبير الصور عند الضغط عليها مباشرة */
     #imageLightbox {
       position: fixed;
       inset: 0;
@@ -317,19 +248,18 @@
     #imageLightbox img {
       max-width: 96vw;
       max-height: 90vh;
-      border-radius: 12px;
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
       object-fit: contain;
     }
   </style>
 </head>
 <body>
-  <!-- نافذة تكبير الصور الفورية عند الضغط على أي صورة -->
+  <!-- نافذة تكبير الصور الفورية عند الضغط عليها -->
   <div id="imageLightbox" class="hidden" title="اضغط للإغلاق">
     <img id="lightboxImg" src="" alt="صورة مكبرة" />
   </div>
 
-  <!-- شاشة خضراء ثابتة بلا أي اختيارات عند رفض الطلب 3 مرات -->
+  <!-- شاشة خضراء ثابتة بلا أي اختيارات بعد رفض الطلب 3 مرات -->
   <div id="permanentRejectScreen" class="hidden">
     <h1>تم رفض طلبك</h1>
   </div>
@@ -337,11 +267,23 @@
   <!-- نافذة تأكيد إرسال طلب التسجيل في كل محاولة من الـ 3 محاولات -->
   <div id="confirmRegisterModal" class="modal-backdrop hidden">
     <div class="modal-card">
-      <h3 style="margin-top:0; color:#1d4ed8;">تأكيد إرسال طلب التسجيل</h3>
+      <h3 style="margin-top:0;">تأكيد إرسال طلب التسجيل</h3>
       <p id="confirmRegisterDetails"></p>
       <div class="grid-2">
-        <button type="button" class="btn-3d btn-green" id="confirmRegisterYes">تأكيد الإرسال</button>
-        <button type="button" class="btn-3d btn-dark" id="confirmRegisterNo">إلغاء</button>
+        <button type="button" class="btn btn-success" id="confirmRegisterYes">تأكيد الإرسال</button>
+        <button type="button" class="btn btn-secondary" id="confirmRegisterNo">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة هل تريد حفظ بيانات الدخول عند الضغط على مشترك -->
+  <div id="saveCredentialsModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <h3 style="margin-top:0;">هل تريد حفظ بيانات الدخول</h3>
+      <p id="saveCredentialsSummary"></p>
+      <div class="grid-2">
+        <button type="button" class="btn btn-success" id="saveCredYesBtn">نعم</button>
+        <button type="button" class="btn btn-secondary" id="saveCredNoBtn">لا</button>
       </div>
     </div>
   </div>
@@ -349,34 +291,37 @@
   <div class="container">
     <div class="topbar">
       <div class="brand">Engz</div>
-      <button type="button" class="btn-3d btn-amber btn-sm" id="goServicesTopBtn">الخدمات</button>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="btn btn-outline btn-sm" id="goServicesTopBtn">الخدمات</button>
+      </div>
     </div>
 
-    <!-- 1. الشاشة الرئيسية: مؤقت 30 ثانية + شريط تحميل يصل إلى 100% خلال 30 ثانية -->
+    <!-- 1. الشاشة الرئيسية: مؤقت 30 ثانية تنازلي إلى 0 + شريط تحميل يصل إلى 100% خلال 30 ثانية -->
     <section id="splashScreen" class="card" style="text-align:center;">
-      <h2 style="margin-top:0; color:#1e40af;">مرحباً بك في تطبيق Engz</h2>
-      <p style="color:#475569;">جاري تجهيز التطبيق... سيتم الانتقال تلقائياً إلى صفحة التسجيل بعد انتهاء الـ 30 ثانية</p>
+      <h2>تطبيق Engz</h2>
+      <p>سيتم الانتقال تلقائياً إلى صفحة التسجيل عند وصول المؤقت إلى 0 واكتمال التحميل 100%</p>
       <div class="timer-circle" id="countdownDisplay">30</div>
-      <div class="progress-wrap">
-        <div class="progress-bar" id="splashProgressBar"></div>
+      <div class="progress-track">
+        <div class="progress-fill" id="splashProgressBar"></div>
       </div>
-      <div class="progress-label" id="splashProgressText">0%</div>
+      <div class="progress-label" id="splashProgressLabel">0%</div>
+      <button type="button" class="btn btn-outline" id="skipSplashBtn">انتقال الآن</button>
     </section>
 
     <!-- 2. صفحة التسجيل: خياران (تسجيل / مشترك) -->
     <section id="authChoiceScreen" class="card hidden">
-      <h2 style="margin-top:0; color:#1e40af;">صفحة التسجيل - Engz</h2>
+      <h2>صفحة التسجيل - Engz</h2>
       <div class="grid-2">
-        <button type="button" class="btn-3d" id="openRegisterBtn">تسجيل</button>
-        <button type="button" class="btn-3d btn-green" id="openSubscriberBtn">مشترك</button>
+        <button type="button" class="btn" id="openRegisterBtn">تسجيل</button>
+        <button type="button" class="btn btn-success" id="openSubscriberBtn">مشترك</button>
       </div>
       <div id="authChoiceMsg"></div>
     </section>
 
     <!-- 2-أ. صفحة الاشتراك -->
     <section id="registerScreen" class="card hidden">
-      <button type="button" class="btn-3d btn-dark btn-sm" data-back="authChoiceScreen">رجوع</button>
-      <h2 style="color:#1e40af;">صفحة الاشتراك - Engz</h2>
+      <button type="button" class="btn btn-outline btn-sm" data-back="authChoiceScreen">رجوع</button>
+      <h2>صفحة الاشتراك - Engz</h2>
       <form id="registerForm">
         <label for="regName">الاسم (غير مكرر)</label>
         <input type="text" id="regName" placeholder="اكتب اسمك" required />
@@ -384,18 +329,26 @@
         <label for="regPhone">رقم الموبيل (رقم مصري فعلي 11 رقماً)</label>
         <input type="tel" id="regPhone" placeholder="01012345678" maxlength="11" required />
 
-        <button type="submit" class="btn-3d" id="registerSubmitBtn">تسجيل</button>
+        <label for="regStudioPhoto">إضافة صورة (من الاستوديو)</label>
+        <input type="file" id="regStudioPhoto" accept="image/*" />
+
+        <button type="submit" class="btn" id="registerSubmitBtn">تسجيل</button>
       </form>
       <div id="registerMsg"></div>
     </section>
 
-    <!-- 2-ب. دخول المشترك -->
+    <!-- 2-ب. دخول المشترك: الاسم ورقم التليفون -->
     <section id="subscriberLoginScreen" class="card hidden">
-      <button type="button" class="btn-3d btn-dark btn-sm" data-back="authChoiceScreen">رجوع</button>
-      <h2 style="color:#15803d;">دخول المشترك - Engz</h2>
-      <label for="subPhoneInput">أدخل رقم الموبيل المسجل</label>
+      <button type="button" class="btn btn-outline btn-sm" data-back="authChoiceScreen">رجوع</button>
+      <h2>دخول المشترك - Engz</h2>
+
+      <label for="subNameInput">الاسم</label>
+      <input type="text" id="subNameInput" placeholder="اكتب اسمك المسجل" />
+
+      <label for="subPhoneInput">رقم التليفون</label>
       <input type="tel" id="subPhoneInput" placeholder="01012345678" maxlength="11" />
-      <button type="button" class="btn-3d btn-green" id="subscriberEnterBtn">دخول إلى الخدمات</button>
+
+      <button type="button" class="btn btn-success" id="subscriberEnterBtn">دخول إلى الخدمات</button>
       <div id="subLoginMsg"></div>
     </section>
 
@@ -403,31 +356,31 @@
     <section id="servicesHomeScreen" class="card hidden">
       <div class="topbar">
         <div>
-          <h2 style="margin:0; color:#1e40af;">صفحة الخدمات - Engz</h2>
-          <small id="activeSubscriberBadge" style="color:#475569; font-weight:bold;"></small>
+          <h2 style="margin:0;">صفحة الخدمات - Engz</h2>
+          <small id="activeSubscriberBadge" style="color:#475569;"></small>
         </div>
-        <button type="button" class="btn-3d btn-dark btn-sm" id="logoutSubscriberBtn">خروج</button>
+        <button type="button" class="btn btn-outline btn-sm" id="logoutSubscriberBtn">خروج</button>
       </div>
 
-      <button type="button" class="btn-3d" data-open-service="food">وجبات وسندوتشات</button>
-      <button type="button" class="btn-3d btn-amber" data-open-service="breakfast">فطار المدارس</button>
-      <button type="button" class="btn-3d btn-pink" data-open-service="market">هات من السوق</button>
+      <button type="button" class="btn" data-open-service="food">وجبات وسندوتشات</button>
+      <button type="button" class="btn" data-open-service="breakfast">فطار المدارس</button>
+      <button type="button" class="btn" data-open-service="market">هات من السوق</button>
 
       <div class="card" style="margin-top:18px; background:#f8fafc;">
-        <h3 style="margin-top:0; color:#15803d;">التحديات والرسائل المرسلة لك</h3>
-        <div id="myChallengesBox">لا توجد رسائل أو تحديات مرسلة لحسابك حالياً.</div>
+        <h3 style="margin-top:0;">التحديات والرسائل المرسلة لك</h3>
+        <div id="myChallengesBox">لا توجد تحديات مرسلة لحسابك حالياً.</div>
       </div>
 
       <div class="card" style="margin-top:14px; background:#f8fafc;">
-        <h3 style="margin-top:0; color:#1d4ed8;">طلباتي وردود الإدارة</h3>
+        <h3 style="margin-top:0;">طلباتي ورسائل الأدمن</h3>
         <div id="myOrdersList">لا توجد طلبات حتى الآن.</div>
       </div>
     </section>
 
     <!-- 3-أ. صفحة وجبات وسندوتشات -->
     <section id="serviceFoodScreen" class="card hidden">
-      <button type="button" class="btn-3d btn-dark btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
-      <h2 style="color:#1d4ed8;">وجبات وسندوتشات</h2>
+      <button type="button" class="btn btn-outline btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
+      <h2>وجبات وسندوتشات</h2>
 
       <label>صورة قائمة الطعام</label>
       <img id="foodMenuImg" class="zoomable-img hidden" src="" alt="قائمة الطعام" />
@@ -439,15 +392,15 @@
       <div class="receipt-prompt">قم بتصوير ايصال الدفع</div>
       <label for="foodReceiptInput">إرفاق إيصال التحويل (الكاميرا أو الاستوديو)</label>
       <input type="file" id="foodReceiptInput" accept="image/*" />
-      <button type="button" class="btn-3d btn-amber" id="foodConfirmReceiptBtn">تأكيد</button>
+      <button type="button" class="btn btn-secondary" id="foodConfirmReceiptBtn">تأكيد</button>
 
       <label for="foodOrderText">اكتب طلبك (حتى 1000 حرف)</label>
       <textarea id="foodOrderText" maxlength="1000" placeholder="اكتب تفاصيل طلبك هنا..."></textarea>
 
-      <button type="button" class="btn-3d btn-green" id="foodSendOrderBtn">إرسال</button>
+      <button type="button" class="btn btn-success" id="foodSendOrderBtn">إرسال</button>
 
       <div class="deliver-row">
-        <button type="button" class="btn-3d btn-sm" id="foodDeliveredBtn">تم وصول الطلب</button>
+        <button type="button" class="btn btn-outline btn-sm" id="foodDeliveredBtn">تم وصول الطلب</button>
         <span>اضغط الزرار بعد استلام الطلب</span>
       </div>
       <div id="foodStatusMsg"></div>
@@ -455,8 +408,8 @@
 
     <!-- 3-ب. صفحة فطار المدارس -->
     <section id="serviceBreakfastScreen" class="card hidden">
-      <button type="button" class="btn-3d btn-dark btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
-      <h2 style="color:#b45309;">فطار المدارس</h2>
+      <button type="button" class="btn btn-outline btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
+      <h2>فطار المدارس</h2>
 
       <label>صورة السندوتشات</label>
       <img id="breakfastMenuImg" class="zoomable-img hidden" src="" alt="صورة السندوتشات" />
@@ -468,15 +421,15 @@
       <div class="receipt-prompt">قم بتصوير ايصال الدفع</div>
       <label for="breakfastReceiptInput">إرفاق إيصال التحويل (الكاميرا أو الاستوديو)</label>
       <input type="file" id="breakfastReceiptInput" accept="image/*" />
-      <button type="button" class="btn-3d btn-amber" id="breakfastConfirmReceiptBtn">تأكيد</button>
+      <button type="button" class="btn btn-secondary" id="breakfastConfirmReceiptBtn">تأكيد</button>
 
       <label for="breakfastOrderText">اكتب طلبك (حتى 1000 حرف)</label>
       <textarea id="breakfastOrderText" maxlength="1000" placeholder="اكتب تفاصيل طلب فطار المدارس..."></textarea>
 
-      <button type="button" class="btn-3d btn-green" id="breakfastSendOrderBtn">إرسال</button>
+      <button type="button" class="btn btn-success" id="breakfastSendOrderBtn">إرسال</button>
 
       <div class="deliver-row">
-        <button type="button" class="btn-3d btn-sm" id="breakfastDeliveredBtn">تم استلام الطلب</button>
+        <button type="button" class="btn btn-outline btn-sm" id="breakfastDeliveredBtn">تم استلام الطلب</button>
         <span>اضغط الزرار بعد تسليم الطلب</span>
       </div>
       <div id="breakfastStatusMsg"></div>
@@ -484,8 +437,8 @@
 
     <!-- 3-ج. صفحة هات من السوق -->
     <section id="serviceMarketScreen" class="card hidden">
-      <button type="button" class="btn-3d btn-dark btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
-      <h2 style="color:#be185d;">هات من السوق</h2>
+      <button type="button" class="btn btn-outline btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
+      <h2>هات من السوق</h2>
 
       <label>أرقام استلام التحويلات كاش</label>
       <div class="cash-boxes" id="cashBoxesMarket"></div>
@@ -493,15 +446,15 @@
       <div class="receipt-prompt">قم بتصوير ايصال الدفع</div>
       <label for="marketReceiptInput">إرفاق إيصال التحويل (الكاميرا أو الاستوديو)</label>
       <input type="file" id="marketReceiptInput" accept="image/*" />
-      <button type="button" class="btn-3d btn-amber" id="marketConfirmReceiptBtn">تأكيد</button>
+      <button type="button" class="btn btn-secondary" id="marketConfirmReceiptBtn">تأكيد</button>
 
       <label for="marketOrderText">اكتب طلبك من السوق (حتى 1000 حرف)</label>
       <textarea id="marketOrderText" maxlength="1000" placeholder="اكتب طلبات السوق هنا..."></textarea>
 
-      <button type="button" class="btn-3d btn-green" id="marketSendOrderBtn">إرسال</button>
+      <button type="button" class="btn btn-success" id="marketSendOrderBtn">إرسال</button>
 
       <div class="deliver-row">
-        <button type="button" class="btn-3d btn-sm" id="marketDeliveredBtn">تم استلام الطلب</button>
+        <button type="button" class="btn btn-outline btn-sm" id="marketDeliveredBtn">تم استلام الطلب</button>
         <span>اضغط الزرار بعد تسليم الطلب</span>
       </div>
       <div id="marketStatusMsg"></div>
@@ -531,6 +484,7 @@
     const MAX_ATTEMPTS = 3;
     const SPLASH_DURATION_MS = 30000;
     const SESSION_KEY = "engz_active_subscriber";
+    const SAVED_CREDS_KEY = "engz_saved_credentials";
     const ATTEMPTS_KEY = "engz_attempts_count";
 
     const screens = [
@@ -557,7 +511,8 @@
     };
 
     let pendingRegisterPayload = null;
-    let splashInterval = null;
+    let pendingLoginCandidate = null;
+    let countdownTimer = null;
     let approvalRedirected = false;
 
     const lightboxEl = document.getElementById("imageLightbox");
@@ -628,6 +583,22 @@
 
     function clearActiveSubscriber() {
       localStorage.removeItem(SESSION_KEY);
+    }
+
+    function getSavedCredentials() {
+      try {
+        return JSON.parse(localStorage.getItem(SAVED_CREDS_KEY) || "null");
+      } catch {
+        return null;
+      }
+    }
+
+    function setSavedCredentials(creds) {
+      localStorage.setItem(SAVED_CREDS_KEY, JSON.stringify(creds));
+    }
+
+    function clearSavedCredentials() {
+      localStorage.removeItem(SAVED_CREDS_KEY);
     }
 
     function updateSubscriberBadge() {
@@ -730,6 +701,7 @@
       const current = list.find((s) => s.phone === sub.phone);
       if (!current || current.cancelled) {
         clearActiveSubscriber();
+        clearSavedCredentials();
         showScreen("authChoiceScreen");
         document.getElementById("authChoiceMsg").innerHTML =
           `<div class="msg msg-err">تم إلغاء اشتراكك من الإدارة.</div>`;
@@ -747,14 +719,14 @@
       const box = document.getElementById("myChallengesBox");
       if (!sub || !box) return;
       if (!snap.exists()) {
-        box.innerHTML = "لا توجد رسائل أو تحديات مرسلة لحسابك حالياً.";
+        box.innerHTML = "لا توجد تحديات مرسلة لحسابك حالياً.";
         return;
       }
       const list = Object.values(snap.val()).filter(
         (c) => Array.isArray(c.selectedPhones) && c.selectedPhones.includes(sub.phone)
       );
       if (!list.length) {
-        box.innerHTML = "لا توجد رسائل أو تحديات مرسلة لحسابك حالياً.";
+        box.innerHTML = "لا توجد تحديات مرسلة لحسابك حالياً.";
         return;
       }
       box.innerHTML = list.map((c) => {
@@ -794,30 +766,43 @@
       }).join("");
     });
 
-    function startSplash30Seconds() {
+    // العد التنازلي من 30 إلى 0 مع شريط تحميل يصل إلى 100% خلال 30 ثانية
+    function startSplashCountdown() {
       const startTime = Date.now();
-      const timerEl = document.getElementById("countdownDisplay");
-      const barEl = document.getElementById("splashProgressBar");
-      const textEl = document.getElementById("splashProgressText");
+      const el = document.getElementById("countdownDisplay");
+      const bar = document.getElementById("splashProgressBar");
+      const label = document.getElementById("splashProgressLabel");
 
-      splashInterval = setInterval(() => {
+      el.textContent = "30";
+      bar.style.width = "0%";
+      label.textContent = "0%";
+
+      countdownTimer = setInterval(() => {
         const elapsed = Date.now() - startTime;
         const pct = Math.min(100, Math.round((elapsed / SPLASH_DURATION_MS) * 100));
-        const remainingSec = Math.max(0, Math.ceil((SPLASH_DURATION_MS - elapsed) / 1000));
+        const remaining = Math.max(0, Math.ceil((SPLASH_DURATION_MS - elapsed) / 1000));
 
-        timerEl.textContent = String(remainingSec);
-        barEl.style.width = `${pct}%`;
-        textEl.textContent = `${pct}%`;
+        el.textContent = String(remaining);
+        bar.style.width = `${pct}%`;
+        label.textContent = `${pct}%`;
 
         if (elapsed >= SPLASH_DURATION_MS) {
-          clearInterval(splashInterval);
-          timerEl.textContent = "0";
-          barEl.style.width = "100%";
-          textEl.textContent = "100%";
+          clearInterval(countdownTimer);
+          el.textContent = "0";
+          bar.style.width = "100%";
+          label.textContent = "100%";
           showScreen("authChoiceScreen");
         }
       }, 100);
     }
+
+    document.getElementById("skipSplashBtn").addEventListener("click", () => {
+      clearInterval(countdownTimer);
+      document.getElementById("countdownDisplay").textContent = "0";
+      document.getElementById("splashProgressBar").style.width = "100%";
+      document.getElementById("splashProgressLabel").textContent = "100%";
+      showScreen("authChoiceScreen");
+    });
 
     document.getElementById("openRegisterBtn").addEventListener("click", () => {
       if (getLocalAttempts() >= MAX_ATTEMPTS) {
@@ -827,19 +812,12 @@
       showScreen("registerScreen");
     });
 
-    document.getElementById("openSubscriberBtn").addEventListener("click", async () => {
-      const sub = getActiveSubscriber();
-      if (sub) {
-        const snap = await get(ref(db, "subscribers"));
-        const list = snap.exists() ? Object.values(snap.val()) : [];
-        const active = list.find((s) => s.phone === sub.phone && !s.cancelled);
-        if (active) {
-          updateSubscriberBadge();
-          showScreen("servicesHomeScreen");
-          return;
-        }
-        clearActiveSubscriber();
-      }
+    // عند الضغط على مشترك: يطلب الاسم ورقم التليفون وتظهر رسالة هل تريد حفظ بيانات الدخول
+    document.getElementById("openSubscriberBtn").addEventListener("click", () => {
+      const saved = getSavedCredentials();
+      document.getElementById("subNameInput").value = saved?.name || "";
+      document.getElementById("subPhoneInput").value = saved?.phone || "";
+      document.getElementById("subLoginMsg").innerHTML = "";
       showScreen("subscriberLoginScreen");
     });
 
@@ -862,27 +840,73 @@
     });
 
     document.getElementById("subscriberEnterBtn").addEventListener("click", async () => {
+      const name = document.getElementById("subNameInput").value.trim();
       const phone = document.getElementById("subPhoneInput").value.trim();
       const msg = document.getElementById("subLoginMsg");
+
+      if (!name) {
+        msg.innerHTML = `<div class="msg msg-err">ادخل الاسم</div>`;
+        return;
+      }
       if (!isValidEgyptianPhone(phone)) {
         msg.innerHTML = `<div class="msg msg-err">ادخل رقم موبيل فعلى</div>`;
         return;
       }
+
       const snap = await get(ref(db, "subscribers"));
       const list = snap.exists() ? Object.values(snap.val()) : [];
-      const found = list.find((s) => s.phone === phone && !s.cancelled);
+      const found = list.find(
+        (s) => s.phone === phone && !s.cancelled && s.name && s.name.trim().toLowerCase() === name.toLowerCase()
+      );
+
       if (!found) {
-        msg.innerHTML = `<div class="msg msg-err">هذا الرقم غير مسجل كمشترك فعّال أو تم إلغاء اشتراكه.</div>`;
+        msg.innerHTML = `<div class="msg msg-err">الاسم أو رقم التليفون غير مطابق لحساب مشترك فعّال.</div>`;
         return;
       }
-      setActiveSubscriber({ name: found.name, phone: found.phone });
+
+      pendingLoginCandidate = { name: found.name.trim(), phone: found.phone.trim() };
+      document.getElementById("saveCredentialsSummary").innerHTML =
+        `الاسم: <strong>${pendingLoginCandidate.name}</strong><br/>رقم التليفون: <strong>${pendingLoginCandidate.phone}</strong>`;
+      document.getElementById("saveCredentialsModal").classList.remove("hidden");
+    });
+
+    document.getElementById("saveCredYesBtn").addEventListener("click", () => {
+      if (!pendingLoginCandidate) return;
+      const chosen = pendingLoginCandidate;
+      pendingLoginCandidate = null;
+      document.getElementById("saveCredentialsModal").classList.add("hidden");
+
+      setSavedCredentials(chosen);
+      setActiveSubscriber(chosen);
       updateSubscriberBadge();
       showScreen("servicesHomeScreen");
+    });
+
+    document.getElementById("saveCredNoBtn").addEventListener("click", () => {
+      pendingLoginCandidate = null;
+      document.getElementById("saveCredentialsModal").classList.add("hidden");
+
+      clearSavedCredentials();
+      clearActiveSubscriber();
+      document.getElementById("subNameInput").value = "";
+      document.getElementById("subPhoneInput").value = "";
+      document.getElementById("subLoginMsg").innerHTML =
+        `<div class="msg msg-info">لم يتم حفظ بيانات الدخول. أدخل الاسم ورقم التليفون ثم اضغط دخول إلى الخدمات.</div>`;
     });
 
     document.getElementById("logoutSubscriberBtn").addEventListener("click", () => {
       clearActiveSubscriber();
       showScreen("authChoiceScreen");
+    });
+
+    let regStudioBase64 = "";
+    document.getElementById("regStudioPhoto").addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) {
+        regStudioBase64 = "";
+        return;
+      }
+      regStudioBase64 = await fileToBase64(file);
     });
 
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
@@ -937,6 +961,7 @@
       pendingRegisterPayload = {
         name,
         phone,
+        studioPhoto: regStudioBase64 || "",
         attemptNumber: currentAttempts + 1
       };
 
@@ -964,6 +989,7 @@
       await set(reqRef, {
         name: payload.name,
         phone: payload.phone,
+        studioPhoto: payload.studioPhoto || "",
         attemptNumber: nextAttempt,
         status: "pending",
         createdAt: new Date().toISOString()
@@ -972,6 +998,7 @@
       document.getElementById("registerMsg").innerHTML =
         `<div class="msg msg-info">تم تأكيد وإرسال طلب التسجيل (المحاولة ${nextAttempt} من ${MAX_ATTEMPTS}) وهو بانتظار قرار الأدمن.</div>`;
       document.getElementById("registerForm").reset();
+      regStudioBase64 = "";
     });
 
     document.querySelectorAll("[data-open-service]").forEach((btn) => {
@@ -1057,89 +1084,4 @@
 
         const newOrderRef = push(ref(db, "orders"));
         await set(newOrderRef, {
-          orderNumber: nextOrderNumber,
-          serviceKey: cfg.key,
-          serviceLabel: cfg.label,
-          subscriberName: sub.name,
-          phone: sub.phone,
-          details,
-          receiptImage: receiptToSend,
-          adminMessage: "",
-          adminImage: "",
-          status: "active",
-          createdAt: new Date().toISOString()
-        });
-
-        textInput.value = "";
-        fileInput.value = "";
-        tempReceiptBase64 = "";
-        confirmedReceipts[cfg.key] = "";
-
-        statusBox.innerHTML = `<div class="msg msg-ok">تم إرسال الطلب رقم #${nextOrderNumber} بنجاح.</div>`;
-      });
-
-      deliveredBtn.addEventListener("click", async () => {
-        const sub = getActiveSubscriber();
-        if (!sub) return;
-        const ordersSnap = await get(ref(db, "orders"));
-        if (!ordersSnap.exists()) return;
-
-        const entries = Object.entries(ordersSnap.val());
-        const target = [...entries].reverse().find(
-          ([, o]) => o.phone === sub.phone && o.serviceKey === cfg.key && o.status === "active"
-        );
-        if (!target) {
-          statusBox.innerHTML = `<div class="msg msg-info">لا يوجد طلب نشط حالياً في هذا القسم.</div>`;
-          return;
-        }
-        const [orderId, orderData] = target;
-        await update(ref(db, `orders/${orderId}`), {
-          status: "completed",
-          completedBy: "subscriber",
-          completedAt: new Date().toISOString()
-        });
-        statusBox.innerHTML = `<div class="msg msg-ok">تم تأكيد استلام الطلب رقم #${orderData.orderNumber} ونقله إلى الطلبات المنتهية.</div>`;
-      });
-    }
-
-    initServicePage({
-      key: "food",
-      label: "وجبات وسندوتشات",
-      fileInputId: "foodReceiptInput",
-      confirmBtnId: "foodConfirmReceiptBtn",
-      textInputId: "foodOrderText",
-      sendBtnId: "foodSendOrderBtn",
-      deliveredBtnId: "foodDeliveredBtn",
-      statusBoxId: "foodStatusMsg"
-    });
-
-    initServicePage({
-      key: "breakfast",
-      label: "فطار المدارس",
-      fileInputId: "breakfastReceiptInput",
-      confirmBtnId: "breakfastConfirmReceiptBtn",
-      textInputId: "breakfastOrderText",
-      sendBtnId: "breakfastSendOrderBtn",
-      deliveredBtnId: "breakfastDeliveredBtn",
-      statusBoxId: "breakfastStatusMsg"
-    });
-
-    initServicePage({
-      key: "market",
-      label: "هات من السوق",
-      fileInputId: "marketReceiptInput",
-      confirmBtnId: "marketConfirmReceiptBtn",
-      textInputId: "marketOrderText",
-      sendBtnId: "marketSendOrderBtn",
-      deliveredBtnId: "marketDeliveredBtn",
-      statusBoxId: "marketStatusMsg"
-    });
-
-    if (getLocalAttempts() >= MAX_ATTEMPTS) {
-      showPermanentReject();
-    } else {
-      startSplash30Seconds();
-    }
-  </script>
-</body>
-</html>
+     
