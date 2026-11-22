@@ -44,14 +44,33 @@
     }
     .nav-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 12px;
       margin-bottom: 18px;
+      align-items: end;
+    }
+    .nav-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .stat-above-btn {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 900;
+      color: #ffffff;
+      background: rgba(15, 23, 42, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 10px;
+      padding: 4px 8px;
+      margin-bottom: 6px;
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.2);
     }
 
     /* مفاتيح 3D بإحساس حقيقي عند الضغط */
     .btn {
       display: inline-block;
+      width: 100%;
       padding: 11px 14px;
       border: none;
       border-radius: 14px;
@@ -101,6 +120,7 @@
       box-shadow: 0 1px 0 #0f172a, 0 3px 6px rgba(15, 23, 42, 0.2);
     }
     .btn-outline {
+      width: auto;
       background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
       color: #1d4ed8;
       border: 2px solid #93c5fd;
@@ -110,6 +130,7 @@
       box-shadow: 0 1px 0 #0284c7;
     }
     .btn-sm {
+      width: auto;
       padding: 7px 12px;
       font-size: 12px;
       border-radius: 11px;
@@ -241,12 +262,32 @@
     <!-- لوحة الأدمن بعد التحقق من كلمة السر -->
     <div id="adminDashboard" class="hidden">
       <div class="nav-grid">
-        <button type="button" class="btn" data-admin-tab="subscribersTab">المشتركين</button>
-        <button type="button" class="btn btn-warning" data-admin-tab="requestsTab">طلبات التسجيل</button>
-        <button type="button" class="btn btn-success" data-admin-tab="ordersTab">الطلبات</button>
-        <button type="button" class="btn btn-danger" data-admin-tab="completedTab">طلبات منتهيه</button>
-        <button type="button" class="btn" data-admin-tab="challengeTab">تحدى</button>
-        <button type="button" class="btn btn-secondary" data-admin-tab="settingsTab">إعدادات الصور والكاش</button>
+        <div class="nav-slot">
+          <div class="stat-above-btn" id="subscribersCountBadge">المشتركين: 0</div>
+          <button type="button" class="btn" data-admin-tab="subscribersTab">المشتركين</button>
+        </div>
+
+        <div class="nav-slot">
+          <div class="stat-above-btn" id="requestsCountBadge">طلبات التسجيل: 0</div>
+          <button type="button" class="btn btn-warning" data-admin-tab="requestsTab">طلبات التسجيل</button>
+        </div>
+
+        <div class="nav-slot">
+          <div class="stat-above-btn" id="ordersCountBadge">الطلبات: 0</div>
+          <button type="button" class="btn btn-success" data-admin-tab="ordersTab">الطلبات</button>
+        </div>
+
+        <div class="nav-slot">
+          <button type="button" class="btn btn-danger" data-admin-tab="completedTab">طلبات منتهيه</button>
+        </div>
+
+        <div class="nav-slot">
+          <button type="button" class="btn" data-admin-tab="challengeTab">تحدى</button>
+        </div>
+
+        <div class="nav-slot">
+          <button type="button" class="btn btn-secondary" data-admin-tab="settingsTab">إعدادات الصور والكاش</button>
+        </div>
       </div>
 
       <!-- 1. المشتركين (العادية + وضع اختيار المشتركين للتحدي) -->
@@ -320,7 +361,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
     import {
-      getDatabase, ref, get, set, push, update, remove, onValue
+      getDatabase, ref, set, push, update, remove, onValue
     } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -353,6 +394,16 @@
       cashPool: ["", "", "", "", "", "", ""],
       selectedCashIndexes: [0, 1, 2]
     };
+
+    function updateNavCounts() {
+      const activeSubsCount = subscribersCache.filter((s) => !s.cancelled).length;
+      const pendingReqsCount = requestsCache.filter((r) => r.status === "pending").length;
+      const activeOrdersCount = ordersCache.filter((o) => o.status !== "completed").length;
+
+      document.getElementById("subscribersCountBadge").textContent = `المشتركين: ${activeSubsCount}`;
+      document.getElementById("requestsCountBadge").textContent = `طلبات التسجيل: ${pendingReqsCount}`;
+      document.getElementById("ordersCountBadge").textContent = `الطلبات: ${activeOrdersCount}`;
+    }
 
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
@@ -560,6 +611,7 @@
       subscribersCache = snap.exists()
         ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
         : [];
+      updateNavCounts();
       renderSubscribers();
     });
 
@@ -567,6 +619,7 @@
       requestsCache = snap.exists()
         ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
         : [];
+      updateNavCounts();
 
       const box = document.getElementById("requestsList");
       const pendingList = requestsCache.filter((r) => r.status === "pending");
@@ -624,6 +677,7 @@
       ordersCache = snap.exists()
         ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
         : [];
+      updateNavCounts();
 
       const activeBox = document.getElementById("activeOrdersList");
       const completedBox = document.getElementById("completedOrdersList");
