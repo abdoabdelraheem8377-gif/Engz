@@ -113,7 +113,7 @@
       height: 100%;
       width: 0%;
       background: #0b5ed7;
-      transition: width 0.25s linear;
+      transition: width 0.2s linear;
     }
     .progress-label {
       margin-top: 8px;
@@ -461,6 +461,51 @@
     </section>
   </div>
 
+  <!-- سكريبت مستقل للمؤقت التنازلي وشريط التحميل لضمان عمله فوراً -->
+  <script>
+    (function () {
+      const DURATION_MS = 30000;
+      const startTime = Date.now();
+      const countdownEl = document.getElementById("countdownDisplay");
+      const barEl = document.getElementById("splashProgressBar");
+      const labelEl = document.getElementById("splashProgressLabel");
+      const splashEl = document.getElementById("splashScreen");
+      const authEl = document.getElementById("authChoiceScreen");
+      const skipBtn = document.getElementById("skipSplashBtn");
+
+      function finishSplash() {
+        clearInterval(intervalId);
+        countdownEl.textContent = "0";
+        barEl.style.width = "100%";
+        labelEl.textContent = "100%";
+        splashEl.classList.add("hidden");
+        authEl.classList.remove("hidden");
+      }
+
+      const intervalId = setInterval(function () {
+        if (splashEl.classList.contains("hidden")) {
+          clearInterval(intervalId);
+          return;
+        }
+        const elapsed = Date.now() - startTime;
+        const pct = Math.min(100, Math.round((elapsed / DURATION_MS) * 100));
+        const remaining = Math.max(0, Math.ceil((DURATION_MS - elapsed) / 1000));
+
+        countdownEl.textContent = String(remaining);
+        barEl.style.width = pct + "%";
+        labelEl.textContent = pct + "%";
+
+        if (elapsed >= DURATION_MS) {
+          finishSplash();
+        }
+      }, 100);
+
+      if (skipBtn) {
+        skipBtn.addEventListener("click", finishSplash);
+      }
+    })();
+  </script>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
     import {
@@ -482,7 +527,6 @@
     const db = getDatabase(app);
 
     const MAX_ATTEMPTS = 3;
-    const SPLASH_DURATION_MS = 30000;
     const SESSION_KEY = "engz_active_subscriber";
     const SAVED_CREDS_KEY = "engz_saved_credentials";
     const ATTEMPTS_KEY = "engz_attempts_count";
@@ -512,7 +556,6 @@
 
     let pendingRegisterPayload = null;
     let pendingLoginCandidate = null;
-    let countdownTimer = null;
     let approvalRedirected = false;
 
     const lightboxEl = document.getElementById("imageLightbox");
@@ -766,44 +809,6 @@
       }).join("");
     });
 
-    // العد التنازلي من 30 إلى 0 مع شريط تحميل يصل إلى 100% خلال 30 ثانية
-    function startSplashCountdown() {
-      const startTime = Date.now();
-      const el = document.getElementById("countdownDisplay");
-      const bar = document.getElementById("splashProgressBar");
-      const label = document.getElementById("splashProgressLabel");
-
-      el.textContent = "30";
-      bar.style.width = "0%";
-      label.textContent = "0%";
-
-      countdownTimer = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const pct = Math.min(100, Math.round((elapsed / SPLASH_DURATION_MS) * 100));
-        const remaining = Math.max(0, Math.ceil((SPLASH_DURATION_MS - elapsed) / 1000));
-
-        el.textContent = String(remaining);
-        bar.style.width = `${pct}%`;
-        label.textContent = `${pct}%`;
-
-        if (elapsed >= SPLASH_DURATION_MS) {
-          clearInterval(countdownTimer);
-          el.textContent = "0";
-          bar.style.width = "100%";
-          label.textContent = "100%";
-          showScreen("authChoiceScreen");
-        }
-      }, 100);
-    }
-
-    document.getElementById("skipSplashBtn").addEventListener("click", () => {
-      clearInterval(countdownTimer);
-      document.getElementById("countdownDisplay").textContent = "0";
-      document.getElementById("splashProgressBar").style.width = "100%";
-      document.getElementById("splashProgressLabel").textContent = "100%";
-      showScreen("authChoiceScreen");
-    });
-
     document.getElementById("openRegisterBtn").addEventListener("click", () => {
       if (getLocalAttempts() >= MAX_ATTEMPTS) {
         showPermanentReject();
@@ -812,7 +817,6 @@
       showScreen("registerScreen");
     });
 
-    // عند الضغط على مشترك: يطلب الاسم ورقم التليفون وتظهر رسالة هل تريد حفظ بيانات الدخول
     document.getElementById("openSubscriberBtn").addEventListener("click", () => {
       const saved = getSavedCredentials();
       document.getElementById("subNameInput").value = saved?.name || "";
@@ -1164,8 +1168,6 @@
 
     if (getLocalAttempts() >= MAX_ATTEMPTS) {
       showPermanentReject();
-    } else {
-      startSplashCountdown();
     }
   </script>
 </body>
