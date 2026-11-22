@@ -8,24 +8,21 @@
     * { box-sizing: border-box; }
     body {
       font-family: Tahoma, Arial, sans-serif;
+      background: #eef2f6;
       margin: 0;
       padding: 16px;
-      min-height: 100vh;
       color: #0f172a;
-      background: linear-gradient(135deg, #1e1b4b 0%, #0284c7 52%, #10b981 100%);
-      background-attachment: fixed;
     }
     .container {
       max-width: 780px;
       margin: 0 auto;
     }
     .card {
-      background: rgba(255, 255, 255, 0.96);
-      border-radius: 20px;
-      padding: 22px;
-      margin-bottom: 18px;
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.25);
-      border: 2px solid rgba(255, 255, 255, 0.85);
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.07);
     }
     .hidden { display: none !important; }
     .topbar {
@@ -34,96 +31,62 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .brand {
-      font-size: 24px;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
+      font-size: 22px;
+      font-weight: bold;
+      color: #0b5ed7;
     }
     .nav-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 10px;
-      margin-bottom: 18px;
+      gap: 8px;
+      margin-bottom: 16px;
     }
-
-    .btn-3d {
-      padding: 11px 14px;
+    .btn {
+      padding: 10px 12px;
       border: none;
-      border-radius: 13px;
-      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+      border-radius: 10px;
+      background: #0b5ed7;
       color: #ffffff;
       font-size: 14px;
       font-weight: bold;
       cursor: pointer;
       text-decoration: none;
       text-align: center;
-      box-shadow: 0 5px 0 #1e3a8a, 0 8px 16px rgba(29, 78, 216, 0.3);
-      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
     }
-    .btn-3d:hover { filter: brightness(1.05); }
-    .btn-3d:active {
-      transform: translateY(4px);
-      box-shadow: 0 1px 0 #1e3a8a, 0 3px 8px rgba(29, 78, 216, 0.2);
+    .btn-success { background: #15803d; }
+    .btn-danger { background: #b91c1c; }
+    .btn-warning { background: #b45309; }
+    .btn-secondary { background: #334155; }
+    .btn-outline {
+      background: #ffffff;
+      color: #0b5ed7;
+      border: 1.5px solid #0b5ed7;
     }
-    .btn-green {
-      background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
-      box-shadow: 0 5px 0 #14532d, 0 8px 16px rgba(21, 128, 61, 0.3);
-    }
-    .btn-green:active { box-shadow: 0 1px 0 #14532d; }
-    .btn-red {
-      background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
-      box-shadow: 0 5px 0 #7f1d1d, 0 8px 16px rgba(185, 28, 28, 0.3);
-    }
-    .btn-red:active { box-shadow: 0 1px 0 #7f1d1d; }
-    .btn-amber {
-      background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
-      box-shadow: 0 5px 0 #78350f, 0 8px 16px rgba(180, 83, 9, 0.3);
-    }
-    .btn-amber:active { box-shadow: 0 1px 0 #78350f; }
-    .btn-dark {
-      background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
-      box-shadow: 0 5px 0 #0f172a, 0 8px 16px rgba(15, 23, 42, 0.25);
-    }
-    .btn-dark:active { box-shadow: 0 1px 0 #0f172a; }
     .btn-sm {
-      padding: 7px 11px;
+      padding: 6px 10px;
       font-size: 12px;
-      border-radius: 10px;
-      box-shadow: 0 4px 0 rgba(15, 23, 42, 0.35);
     }
-    .btn-sm:active { transform: translateY(3px); }
-
     input[type="password"],
     input[type="text"],
     input[type="tel"],
     textarea {
       width: 100%;
-      padding: 11px;
-      border: 2px solid #cbd5e1;
-      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
       font-size: 14px;
       margin-top: 6px;
-      background: #f8fafc;
-    }
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: #2563eb;
-      background: #ffffff;
     }
     textarea { min-height: 150px; resize: vertical; }
-
     .item-card {
-      border: 1px solid #cbd5e1;
-      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
       padding: 14px;
-      margin-top: 12px;
-      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05);
+      margin-top: 10px;
+      background: #f8fafc;
     }
     .actions-row {
       display: flex;
@@ -135,24 +98,23 @@
     .receipt-thumb {
       max-width: 220px;
       max-height: 180px;
-      border-radius: 10px;
+      border-radius: 8px;
       margin-top: 8px;
-      border: 2px solid #cbd5e1;
+      border: 1px solid #cbd5e1;
       display: block;
     }
     .msg {
-      padding: 11px;
-      border-radius: 12px;
+      padding: 10px;
+      border-radius: 10px;
       margin-top: 10px;
       font-size: 14px;
-      font-weight: bold;
     }
-    .msg-err { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-    .msg-ok { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .msg-err { background: #fee2e2; color: #991b1b; }
+    .msg-ok { background: #dcfce7; color: #166534; }
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.65);
+      background: rgba(15, 23, 42, 0.55);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -161,8 +123,8 @@
     }
     .modal-card {
       background: #ffffff;
-      border-radius: 18px;
-      padding: 22px;
+      border-radius: 14px;
+      padding: 20px;
       max-width: 420px;
       width: 100%;
     }
@@ -179,13 +141,13 @@
   <!-- نافذة تأكيد إلغاء الاشتراك نهائياً -->
   <div id="cancelConfirmModal" class="modal-backdrop hidden">
     <div class="modal-card">
-      <h3 style="margin-top:0; color:#b91c1c;">تأكيد إلغاء الاشتراك</h3>
+      <h3 style="margin-top:0;">تأكيد إلغاء الاشتراك</h3>
       <p id="cancelPromptLine1"></p>
       <p id="cancelPromptLine2"></p>
       <p>هل تريد مسح المشترك نهائيا من قاعده المشتركين</p>
       <div class="actions-row">
-        <button type="button" class="btn-3d btn-red" id="confirmCancelYesBtn">نعم</button>
-        <button type="button" class="btn-3d btn-dark" id="confirmCancelNoBtn">لا</button>
+        <button type="button" class="btn btn-danger" id="confirmCancelYesBtn">نعم</button>
+        <button type="button" class="btn btn-secondary" id="confirmCancelNoBtn">لا</button>
       </div>
     </div>
   </div>
@@ -193,39 +155,40 @@
   <div class="container">
     <div class="topbar">
       <div class="brand">لوحة تحكم الأدمن - Engz</div>
+      <a href="index.html" class="btn btn-outline btn-sm">صفحة المستخدم</a>
     </div>
 
     <!-- شاشة حماية الأدمن بكلمة السر 3852 -->
     <section id="adminLockCard" class="card">
-      <h2 style="margin-top:0; color:#1e3a8a;">دخول الأدمن</h2>
+      <h2 style="margin-top:0;">دخول الأدمن</h2>
       <label for="adminPassInput">أدخل كلمة السر</label>
       <input type="password" id="adminPassInput" placeholder="أدخل كلمة السر" />
-      <button type="button" class="btn-3d" style="width:100%; margin-top:14px;" id="adminUnlockBtn">دخول</button>
+      <button type="button" class="btn" style="width:100%; margin-top:12px;" id="adminUnlockBtn">دخول</button>
       <div id="adminLockMsg"></div>
     </section>
 
     <!-- لوحة الأدمن بعد التحقق من كلمة السر -->
     <div id="adminDashboard" class="hidden">
       <div class="nav-grid">
-        <button type="button" class="btn-3d" data-admin-tab="subscribersTab">المشتركين</button>
-        <button type="button" class="btn-3d btn-amber" data-admin-tab="requestsTab">طلبات التسجيل</button>
-        <button type="button" class="btn-3d btn-green" data-admin-tab="ordersTab">الطلبات</button>
-        <button type="button" class="btn-3d btn-dark" data-admin-tab="completedTab">طلبات منتهيه</button>
-        <button type="button" class="btn-3d btn-red" data-admin-tab="challengeTab">تحدى</button>
-        <button type="button" class="btn-3d" data-admin-tab="settingsTab">إعدادات الصور والكاش</button>
+        <button type="button" class="btn" data-admin-tab="subscribersTab">المشتركين</button>
+        <button type="button" class="btn" data-admin-tab="requestsTab">طلبات التسجيل</button>
+        <button type="button" class="btn" data-admin-tab="ordersTab">الطلبات</button>
+        <button type="button" class="btn" data-admin-tab="completedTab">طلبات منتهيه</button>
+        <button type="button" class="btn" data-admin-tab="challengeTab">تحدى</button>
+        <button type="button" class="btn btn-secondary" data-admin-tab="settingsTab">إعدادات الصور والكاش</button>
       </div>
 
-      <!-- 1. المشتركين -->
+      <!-- 1. المشتركين (العادية + وضع اختيار المشتركين للتحدي) -->
       <section id="subscribersTab" class="card">
         <div class="topbar">
-          <h2 style="margin:0; color:#1e3a8a;">المشتركين</h2>
+          <h2 style="margin:0;">المشتركين</h2>
           <div id="challengeSelectionBar" class="hidden" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <label style="margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
               <input type="checkbox" id="selectAllChallengeCheckbox" />
               تحديد الكل
             </label>
-            <button type="button" class="btn-3d btn-green btn-sm" id="confirmChallengeSendBtn">تأكيد إرسال التحدي</button>
-            <button type="button" class="btn-3d btn-dark btn-sm" id="cancelChallengeSelectBtn">إلغاء</button>
+            <button type="button" class="btn btn-success btn-sm" id="confirmChallengeSendBtn">تأكيد إرسال التحدي</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="cancelChallengeSelectBtn">إلغاء</button>
           </div>
         </div>
         <div id="challengeBanner" class="msg msg-ok hidden"></div>
@@ -234,37 +197,37 @@
 
       <!-- 2. طلبات التسجيل -->
       <section id="requestsTab" class="card hidden">
-        <h2 style="margin-top:0; color:#b45309;">طلبات التسجيل</h2>
+        <h2 style="margin-top:0;">طلبات التسجيل</h2>
         <div id="requestsList">جاري التحميل...</div>
       </section>
 
       <!-- 3. الطلبات -->
       <section id="ordersTab" class="card hidden">
-        <h2 style="margin-top:0; color:#15803d;">الطلبات</h2>
+        <h2 style="margin-top:0;">الطلبات</h2>
         <div id="activeOrdersList">جاري التحميل...</div>
       </section>
 
       <!-- 4. طلبات منتهيه -->
       <section id="completedTab" class="card hidden">
-        <h2 style="margin-top:0; color:#1e293b;">طلبات منتهيه</h2>
+        <h2 style="margin-top:0;">طلبات منتهيه</h2>
         <div id="completedOrdersList">جاري التحميل...</div>
         <div style="margin-top:18px; text-align:left;">
-          <button type="button" class="btn-3d btn-red" id="clearCompletedBtn">🗑️ حذف كل الطلبات المنتهية</button>
+          <button type="button" class="btn btn-danger" id="clearCompletedBtn">🗑️ حذف كل الطلبات المنتهية</button>
         </div>
       </section>
 
       <!-- 5. تحدى (5000 حرف) -->
       <section id="challengeTab" class="card hidden">
-        <h2 style="margin-top:0; color:#b91c1c;">تحدى</h2>
+        <h2 style="margin-top:0;">تحدى</h2>
         <label for="challengeTextArea">اكتب التحدي أو الطلب (حتى 5000 حرف)</label>
         <textarea id="challengeTextArea" maxlength="5000" placeholder="اكتب نص التحدي هنا..."></textarea>
-        <button type="button" class="btn-3d btn-green" style="width:100%; margin-top:14px;" id="goSelectChallengeSubscribersBtn">إرسال</button>
+        <button type="button" class="btn btn-success" style="width:100%; margin-top:12px;" id="goSelectChallengeSubscribersBtn">إرسال</button>
         <div id="challengeMsg"></div>
       </section>
 
       <!-- 6. إعدادات الصور و7 أرقام كاش (اختيار 3 منها) -->
       <section id="settingsTab" class="card hidden">
-        <h2 style="margin-top:0; color:#1e3a8a;">إعدادات الصور وأرقام الكاش</h2>
+        <h2 style="margin-top:0;">إعدادات الصور وأرقام الكاش</h2>
 
         <label for="foodMenuFileInput">صورة قائمة الطعام (صفحة وجبات وسندوتشات - من الاستوديو)</label>
         <input type="file" id="foodMenuFileInput" accept="image/*" />
@@ -277,7 +240,7 @@
         <label style="margin-top:16px;">7 أرقام موبيل للكاش (عدّل أي رقم واختر 3 أرقام للظهور في صفحات الخدمات)</label>
         <div id="sevenCashInputs"></div>
 
-        <button type="button" class="btn-3d btn-green" style="width:100%; margin-top:14px;" id="saveSettingsBtn">حفظ الإعدادات</button>
+        <button type="button" class="btn btn-success" style="width:100%; margin-top:14px;" id="saveSettingsBtn">حفظ الإعدادات</button>
         <div id="settingsMsg"></div>
       </section>
     </div>
@@ -286,7 +249,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
     import {
-      getDatabase, ref, set, push, update, remove, onValue
+      getDatabase, ref, get, set, push, update, remove, onValue
     } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -358,6 +321,7 @@
       });
     });
 
+    // بناء 7 خانات أرقام الكاش مع اختيار 3 أرقام
     function renderSevenCashForm() {
       const wrap = document.getElementById("sevenCashInputs");
       const pool = settingsState.cashPool || ["", "", "", "", "", "", ""];
@@ -449,6 +413,7 @@
         `<div class="msg msg-ok">تم حفظ صور القوائم والأرقام الثلاثة المختارة بنجاح.</div>`;
     });
 
+    // عرض المشتركين + إلغاء الاشتراك + تجميد العضوية + تحديد التحدي
     function renderSubscribers() {
       const box = document.getElementById("subscribersList");
       const activeSubs = subscribersCache.filter((s) => !s.cancelled);
@@ -470,10 +435,10 @@
                    إدخال في التحدي
                  </label>`
               : `<div class="actions-row" style="margin-top:0;">
-                   <button type="button" class="btn-3d btn-amber btn-sm toggle-freeze-btn" data-id="${sub.id}" data-frozen="${sub.frozen ? "1" : "0"}">
+                   <button type="button" class="btn btn-warning btn-sm toggle-freeze-btn" data-id="${sub.id}" data-frozen="${sub.frozen ? "1" : "0"}">
                      ${sub.frozen ? "فك التجميد" : "تجميد"}
                    </button>
-                   <button type="button" class="btn-3d btn-red btn-sm cancel-sub-btn" data-id="${sub.id}" data-name="${sub.name}" data-phone="${sub.phone}">
+                   <button type="button" class="btn btn-danger btn-sm cancel-sub-btn" data-id="${sub.id}" data-name="${sub.name}" data-phone="${sub.phone}">
                      الغاء الاشتراك
                    </button>
                  </div>`
@@ -529,6 +494,7 @@
       renderSubscribers();
     });
 
+    // طلبات التسجيل: تأكيد / رفض
     onValue(ref(db, "registrationRequests"), (snap) => {
       requestsCache = snap.exists()
         ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
@@ -545,9 +511,10 @@
       box.innerHTML = pendingList.map((r) => `
         <div class="item-card">
           <div><strong>${r.name}</strong> — <span>${r.phone}</span> (المحاولة ${r.attemptNumber || 1} من 3)</div>
+          ${r.photo ? `<img src="${r.photo}" class="receipt-thumb" alt="صورة المستخدم" />` : ""}
           <div class="actions-row">
-            <button type="button" class="btn-3d btn-green btn-sm approve-req-btn" data-id="${r.id}" data-name="${r.name}" data-phone="${r.phone}">تأكيد</button>
-            <button type="button" class="btn-3d btn-red btn-sm reject-req-btn" data-id="${r.id}">رفض</button>
+            <button type="button" class="btn btn-success btn-sm approve-req-btn" data-id="${r.id}" data-name="${r.name}" data-phone="${r.phone}">تأكيد</button>
+            <button type="button" class="btn btn-danger btn-sm reject-req-btn" data-id="${r.id}">رفض</button>
           </div>
         </div>
       `).join("");
@@ -585,6 +552,7 @@
       });
     });
 
+    // الطلبات النشطة والطلبات المنتهية
     onValue(ref(db, "orders"), (snap) => {
       ordersCache = snap.exists()
         ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
@@ -613,12 +581,12 @@
 
             <div class="actions-row">
               <input type="text" id="replyInput_${o.id}" value="${o.adminMessage || ""}" placeholder="اكتب رسالة أو استفسار للمشترك..." style="flex:1; min-width:200px; margin-top:0;" />
-              <button type="button" class="btn-3d btn-sm send-reply-btn" data-id="${o.id}">ارسال</button>
+              <button type="button" class="btn btn-sm send-reply-btn" data-id="${o.id}">ارسال</button>
             </div>
 
             <div class="actions-row">
-              <button type="button" class="btn-3d btn-green btn-sm admin-complete-order-btn" data-id="${o.id}">تأكيد استلام الطلب</button>
-              <button type="button" class="btn-3d btn-amber btn-sm admin-freeze-from-order-btn" data-phone="${o.phone}">تجميد</button>
+              <button type="button" class="btn btn-success btn-sm admin-complete-order-btn" data-id="${o.id}">تأكيد استلام الطلب</button>
+              <button type="button" class="btn btn-warning btn-sm admin-freeze-from-order-btn" data-phone="${o.phone}">تجميد</button>
             </div>
           </div>
         `).join("");
@@ -671,12 +639,14 @@
       }
     });
 
+    // حذف كل الطلبات المنتهية من سلة المحذوفات
     document.getElementById("clearCompletedBtn").addEventListener("click", async () => {
       const completedOnly = ordersCache.filter((o) => o.status === "completed");
       if (!completedOnly.length) return;
       await Promise.all(completedOnly.map((o) => remove(ref(db, `orders/${o.id}`))));
     });
 
+    // التحديات: كتابة حتى 5000 حرف -> الانتقال للمشتركين مع مربعات الاختيار وتحديد الكل
     document.getElementById("goSelectChallengeSubscribersBtn").addEventListener("click", () => {
       const text = document.getElementById("challengeTextArea").value.trim();
       const msg = document.getElementById("challengeMsg");
