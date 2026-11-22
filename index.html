@@ -125,6 +125,7 @@
     }
     input[type="text"],
     input[type="tel"],
+    input[type="file"],
     textarea {
       width: 100%;
       padding: 12px;
@@ -203,14 +204,22 @@
       font-weight: bold;
       color: #1e3a8a;
       word-break: break-all;
+      cursor: pointer;
     }
-    .preview-img {
+    .zoomable-img {
       max-width: 100%;
       max-height: 250px;
       border-radius: 12px;
       margin-top: 10px;
       border: 2px solid #cbd5e1;
       display: block;
+      cursor: zoom-in;
+    }
+    .receipt-prompt {
+      margin: 14px 0 6px;
+      font-size: 15px;
+      font-weight: bold;
+      color: #be185d;
     }
     .msg {
       padding: 12px;
@@ -292,9 +301,34 @@
       width: 100%;
       box-shadow: 0 18px 36px rgba(15, 23, 42, 0.35);
     }
+
+    /* تكبير الصور عند الضغط عليها مباشرة */
+    #imageLightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 3000;
+      cursor: zoom-out;
+    }
+    #imageLightbox img {
+      max-width: 96vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      object-fit: contain;
+    }
   </style>
 </head>
 <body>
+  <!-- نافذة تكبير الصور الفورية عند الضغط على أي صورة -->
+  <div id="imageLightbox" class="hidden" title="اضغط للإغلاق">
+    <img id="lightboxImg" src="" alt="صورة مكبرة" />
+  </div>
+
   <!-- شاشة خضراء ثابتة بلا أي اختيارات عند رفض الطلب 3 مرات -->
   <div id="permanentRejectScreen" class="hidden">
     <h1>تم رفض طلبك</h1>
@@ -318,7 +352,7 @@
       <button type="button" class="btn-3d btn-amber btn-sm" id="goServicesTopBtn">الخدمات</button>
     </div>
 
-    <!-- 1. الشاشة الرئيسية: مؤقت 30 ثانية + شريط تحميل يصل إلى 100% خلال 30 ثانية (بدون زر انتقال الآن) -->
+    <!-- 1. الشاشة الرئيسية: مؤقت 30 ثانية + شريط تحميل يصل إلى 100% خلال 30 ثانية -->
     <section id="splashScreen" class="card" style="text-align:center;">
       <h2 style="margin-top:0; color:#1e40af;">مرحباً بك في تطبيق Engz</h2>
       <p style="color:#475569;">جاري تجهيز التطبيق... سيتم الانتقال تلقائياً إلى صفحة التسجيل بعد انتهاء الـ 30 ثانية</p>
@@ -339,7 +373,7 @@
       <div id="authChoiceMsg"></div>
     </section>
 
-    <!-- 2-أ. صفحة الاشتراك (بدون إضافة صورة من الاستوديو) -->
+    <!-- 2-أ. صفحة الاشتراك -->
     <section id="registerScreen" class="card hidden">
       <button type="button" class="btn-3d btn-dark btn-sm" data-back="authChoiceScreen">رجوع</button>
       <h2 style="color:#1e40af;">صفحة الاشتراك - Engz</h2>
@@ -380,12 +414,12 @@
       <button type="button" class="btn-3d btn-pink" data-open-service="market">هات من السوق</button>
 
       <div class="card" style="margin-top:18px; background:#f8fafc;">
-        <h3 style="margin-top:0; color:#15803d;">التحديات الموجهة لك من الأدمن</h3>
-        <div id="myChallengesBox">لا توجد تحديات مرسلة لحسابك حالياً.</div>
+        <h3 style="margin-top:0; color:#15803d;">التحديات والرسائل المرسلة لك</h3>
+        <div id="myChallengesBox">لا توجد رسائل أو تحديات مرسلة لحسابك حالياً.</div>
       </div>
 
       <div class="card" style="margin-top:14px; background:#f8fafc;">
-        <h3 style="margin-top:0; color:#1d4ed8;">طلباتي ورسائل الأدمن</h3>
+        <h3 style="margin-top:0; color:#1d4ed8;">طلباتي وردود الإدارة</h3>
         <div id="myOrdersList">لا توجد طلبات حتى الآن.</div>
       </div>
     </section>
@@ -395,20 +429,20 @@
       <button type="button" class="btn-3d btn-dark btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
       <h2 style="color:#1d4ed8;">وجبات وسندوتشات</h2>
 
-      <label>صورة قائمة الطعام (يحددها الأدمن)</label>
-      <img id="foodMenuImg" class="preview-img hidden" src="" alt="قائمة الطعام" />
-      <p id="foodMenuEmpty" class="msg msg-info">لم يحدد الأدمن صورة قائمة الطعام بعد.</p>
+      <label>صورة قائمة الطعام</label>
+      <img id="foodMenuImg" class="zoomable-img hidden" src="" alt="قائمة الطعام" />
+      <p id="foodMenuEmpty" class="msg msg-info">لا توجد صورة قائمة طعام مضافة حالياً.</p>
 
-      <label>أرقام استلام التحويلات كاش (3 أرقام يحددها الأدمن)</label>
+      <label>أرقام استلام التحويلات كاش</label>
       <div class="cash-boxes" id="cashBoxesFood"></div>
+
+      <div class="receipt-prompt">قم بتصوير ايصال الدفع</div>
+      <label for="foodReceiptInput">إرفاق إيصال التحويل (الكاميرا أو الاستوديو)</label>
+      <input type="file" id="foodReceiptInput" accept="image/*" />
+      <button type="button" class="btn-3d btn-amber" id="foodConfirmReceiptBtn">تأكيد</button>
 
       <label for="foodOrderText">اكتب طلبك (حتى 1000 حرف)</label>
       <textarea id="foodOrderText" maxlength="1000" placeholder="اكتب تفاصيل طلبك هنا..."></textarea>
-
-      <label for="foodReceiptInput">تصوير أو اختيار إيصال تحويل المبلغ (كاميرا / استوديو)</label>
-      <input type="file" id="foodReceiptInput" accept="image/*" capture="environment" />
-      <button type="button" class="btn-3d btn-amber" id="foodConfirmReceiptBtn">تأكيد</button>
-      <img id="foodReceiptPreview" class="preview-img hidden" alt="إيصال التحويل" />
 
       <button type="button" class="btn-3d btn-green" id="foodSendOrderBtn">إرسال</button>
 
@@ -424,20 +458,20 @@
       <button type="button" class="btn-3d btn-dark btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
       <h2 style="color:#b45309;">فطار المدارس</h2>
 
-      <label>صورة السندوتشات (يحددها الأدمن)</label>
-      <img id="breakfastMenuImg" class="preview-img hidden" src="" alt="صورة السندوتشات" />
-      <p id="breakfastMenuEmpty" class="msg msg-info">لم يحدد الأدمن صورة السندوتشات بعد.</p>
+      <label>صورة السندوتشات</label>
+      <img id="breakfastMenuImg" class="zoomable-img hidden" src="" alt="صورة السندوتشات" />
+      <p id="breakfastMenuEmpty" class="msg msg-info">لا توجد صورة سندوتشات مضافة حالياً.</p>
 
-      <label>أرقام استلام التحويلات كاش (3 أرقام يحددها الأدمن)</label>
+      <label>أرقام استلام التحويلات كاش</label>
       <div class="cash-boxes" id="cashBoxesBreakfast"></div>
+
+      <div class="receipt-prompt">قم بتصوير ايصال الدفع</div>
+      <label for="breakfastReceiptInput">إرفاق إيصال التحويل (الكاميرا أو الاستوديو)</label>
+      <input type="file" id="breakfastReceiptInput" accept="image/*" />
+      <button type="button" class="btn-3d btn-amber" id="breakfastConfirmReceiptBtn">تأكيد</button>
 
       <label for="breakfastOrderText">اكتب طلبك (حتى 1000 حرف)</label>
       <textarea id="breakfastOrderText" maxlength="1000" placeholder="اكتب تفاصيل طلب فطار المدارس..."></textarea>
-
-      <label for="breakfastReceiptInput">تصوير أو اختيار إيصال تحويل المبلغ (كاميرا / استوديو)</label>
-      <input type="file" id="breakfastReceiptInput" accept="image/*" capture="environment" />
-      <button type="button" class="btn-3d btn-amber" id="breakfastConfirmReceiptBtn">تأكيد</button>
-      <img id="breakfastReceiptPreview" class="preview-img hidden" alt="إيصال التحويل" />
 
       <button type="button" class="btn-3d btn-green" id="breakfastSendOrderBtn">إرسال</button>
 
@@ -453,16 +487,16 @@
       <button type="button" class="btn-3d btn-dark btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
       <h2 style="color:#be185d;">هات من السوق</h2>
 
-      <label>أرقام استلام التحويلات كاش (3 أرقام يحددها الأدمن)</label>
+      <label>أرقام استلام التحويلات كاش</label>
       <div class="cash-boxes" id="cashBoxesMarket"></div>
+
+      <div class="receipt-prompt">قم بتصوير ايصال الدفع</div>
+      <label for="marketReceiptInput">إرفاق إيصال التحويل (الكاميرا أو الاستوديو)</label>
+      <input type="file" id="marketReceiptInput" accept="image/*" />
+      <button type="button" class="btn-3d btn-amber" id="marketConfirmReceiptBtn">تأكيد</button>
 
       <label for="marketOrderText">اكتب طلبك من السوق (حتى 1000 حرف)</label>
       <textarea id="marketOrderText" maxlength="1000" placeholder="اكتب طلبات السوق هنا..."></textarea>
-
-      <label for="marketReceiptInput">تصوير أو اختيار إيصال تحويل المبلغ (كاميرا / استوديو)</label>
-      <input type="file" id="marketReceiptInput" accept="image/*" capture="environment" />
-      <button type="button" class="btn-3d btn-amber" id="marketConfirmReceiptBtn">تأكيد</button>
-      <img id="marketReceiptPreview" class="preview-img hidden" alt="إيصال التحويل" />
 
       <button type="button" class="btn-3d btn-green" id="marketSendOrderBtn">إرسال</button>
 
@@ -526,6 +560,28 @@
     let splashInterval = null;
     let approvalRedirected = false;
 
+    const lightboxEl = document.getElementById("imageLightbox");
+    const lightboxImgEl = document.getElementById("lightboxImg");
+
+    function openZoomImage(src) {
+      if (!src) return;
+      lightboxImgEl.src = src;
+      lightboxEl.classList.remove("hidden");
+    }
+
+    lightboxEl.addEventListener("click", () => {
+      lightboxEl.classList.add("hidden");
+      lightboxImgEl.src = "";
+    });
+
+    document.addEventListener("click", (e) => {
+      const targetImg = e.target.closest("img.zoomable-img");
+      if (targetImg && targetImg.src) {
+        e.preventDefault();
+        openZoomImage(targetImg.src);
+      }
+    });
+
     function showScreen(screenId) {
       screens.forEach((id) => {
         document.getElementById(id).classList.toggle("hidden", id !== screenId);
@@ -586,10 +642,19 @@
       const nums = appSettings.activeCashNumbers || ["", "", ""];
       const boxesHtml = [0, 1, 2].map((idx) => {
         const num = nums[idx] && String(nums[idx]).trim() ? String(nums[idx]).trim() : "غير محدد";
-        return `<div class="cash-box">كاش ${idx + 1}<br/>${num}</div>`;
+        return `<div class="cash-box" data-copy-phone="${num}">كاش ${idx + 1}<br/>${num}</div>`;
       }).join("");
       ["cashBoxesFood", "cashBoxesBreakfast", "cashBoxesMarket"].forEach((id) => {
-        document.getElementById(id).innerHTML = boxesHtml;
+        const el = document.getElementById(id);
+        el.innerHTML = boxesHtml;
+        el.querySelectorAll(".cash-box").forEach((box) => {
+          box.addEventListener("click", () => {
+            const phoneToCopy = box.getAttribute("data-copy-phone");
+            if (phoneToCopy && phoneToCopy !== "غير محدد" && navigator.clipboard) {
+              navigator.clipboard.writeText(phoneToCopy).catch(() => {});
+            }
+          });
+        });
       });
     }
 
@@ -682,17 +747,22 @@
       const box = document.getElementById("myChallengesBox");
       if (!sub || !box) return;
       if (!snap.exists()) {
-        box.innerHTML = "لا توجد تحديات مرسلة لحسابك حالياً.";
+        box.innerHTML = "لا توجد رسائل أو تحديات مرسلة لحسابك حالياً.";
         return;
       }
       const list = Object.values(snap.val()).filter(
         (c) => Array.isArray(c.selectedPhones) && c.selectedPhones.includes(sub.phone)
       );
       if (!list.length) {
-        box.innerHTML = "لا توجد تحديات مرسلة لحسابك حالياً.";
+        box.innerHTML = "لا توجد رسائل أو تحديات مرسلة لحسابك حالياً.";
         return;
       }
-      box.innerHTML = list.map((c) => `<div class="challenge-box">${c.text}</div>`).join("");
+      box.innerHTML = list.map((c) => {
+        const imgHtml = c.image
+          ? `<img src="${c.image}" class="zoomable-img" alt="صورة مرسلة" />`
+          : "";
+        return `<div class="challenge-box">${c.text || ""}${imgHtml}</div>`;
+      }).join("");
     });
 
     onValue(ref(db, "orders"), (snap) => {
@@ -708,16 +778,22 @@
         box.innerHTML = "لا توجد طلبات حتى الآن.";
         return;
       }
-      box.innerHTML = mine.map((o) => `
-        <div class="order-item">
-          <div><strong>طلب رقم #${o.orderNumber}</strong> — ${o.serviceLabel} (${o.status === "completed" ? "منتهي" : "قيد التنفيذ"})</div>
-          <div style="margin-top:4px;">${o.details}</div>
-          ${o.adminMessage ? `<div class="admin-reply-box"><strong>رسالة الأدمن:</strong> ${o.adminMessage}</div>` : ""}
-        </div>
-      `).join("");
+      box.innerHTML = mine.map((o) => {
+        const replyImgHtml = o.adminImage
+          ? `<img src="${o.adminImage}" class="zoomable-img" alt="صورة مرفقة" />`
+          : "";
+        return `
+          <div class="order-item">
+            <div><strong>طلب رقم #${o.orderNumber}</strong> — ${o.serviceLabel} (${o.status === "completed" ? "منتهي" : "قيد التنفيذ"})</div>
+            <div style="margin-top:4px;">${o.details}</div>
+            ${o.adminMessage || o.adminImage
+              ? `<div class="admin-reply-box">${o.adminMessage ? `<div>${o.adminMessage}</div>` : ""}${replyImgHtml}</div>`
+              : ""}
+          </div>
+        `;
+      }).join("");
     });
 
-    // مؤقت 30 ثانية + شريط تحميل يصل إلى 100% خلال 30 ثانية بدون تخطٍ
     function startSplash30Seconds() {
       const startTime = Date.now();
       const timerEl = document.getElementById("countdownDisplay");
@@ -934,7 +1010,6 @@
       let tempReceiptBase64 = "";
       const fileInput = document.getElementById(cfg.fileInputId);
       const confirmBtn = document.getElementById(cfg.confirmBtnId);
-      const previewImg = document.getElementById(cfg.previewImgId);
       const textInput = document.getElementById(cfg.textInputId);
       const sendBtn = document.getElementById(cfg.sendBtnId);
       const deliveredBtn = document.getElementById(cfg.deliveredBtnId);
@@ -951,13 +1026,11 @@
 
       confirmBtn.addEventListener("click", () => {
         if (!tempReceiptBase64) {
-          statusBox.innerHTML = `<div class="msg msg-err">اختر أو صوّر إيصال التحويل أولاً ثم اضغط تأكيد.</div>`;
+          statusBox.innerHTML = `<div class="msg msg-err">قم بتصوير ايصال الدفع أو اختياره أولاً ثم اضغط تأكيد.</div>`;
           return;
         }
         confirmedReceipts[cfg.key] = tempReceiptBase64;
-        previewImg.src = confirmedReceipts[cfg.key];
-        previewImg.classList.remove("hidden");
-        statusBox.innerHTML = `<div class="msg msg-ok">تم تأكيد صورة الإيصال وستظهر بجوار طلبك للأدمن.</div>`;
+        statusBox.innerHTML = `<div class="msg msg-ok">تم تأكيد إيصال الدفع بنجاح وسيتم إرساله مع الطلب.</div>`;
       });
 
       sendBtn.addEventListener("click", async () => {
@@ -971,6 +1044,8 @@
           statusBox.innerHTML = `<div class="msg msg-err">يرجى كتابة تفاصيل الطلب أولاً.</div>`;
           return;
         }
+
+        const receiptToSend = confirmedReceipts[cfg.key] || tempReceiptBase64 || "";
 
         const ordersSnap = await get(ref(db, "orders"));
         let nextOrderNumber = 1;
@@ -988,8 +1063,9 @@
           subscriberName: sub.name,
           phone: sub.phone,
           details,
-          receiptImage: confirmedReceipts[cfg.key] || "",
+          receiptImage: receiptToSend,
           adminMessage: "",
+          adminImage: "",
           status: "active",
           createdAt: new Date().toISOString()
         });
@@ -998,9 +1074,8 @@
         fileInput.value = "";
         tempReceiptBase64 = "";
         confirmedReceipts[cfg.key] = "";
-        previewImg.classList.add("hidden");
 
-        statusBox.innerHTML = `<div class="msg msg-ok">تم إرسال الطلب رقم #${nextOrderNumber} بنجاح إلى صفحة الطلبات.</div>`;
+        statusBox.innerHTML = `<div class="msg msg-ok">تم إرسال الطلب رقم #${nextOrderNumber} بنجاح.</div>`;
       });
 
       deliveredBtn.addEventListener("click", async () => {
@@ -1032,7 +1107,6 @@
       label: "وجبات وسندوتشات",
       fileInputId: "foodReceiptInput",
       confirmBtnId: "foodConfirmReceiptBtn",
-      previewImgId: "foodReceiptPreview",
       textInputId: "foodOrderText",
       sendBtnId: "foodSendOrderBtn",
       deliveredBtnId: "foodDeliveredBtn",
@@ -1044,7 +1118,6 @@
       label: "فطار المدارس",
       fileInputId: "breakfastReceiptInput",
       confirmBtnId: "breakfastConfirmReceiptBtn",
-      previewImgId: "breakfastReceiptPreview",
       textInputId: "breakfastOrderText",
       sendBtnId: "breakfastSendOrderBtn",
       deliveredBtnId: "breakfastDeliveredBtn",
@@ -1056,7 +1129,6 @@
       label: "هات من السوق",
       fileInputId: "marketReceiptInput",
       confirmBtnId: "marketConfirmReceiptBtn",
-      previewImgId: "marketReceiptPreview",
       textInputId: "marketOrderText",
       sendBtnId: "marketSendOrderBtn",
       deliveredBtnId: "marketDeliveredBtn",
