@@ -356,13 +356,13 @@
   <div class="container">
     <div class="topbar">
       <div class="brand">Engz</div>
-      <button type="button" class="btn-3d btn-amber btn-sm" id="goServicesTopBtn">الخدمات</button>
+      <button type="button" class="btn-3d btn-amber btn-sm hidden" id="goServicesTopBtn">الخدمات</button>
     </div>
 
-    <!-- 1. الشاشة الرئيسية: عداد 30 ثانية تنازلي إلى 0 + شريط تحميل يصل إلى 100% خلال 30 ثانية -->
+    <!-- 1. الشاشة الافتتاحية: عداد 30 ثانية تنازلي إلى 0 + شريط تحميل يصل إلى 100% خلال 30 ثانية -->
     <section id="splashScreen" class="card" style="text-align:center;">
       <h2 style="margin-top:0; color:#1e40af;">تطبيق Engz</h2>
-      <p style="color:#475569;">جاري التحميل... سيتم الانتقال تلقائياً عند وصول المؤقت إلى 0 واكتمال التحميل 100%</p>
+      <p style="color:#475569;">جاري التحميل... سيتم فتح الصفحة الأولى تلقائياً بعد مرور 30 ثانية واكتمال التحميل 100%</p>
       <div class="timer-circle" id="countdownDisplay">30</div>
       <div class="progress-track">
         <div class="progress-fill" id="splashProgressBar"></div>
@@ -370,7 +370,7 @@
       <div class="progress-label" id="splashProgressLabel">0%</div>
     </section>
 
-    <!-- 2. صفحة التسجيل: خياران (تسجيل / مشترك) -->
+    <!-- 2. الصفحة الأولى بعد التحميل: صفحة التسجيل (تسجيل / مشترك) -->
     <section id="authChoiceScreen" class="card hidden">
       <h2 style="margin-top:0; color:#1e40af;">صفحة التسجيل - Engz</h2>
       <div class="grid-2">
@@ -520,7 +520,7 @@
     </section>
   </div>
 
-  <!-- سكريبت مستقل للعد التنازلي 30->0 وخط التحميل 0%->100% ثم الانتقال إلى شاشة (تسجيل / مشترك) -->
+  <!-- سكريبت مستقل للعد التنازلي 30->0 وخط التحميل 0%->100% ثم فتح الصفحة الأولى -->
   <script>
     (function () {
       var ALL_SCREENS = [
@@ -534,7 +534,12 @@
         "serviceMarketScreen"
       ];
 
+      window.engzSplashDone = false;
+
       window.engzShowScreen = function (screenId) {
+        if (!window.engzSplashDone && screenId !== "splashScreen") {
+          return;
+        }
         ALL_SCREENS.forEach(function (id) {
           var el = document.getElementById(id);
           if (el) {
@@ -545,8 +550,19 @@
             }
           }
         });
+        var topServicesBtn = document.getElementById("goServicesTopBtn");
+        if (topServicesBtn) {
+          if (screenId === "splashScreen") {
+            topServicesBtn.classList.add("hidden");
+          } else {
+            topServicesBtn.classList.remove("hidden");
+          }
+        }
         window.scrollTo(0, 0);
       };
+
+      localStorage.removeItem("engz_active_subscriber");
+      localStorage.removeItem("engz_saved_credentials");
 
       var attempts = Number(localStorage.getItem("engz_attempts_count") || "0");
       if (attempts >= 3) {
@@ -555,8 +571,13 @@
         return;
       }
 
-      localStorage.removeItem("engz_active_subscriber");
-      window.engzShowScreen("splashScreen");
+      ALL_SCREENS.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) {
+          if (id === "splashScreen") el.classList.remove("hidden");
+          else el.classList.add("hidden");
+        }
+      });
 
       var DURATION_MS = 30000;
       var startTime = Date.now();
@@ -578,6 +599,7 @@
           if (countdownEl) countdownEl.textContent = "0";
           if (barEl) barEl.style.width = "100%";
           if (labelEl) labelEl.textContent = "100%";
+          window.engzSplashDone = true;
           window.engzShowScreen("authChoiceScreen");
         }
       }, 100);
@@ -695,14 +717,6 @@
       localStorage.removeItem(SESSION_KEY);
     }
 
-    function getSavedCredentials() {
-      try {
-        return JSON.parse(localStorage.getItem(SAVED_CREDS_KEY) || "null");
-      } catch {
-        return null;
-      }
-    }
-
     function setSavedCredentials(creds) {
       localStorage.setItem(SAVED_CREDS_KEY, JSON.stringify(creds));
     }
@@ -772,6 +786,7 @@
     });
 
     onValue(ref(db, "registrationRequests"), (snap) => {
+      if (!window.engzSplashDone) return;
       const sub = getActiveSubscriber();
       const trackedPhone = sub?.phone || localStorage.getItem("engz_tracked_phone") || "";
       if (!trackedPhone || !snap.exists()) return;
@@ -806,6 +821,7 @@
     });
 
     onValue(ref(db, "subscribers"), (snap) => {
+      if (!window.engzSplashDone) return;
       const sub = getActiveSubscriber();
       if (!sub) return;
       const list = snap.exists() ? Object.values(snap.val()) : [];
@@ -886,6 +902,8 @@
     });
 
     document.getElementById("openSubscriberBtn").addEventListener("click", () => {
+      clearSavedCredentials();
+      clearActiveSubscriber();
       document.getElementById("subNameInput").value = "";
       document.getElementById("subPhoneInput").value = "";
       document.getElementById("subLoginMsg").innerHTML = "";
@@ -907,6 +925,8 @@
       );
       if (!active) {
         clearActiveSubscriber();
+        document.getElementById("subNameInput").value = "";
+        document.getElementById("subPhoneInput").value = "";
         showScreen("subscriberLoginScreen");
         return;
       }
@@ -973,6 +993,7 @@
 
     document.getElementById("logoutSubscriberBtn").addEventListener("click", () => {
       clearActiveSubscriber();
+      clearSavedCredentials();
       showScreen("authChoiceScreen");
     });
 
