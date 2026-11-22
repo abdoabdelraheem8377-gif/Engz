@@ -8,21 +8,24 @@
     * { box-sizing: border-box; }
     body {
       font-family: Tahoma, Arial, sans-serif;
-      background: #eef2f6;
       margin: 0;
       padding: 16px;
+      min-height: 100vh;
       color: #0f172a;
+      background: linear-gradient(135deg, #1e1b4b 0%, #0284c7 52%, #10b981 100%);
+      background-attachment: fixed;
     }
     .container {
       max-width: 780px;
       margin: 0 auto;
     }
     .card {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.07);
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.9);
     }
     .hidden { display: none !important; }
     .topbar {
@@ -31,62 +34,128 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
     .brand {
-      font-size: 22px;
-      font-weight: bold;
-      color: #0b5ed7;
+      font-size: 24px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
     }
     .nav-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 8px;
-      margin-bottom: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
     }
+
+    /* مفاتيح 3D بإحساس حقيقي عند الضغط */
     .btn {
-      padding: 10px 12px;
+      display: inline-block;
+      padding: 11px 14px;
       border: none;
-      border-radius: 10px;
-      background: #0b5ed7;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
       color: #ffffff;
       font-size: 14px;
       font-weight: bold;
       cursor: pointer;
       text-decoration: none;
       text-align: center;
+      box-shadow: 0 5px 0 #1e3a8a, 0 8px 16px rgba(29, 78, 216, 0.3);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .btn-success { background: #15803d; }
-    .btn-danger { background: #b91c1c; }
-    .btn-warning { background: #b45309; }
-    .btn-secondary { background: #334155; }
+    .btn:hover { filter: brightness(1.05); }
+    .btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #1e3a8a, 0 3px 6px rgba(29, 78, 216, 0.2);
+    }
+    .btn-success {
+      background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
+      box-shadow: 0 5px 0 #14532d, 0 8px 16px rgba(21, 128, 61, 0.3);
+    }
+    .btn-success:active {
+      box-shadow: 0 1px 0 #14532d, 0 3px 6px rgba(21, 128, 61, 0.2);
+    }
+    .btn-danger {
+      background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+      box-shadow: 0 5px 0 #7f1d1d, 0 8px 16px rgba(185, 28, 28, 0.3);
+    }
+    .btn-danger:active {
+      box-shadow: 0 1px 0 #7f1d1d, 0 3px 6px rgba(185, 28, 28, 0.2);
+    }
+    .btn-warning {
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+      box-shadow: 0 5px 0 #92400e, 0 8px 16px rgba(217, 119, 6, 0.3);
+    }
+    .btn-warning:active {
+      box-shadow: 0 1px 0 #92400e, 0 3px 6px rgba(217, 119, 6, 0.2);
+    }
+    .btn-secondary {
+      background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+      box-shadow: 0 5px 0 #0f172a, 0 8px 16px rgba(15, 23, 42, 0.3);
+    }
+    .btn-secondary:active {
+      box-shadow: 0 1px 0 #0f172a, 0 3px 6px rgba(15, 23, 42, 0.2);
+    }
     .btn-outline {
-      background: #ffffff;
-      color: #0b5ed7;
-      border: 1.5px solid #0b5ed7;
+      background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
+      color: #1d4ed8;
+      border: 2px solid #93c5fd;
+      box-shadow: 0 4px 0 #0284c7, 0 6px 12px rgba(2, 132, 199, 0.25);
+    }
+    .btn-outline:active {
+      box-shadow: 0 1px 0 #0284c7;
     }
     .btn-sm {
-      padding: 6px 10px;
+      padding: 7px 12px;
       font-size: 12px;
+      border-radius: 11px;
+      box-shadow: 0 4px 0 rgba(15, 23, 42, 0.35), 0 6px 12px rgba(15, 23, 42, 0.2);
+    }
+    .btn-sm:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.35);
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      color: #1e293b;
+      margin-top: 10px;
     }
     input[type="password"],
     input[type="text"],
     input[type="tel"],
+    input[type="file"],
     textarea {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
+      padding: 11px;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
       font-size: 14px;
       margin-top: 6px;
+      background: #f8fafc;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    input[type="password"]:focus,
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: #ffffff;
     }
     textarea { min-height: 150px; resize: vertical; }
     .item-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
       padding: 14px;
-      margin-top: 10px;
-      background: #f8fafc;
+      margin-top: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
     }
     .actions-row {
       display: flex;
@@ -98,23 +167,24 @@
     .receipt-thumb {
       max-width: 220px;
       max-height: 180px;
-      border-radius: 8px;
+      border-radius: 10px;
       margin-top: 8px;
-      border: 1px solid #cbd5e1;
+      border: 2px solid #cbd5e1;
       display: block;
     }
     .msg {
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 10px;
+      padding: 11px 13px;
+      border-radius: 12px;
+      margin-top: 12px;
       font-size: 14px;
+      font-weight: bold;
     }
-    .msg-err { background: #fee2e2; color: #991b1b; }
-    .msg-ok { background: #dcfce7; color: #166534; }
+    .msg-err { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .msg-ok { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.55);
+      background: rgba(15, 23, 42, 0.65);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -123,10 +193,11 @@
     }
     .modal-card {
       background: #ffffff;
-      border-radius: 14px;
-      padding: 20px;
+      border-radius: 18px;
+      padding: 22px;
       max-width: 420px;
       width: 100%;
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.35);
     }
     .cash-pool-row {
       display: grid;
@@ -141,7 +212,7 @@
   <!-- نافذة تأكيد إلغاء الاشتراك نهائياً -->
   <div id="cancelConfirmModal" class="modal-backdrop hidden">
     <div class="modal-card">
-      <h3 style="margin-top:0;">تأكيد إلغاء الاشتراك</h3>
+      <h3 style="margin-top:0; color:#b91c1c;">تأكيد إلغاء الاشتراك</h3>
       <p id="cancelPromptLine1"></p>
       <p id="cancelPromptLine2"></p>
       <p>هل تريد مسح المشترك نهائيا من قاعده المشتركين</p>
@@ -160,10 +231,10 @@
 
     <!-- شاشة حماية الأدمن بكلمة السر 3852 -->
     <section id="adminLockCard" class="card">
-      <h2 style="margin-top:0;">دخول الأدمن</h2>
+      <h2 style="margin-top:0; color:#1e40af;">دخول الأدمن</h2>
       <label for="adminPassInput">أدخل كلمة السر</label>
       <input type="password" id="adminPassInput" placeholder="أدخل كلمة السر" />
-      <button type="button" class="btn" style="width:100%; margin-top:12px;" id="adminUnlockBtn">دخول</button>
+      <button type="button" class="btn" style="width:100%; margin-top:14px;" id="adminUnlockBtn">دخول</button>
       <div id="adminLockMsg"></div>
     </section>
 
@@ -171,9 +242,9 @@
     <div id="adminDashboard" class="hidden">
       <div class="nav-grid">
         <button type="button" class="btn" data-admin-tab="subscribersTab">المشتركين</button>
-        <button type="button" class="btn" data-admin-tab="requestsTab">طلبات التسجيل</button>
-        <button type="button" class="btn" data-admin-tab="ordersTab">الطلبات</button>
-        <button type="button" class="btn" data-admin-tab="completedTab">طلبات منتهيه</button>
+        <button type="button" class="btn btn-warning" data-admin-tab="requestsTab">طلبات التسجيل</button>
+        <button type="button" class="btn btn-success" data-admin-tab="ordersTab">الطلبات</button>
+        <button type="button" class="btn btn-danger" data-admin-tab="completedTab">طلبات منتهيه</button>
         <button type="button" class="btn" data-admin-tab="challengeTab">تحدى</button>
         <button type="button" class="btn btn-secondary" data-admin-tab="settingsTab">إعدادات الصور والكاش</button>
       </div>
@@ -181,7 +252,7 @@
       <!-- 1. المشتركين (العادية + وضع اختيار المشتركين للتحدي) -->
       <section id="subscribersTab" class="card">
         <div class="topbar">
-          <h2 style="margin:0;">المشتركين</h2>
+          <h2 style="margin:0; color:#1e40af;">المشتركين</h2>
           <div id="challengeSelectionBar" class="hidden" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <label style="margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
               <input type="checkbox" id="selectAllChallengeCheckbox" />
@@ -197,19 +268,19 @@
 
       <!-- 2. طلبات التسجيل -->
       <section id="requestsTab" class="card hidden">
-        <h2 style="margin-top:0;">طلبات التسجيل</h2>
+        <h2 style="margin-top:0; color:#b45309;">طلبات التسجيل</h2>
         <div id="requestsList">جاري التحميل...</div>
       </section>
 
       <!-- 3. الطلبات -->
       <section id="ordersTab" class="card hidden">
-        <h2 style="margin-top:0;">الطلبات</h2>
+        <h2 style="margin-top:0; color:#15803d;">الطلبات</h2>
         <div id="activeOrdersList">جاري التحميل...</div>
       </section>
 
       <!-- 4. طلبات منتهيه -->
       <section id="completedTab" class="card hidden">
-        <h2 style="margin-top:0;">طلبات منتهيه</h2>
+        <h2 style="margin-top:0; color:#b91c1c;">طلبات منتهيه</h2>
         <div id="completedOrdersList">جاري التحميل...</div>
         <div style="margin-top:18px; text-align:left;">
           <button type="button" class="btn btn-danger" id="clearCompletedBtn">🗑️ حذف كل الطلبات المنتهية</button>
@@ -218,16 +289,16 @@
 
       <!-- 5. تحدى (5000 حرف) -->
       <section id="challengeTab" class="card hidden">
-        <h2 style="margin-top:0;">تحدى</h2>
+        <h2 style="margin-top:0; color:#1e40af;">تحدى</h2>
         <label for="challengeTextArea">اكتب التحدي أو الطلب (حتى 5000 حرف)</label>
         <textarea id="challengeTextArea" maxlength="5000" placeholder="اكتب نص التحدي هنا..."></textarea>
-        <button type="button" class="btn btn-success" style="width:100%; margin-top:12px;" id="goSelectChallengeSubscribersBtn">إرسال</button>
+        <button type="button" class="btn btn-success" style="width:100%; margin-top:14px;" id="goSelectChallengeSubscribersBtn">إرسال</button>
         <div id="challengeMsg"></div>
       </section>
 
       <!-- 6. إعدادات الصور و7 أرقام كاش (اختيار 3 منها) -->
       <section id="settingsTab" class="card hidden">
-        <h2 style="margin-top:0;">إعدادات الصور وأرقام الكاش</h2>
+        <h2 style="margin-top:0; color:#1e293b;">إعدادات الصور وأرقام الكاش</h2>
 
         <label for="foodMenuFileInput">صورة قائمة الطعام (صفحة وجبات وسندوتشات - من الاستوديو)</label>
         <input type="file" id="foodMenuFileInput" accept="image/*" />
@@ -321,7 +392,6 @@
       });
     });
 
-    // بناء 7 خانات أرقام الكاش مع اختيار 3 أرقام
     function renderSevenCashForm() {
       const wrap = document.getElementById("sevenCashInputs");
       const pool = settingsState.cashPool || ["", "", "", "", "", "", ""];
@@ -413,7 +483,6 @@
         `<div class="msg msg-ok">تم حفظ صور القوائم والأرقام الثلاثة المختارة بنجاح.</div>`;
     });
 
-    // عرض المشتركين + إلغاء الاشتراك + تجميد العضوية + تحديد التحدي
     function renderSubscribers() {
       const box = document.getElementById("subscribersList");
       const activeSubs = subscribersCache.filter((s) => !s.cancelled);
@@ -494,7 +563,6 @@
       renderSubscribers();
     });
 
-    // طلبات التسجيل: تأكيد / رفض
     onValue(ref(db, "registrationRequests"), (snap) => {
       requestsCache = snap.exists()
         ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
@@ -552,7 +620,6 @@
       });
     });
 
-    // الطلبات النشطة والطلبات المنتهية
     onValue(ref(db, "orders"), (snap) => {
       ordersCache = snap.exists()
         ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
@@ -639,14 +706,12 @@
       }
     });
 
-    // حذف كل الطلبات المنتهية من سلة المحذوفات
     document.getElementById("clearCompletedBtn").addEventListener("click", async () => {
       const completedOnly = ordersCache.filter((o) => o.status === "completed");
       if (!completedOnly.length) return;
       await Promise.all(completedOnly.map((o) => remove(ref(db, `orders/${o.id}`))));
     });
 
-    // التحديات: كتابة حتى 5000 حرف -> الانتقال للمشتركين مع مربعات الاختيار وتحديد الكل
     document.getElementById("goSelectChallengeSubscribersBtn").addEventListener("click", () => {
       const text = document.getElementById("challengeTextArea").value.trim();
       const msg = document.getElementById("challengeMsg");
