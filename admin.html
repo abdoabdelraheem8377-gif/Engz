@@ -3,26 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>إدارة Engz</title>
+  <title>Engz</title>
   <style>
     * { box-sizing: border-box; }
     body {
       font-family: Tahoma, Arial, sans-serif;
-      background: #eef2f6;
       margin: 0;
       padding: 16px;
+      min-height: 100vh;
       color: #0f172a;
+      background: linear-gradient(135deg, #1e1b4b 0%, #0284c7 52%, #10b981 100%);
+      background-attachment: fixed;
     }
     .container {
-      max-width: 780px;
+      max-width: 660px;
       margin: 0 auto;
     }
     .card {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.07);
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.85);
     }
     .hidden { display: none !important; }
     .topbar {
@@ -31,225 +34,544 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-    .brand {
-      font-size: 22px;
-      font-weight: bold;
-      color: #0b5ed7;
-    }
-    .nav-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 8px;
       margin-bottom: 16px;
     }
-    .btn {
-      padding: 10px 12px;
-      border: none;
-      border-radius: 10px;
-      background: #0b5ed7;
+    .brand {
+      font-size: 26px;
+      font-weight: 900;
       color: #ffffff;
-      font-size: 14px;
+      text-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
+      letter-spacing: 0.5px;
+    }
+
+    /* مفاتيح 3D بإحساس عند الضغط */
+    .btn-3d {
+      display: inline-block;
+      width: 100%;
+      padding: 13px 16px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+      color: #ffffff;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      text-decoration: none;
       text-align: center;
+      text-decoration: none;
+      margin-top: 10px;
+      box-shadow: 0 6px 0 #1e3a8a, 0 10px 18px rgba(29, 78, 216, 0.35);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .btn-success { background: #15803d; }
-    .btn-danger { background: #b91c1c; }
-    .btn-warning { background: #b45309; }
-    .btn-secondary { background: #334155; }
-    .btn-outline {
-      background: #ffffff;
-      color: #0b5ed7;
-      border: 1.5px solid #0b5ed7;
+    .btn-3d:hover { filter: brightness(1.05); }
+    .btn-3d:active {
+      transform: translateY(5px);
+      box-shadow: 0 1px 0 #1e3a8a, 0 4px 8px rgba(29, 78, 216, 0.25);
+    }
+    .btn-3d:disabled {
+      background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+      box-shadow: 0 4px 0 #64748b;
+      transform: none;
+      cursor: not-allowed;
+    }
+    .btn-green {
+      background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
+      box-shadow: 0 6px 0 #14532d, 0 10px 18px rgba(21, 128, 61, 0.35);
+    }
+    .btn-green:active {
+      box-shadow: 0 1px 0 #14532d, 0 4px 8px rgba(21, 128, 61, 0.25);
+    }
+    .btn-amber {
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+      box-shadow: 0 6px 0 #92400e, 0 10px 18px rgba(217, 119, 6, 0.35);
+    }
+    .btn-amber:active {
+      box-shadow: 0 1px 0 #92400e, 0 4px 8px rgba(217, 119, 6, 0.25);
+    }
+    .btn-pink {
+      background: linear-gradient(180deg, #ec4899 0%, #be185d 100%);
+      box-shadow: 0 6px 0 #831843, 0 10px 18px rgba(190, 24, 93, 0.35);
+    }
+    .btn-pink:active {
+      box-shadow: 0 1px 0 #831843, 0 4px 8px rgba(190, 24, 93, 0.25);
+    }
+    .btn-red {
+      background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+      box-shadow: 0 6px 0 #7f1d1d, 0 10px 18px rgba(185, 28, 28, 0.35);
+    }
+    .btn-red:active {
+      box-shadow: 0 1px 0 #7f1d1d, 0 4px 8px rgba(185, 28, 28, 0.25);
+    }
+    .btn-dark {
+      background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+      box-shadow: 0 6px 0 #0f172a, 0 10px 18px rgba(15, 23, 42, 0.3);
+    }
+    .btn-dark:active {
+      box-shadow: 0 1px 0 #0f172a, 0 4px 8px rgba(15, 23, 42, 0.2);
     }
     .btn-sm {
-      padding: 6px 10px;
-      font-size: 12px;
+      width: auto;
+      padding: 8px 14px;
+      font-size: 13px;
+      margin-top: 0;
+      border-radius: 11px;
+      box-shadow: 0 4px 0 #0f172a, 0 6px 12px rgba(15, 23, 42, 0.2);
     }
-    input[type="password"],
+    .btn-sm:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #0f172a;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 14px 0 6px;
+      font-size: 14px;
+      color: #1e293b;
+    }
     input[type="text"],
     input[type="tel"],
+    input[type="file"],
     textarea {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 14px;
-      margin-top: 6px;
-    }
-    textarea { min-height: 150px; resize: vertical; }
-    .item-card {
-      border: 1px solid #e2e8f0;
+      padding: 12px;
+      border: 2px solid #cbd5e1;
       border-radius: 12px;
-      padding: 14px;
-      margin-top: 10px;
+      font-size: 15px;
       background: #f8fafc;
+      transition: border-color 0.2s, background 0.2s;
     }
-    .actions-row {
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      background: #ffffff;
+    }
+    textarea { min-height: 115px; resize: vertical; }
+
+    .timer-circle {
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ffffff, #e0f2fe);
+      border: 7px solid #0284c7;
+      box-shadow: 0 10px 24px rgba(2, 132, 199, 0.28), inset 0 3px 8px rgba(255, 255, 255, 0.9);
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
       align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: 900;
+      color: #0369a1;
+      margin: 22px auto 14px;
     }
-    .receipt-thumb {
-      max-width: 220px;
-      max-height: 180px;
-      border-radius: 8px;
+    .progress-track {
+      width: 100%;
+      height: 22px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 2px solid #cbd5e1;
+      box-shadow: inset 0 2px 5px rgba(15, 23, 42, 0.14);
+      margin-top: 12px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #06b6d4 0%, #2563eb 55%, #10b981 100%);
+      transition: width 0.2s linear;
+    }
+    .progress-label {
       margin-top: 8px;
-      border: 1px solid #cbd5e1;
+      font-weight: bold;
+      font-size: 15px;
+      color: #1d4ed8;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .cash-boxes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .cash-box {
+      background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+      border: 2px solid #93c5fd;
+      border-bottom: 4px solid #3b82f6;
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: bold;
+      color: #1e3a8a;
+      word-break: break-all;
+      cursor: pointer;
+    }
+    .zoomable-img {
+      max-width: 100%;
+      max-height: 250px;
+      border-radius: 12px;
+      margin-top: 10px;
+      border: 2px solid #cbd5e1;
       display: block;
+      cursor: zoom-in;
+    }
+    .receipt-prompt {
+      margin: 14px 0 6px;
+      font-size: 15px;
+      font-weight: bold;
+      color: #be185d;
     }
     .msg {
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      margin-top: 12px;
       font-size: 14px;
+      line-height: 1.5;
+      font-weight: bold;
     }
-    .msg-err { background: #fee2e2; color: #991b1b; }
-    .msg-ok { background: #dcfce7; color: #166534; }
+    .msg-err { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .msg-ok { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .msg-info { background: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
+
+    .deliver-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .order-item {
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    }
+    .admin-reply-box {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      color: #78350f;
+      padding: 9px 11px;
+      border-radius: 10px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .challenge-box {
+      background: linear-gradient(180deg, #dcfce7 0%, #bbf7d0 100%);
+      border: 1px solid #4ade80;
+      color: #14532d;
+      padding: 11px 13px;
+      border-radius: 12px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+      font-weight: bold;
+    }
+
+    #permanentRejectScreen {
+      position: fixed;
+      inset: 0;
+      background: #15803d;
+      color: #ffffff;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    #permanentRejectScreen h1 {
+      font-size: 36px;
+      margin: 0;
+    }
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.55);
+      background: rgba(15, 23, 42, 0.65);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 16px;
-      z-index: 2000;
+      z-index: 1500;
     }
     .modal-card {
       background: #ffffff;
-      border-radius: 14px;
-      padding: 20px;
+      border-radius: 18px;
+      padding: 22px;
       max-width: 420px;
       width: 100%;
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.35);
     }
-    .cash-pool-row {
-      display: grid;
-      grid-template-columns: 44px 1fr 90px;
-      gap: 8px;
+
+    /* تكبير الصور مباشرة عند الضغط عليها */
+    #imageLightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.92);
+      display: flex;
       align-items: center;
-      margin-bottom: 8px;
+      justify-content: center;
+      padding: 16px;
+      z-index: 3000;
+      cursor: zoom-out;
+    }
+    #imageLightbox img {
+      max-width: 96vw;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      object-fit: contain;
     }
   </style>
 </head>
 <body>
-  <!-- نافذة تأكيد إلغاء الاشتراك نهائياً -->
-  <div id="cancelConfirmModal" class="modal-backdrop hidden">
+  <!-- نافذة تكبير الصور الفورية عند الضغط عليها -->
+  <div id="imageLightbox" class="hidden" title="اضغط للإغلاق">
+    <img id="lightboxImg" src="" alt="صورة مكبرة" />
+  </div>
+
+  <!-- شاشة خضراء ثابتة بلا أي اختيارات بعد رفض الطلب 3 مرات -->
+  <div id="permanentRejectScreen" class="hidden">
+    <h1>تم رفض طلبك</h1>
+  </div>
+
+  <!-- نافذة تأكيد إرسال طلب التسجيل في كل محاولة من الـ 3 محاولات -->
+  <div id="confirmRegisterModal" class="modal-backdrop hidden">
     <div class="modal-card">
-      <h3 style="margin-top:0;">تأكيد إلغاء الاشتراك</h3>
-      <p id="cancelPromptLine1"></p>
-      <p id="cancelPromptLine2"></p>
-      <p>هل تريد مسح المشترك نهائيا من قاعده المشتركين</p>
-      <div class="actions-row">
-        <button type="button" class="btn btn-danger" id="confirmCancelYesBtn">نعم</button>
-        <button type="button" class="btn btn-secondary" id="confirmCancelNoBtn">لا</button>
+      <h3 style="margin-top:0; color:#1d4ed8;">تأكيد إرسال طلب التسجيل</h3>
+      <p id="confirmRegisterDetails"></p>
+      <div class="grid-2">
+        <button type="button" class="btn-3d btn-green" id="confirmRegisterYes">تأكيد الإرسال</button>
+        <button type="button" class="btn-3d btn-dark" id="confirmRegisterNo">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة هل تريد حفظ بيانات الدخول عند الضغط على مشترك -->
+  <div id="saveCredentialsModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <h3 style="margin-top:0; color:#15803d;">هل تريد حفظ بيانات الدخول</h3>
+      <p id="saveCredentialsSummary"></p>
+      <div class="grid-2">
+        <button type="button" class="btn-3d btn-green" id="saveCredYesBtn">نعم</button>
+        <button type="button" class="btn-3d btn-dark" id="saveCredNoBtn">لا</button>
       </div>
     </div>
   </div>
 
   <div class="container">
     <div class="topbar">
-      <div class="brand">لوحة تحكم الأدمن - Engz</div>
-      <a href="index.html" class="btn btn-outline btn-sm">صفحة المستخدم</a>
+      <div class="brand">Engz</div>
+      <button type="button" class="btn-3d btn-amber btn-sm" id="goServicesTopBtn">الخدمات</button>
     </div>
 
-    <!-- شاشة حماية الأدمن بكلمة السر 3852 -->
-    <section id="adminLockCard" class="card">
-      <h2 style="margin-top:0;">دخول الأدمن</h2>
-      <label for="adminPassInput">أدخل كلمة السر</label>
-      <input type="password" id="adminPassInput" placeholder="أدخل كلمة السر" />
-      <button type="button" class="btn" style="width:100%; margin-top:12px;" id="adminUnlockBtn">دخول</button>
-      <div id="adminLockMsg"></div>
+    <!-- 1. الشاشة الرئيسية: مؤقت 30 ثانية تنازلي إلى 0 + شريط تحميل يصل إلى 100% خلال 30 ثانية -->
+    <section id="splashScreen" class="card" style="text-align:center;">
+      <h2 style="margin-top:0; color:#1e40af;">تطبيق Engz</h2>
+      <p style="color:#475569;">جاري التحميل... سيتم الانتقال تلقائياً عند وصول المؤقت إلى 0 واكتمال التحميل 100%</p>
+      <div class="timer-circle" id="countdownDisplay">30</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="splashProgressBar"></div>
+      </div>
+      <div class="progress-label" id="splashProgressLabel">0%</div>
     </section>
 
-    <!-- لوحة الأدمن بعد التحقق من كلمة السر -->
-    <div id="adminDashboard" class="hidden">
-      <div class="nav-grid">
-        <button type="button" class="btn" data-admin-tab="subscribersTab">المشتركين</button>
-        <button type="button" class="btn" data-admin-tab="requestsTab">طلبات التسجيل</button>
-        <button type="button" class="btn" data-admin-tab="ordersTab">الطلبات</button>
-        <button type="button" class="btn" data-admin-tab="completedTab">طلبات منتهيه</button>
-        <button type="button" class="btn" data-admin-tab="challengeTab">تحدى</button>
-        <button type="button" class="btn btn-secondary" data-admin-tab="settingsTab">إعدادات الصور والكاش</button>
+    <!-- 2. صفحة التسجيل: خياران (تسجيل / مشترك) -->
+    <section id="authChoiceScreen" class="card hidden">
+      <h2 style="margin-top:0; color:#1e40af;">صفحة التسجيل - Engz</h2>
+      <div class="grid-2">
+        <button type="button" class="btn-3d" id="openRegisterBtn">تسجيل</button>
+        <button type="button" class="btn-3d btn-green" id="openSubscriberBtn">مشترك</button>
+      </div>
+      <div id="authChoiceMsg"></div>
+    </section>
+
+    <!-- 2-أ. صفحة الاشتراك (بدون إضافة صورة من الاستوديو) -->
+    <section id="registerScreen" class="card hidden">
+      <button type="button" class="btn-3d btn-dark btn-sm" data-back="authChoiceScreen">رجوع</button>
+      <h2 style="color:#1e40af;">صفحة الاشتراك - Engz</h2>
+      <form id="registerForm">
+        <label for="regName">الاسم (غير مكرر)</label>
+        <input type="text" id="regName" placeholder="اكتب اسمك" required />
+
+        <label for="regPhone">رقم الموبيل (رقم مصري فعلي 11 رقماً)</label>
+        <input type="tel" id="regPhone" placeholder="01012345678" maxlength="11" required />
+
+        <button type="submit" class="btn-3d" id="registerSubmitBtn">تسجيل</button>
+      </form>
+      <div id="registerMsg"></div>
+    </section>
+
+    <!-- 2-ب. دخول المشترك: الاسم ورقم التليفون -->
+    <section id="subscriberLoginScreen" class="card hidden">
+      <button type="button" class="btn-3d btn-dark btn-sm" data-back="authChoiceScreen">رجوع</button>
+      <h2 style="color:#15803d;">دخول المشترك - Engz</h2>
+
+      <label for="subNameInput">الاسم</label>
+      <input type="text" id="subNameInput" placeholder="اكتب اسمك المسجل" />
+
+      <label for="subPhoneInput">رقم التليفون</label>
+      <input type="tel" id="subPhoneInput" placeholder="01012345678" maxlength="11" />
+
+      <button type="button" class="btn-3d btn-green" id="subscriberEnterBtn">دخول إلى الخدمات</button>
+      <div id="subLoginMsg"></div>
+    </section>
+
+    <!-- 3. صفحة الخدمات -->
+    <section id="servicesHomeScreen" class="card hidden">
+      <div class="topbar">
+        <div>
+          <h2 style="margin:0; color:#1e40af;">صفحة الخدمات - Engz</h2>
+          <small id="activeSubscriberBadge" style="color:#475569; font-weight:bold;"></small>
+        </div>
+        <button type="button" class="btn-3d btn-dark btn-sm" id="logoutSubscriberBtn">خروج</button>
       </div>
 
-      <!-- 1. المشتركين (العادية + وضع اختيار المشتركين للتحدي) -->
-      <section id="subscribersTab" class="card">
-        <div class="topbar">
-          <h2 style="margin:0;">المشتركين</h2>
-          <div id="challengeSelectionBar" class="hidden" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <label style="margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
-              <input type="checkbox" id="selectAllChallengeCheckbox" />
-              تحديد الكل
-            </label>
-            <button type="button" class="btn btn-success btn-sm" id="confirmChallengeSendBtn">تأكيد إرسال التحدي</button>
-            <button type="button" class="btn btn-secondary btn-sm" id="cancelChallengeSelectBtn">إلغاء</button>
-          </div>
-        </div>
-        <div id="challengeBanner" class="msg msg-ok hidden"></div>
-        <div id="subscribersList">جاري التحميل...</div>
-      </section>
+      <button type="button" class="btn-3d" data-open-service="food">وجبات وسندوتشات</button>
+      <button type="button" class="btn-3d btn-amber" data-open-service="breakfast">فطار المدارس</button>
+      <button type="button" class="btn-3d btn-pink" data-open-service="market">هات من السوق</button>
 
-      <!-- 2. طلبات التسجيل -->
-      <section id="requestsTab" class="card hidden">
-        <h2 style="margin-top:0;">طلبات التسجيل</h2>
-        <div id="requestsList">جاري التحميل...</div>
-      </section>
+      <div class="card" style="margin-top:18px; background:#f8fafc;">
+        <h3 style="margin-top:0; color:#15803d;">التحديات والرسائل المرسلة لك</h3>
+        <div id="myChallengesBox">لا توجد تحديات مرسلة لحسابك حالياً.</div>
+      </div>
 
-      <!-- 3. الطلبات -->
-      <section id="ordersTab" class="card hidden">
-        <h2 style="margin-top:0;">الطلبات</h2>
-        <div id="activeOrdersList">جاري التحميل...</div>
-      </section>
+      <div class="card" style="margin-top:14px; background:#f8fafc;">
+        <h3 style="margin-top:0; color:#1d4ed8;">طلباتي ورسائل الأدمن</h3>
+        <div id="myOrdersList">لا توجد طلبات حتى الآن.</div>
+      </div>
+    </section>
 
-      <!-- 4. طلبات منتهيه -->
-      <section id="completedTab" class="card hidden">
-        <h2 style="margin-top:0;">طلبات منتهيه</h2>
-        <div id="completedOrdersList">جاري التحميل...</div>
-        <div style="margin-top:18px; text-align:left;">
-          <button type="button" class="btn btn-danger" id="clearCompletedBtn">🗑️ حذف كل الطلبات المنتهية</button>
-        </div>
-      </section>
+    <!-- 3-أ. صفحة وجبات وسندوتشات -->
+    <section id="serviceFoodScreen" class="card hidden">
+      <button type="button" class="btn-3d btn-dark btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
+      <h2 style="color:#1d4ed8;">وجبات وسندوتشات</h2>
 
-      <!-- 5. تحدى (5000 حرف) -->
-      <section id="challengeTab" class="card hidden">
-        <h2 style="margin-top:0;">تحدى</h2>
-        <label for="challengeTextArea">اكتب التحدي أو الطلب (حتى 5000 حرف)</label>
-        <textarea id="challengeTextArea" maxlength="5000" placeholder="اكتب نص التحدي هنا..."></textarea>
-        <button type="button" class="btn btn-success" style="width:100%; margin-top:12px;" id="goSelectChallengeSubscribersBtn">إرسال</button>
-        <div id="challengeMsg"></div>
-      </section>
+      <label>صورة قائمة الطعام</label>
+      <img id="foodMenuImg" class="zoomable-img hidden" src="" alt="قائمة الطعام" />
+      <p id="foodMenuEmpty" class="msg msg-info">لا توجد صورة قائمة طعام مضافة حالياً.</p>
 
-      <!-- 6. إعدادات الصور و7 أرقام كاش (اختيار 3 منها) -->
-      <section id="settingsTab" class="card hidden">
-        <h2 style="margin-top:0;">إعدادات الصور وأرقام الكاش</h2>
+      <label>أرقام استلام التحويلات كاش</label>
+      <div class="cash-boxes" id="cashBoxesFood"></div>
 
-        <label for="foodMenuFileInput">صورة قائمة الطعام (صفحة وجبات وسندوتشات - من الاستوديو)</label>
-        <input type="file" id="foodMenuFileInput" accept="image/*" />
-        <img id="foodMenuAdminPreview" class="receipt-thumb hidden" alt="معاينة قائمة الطعام" />
+      <div class="receipt-prompt">قم بتصوير ايصال الدفع</div>
+      <label for="foodReceiptInput">إرفاق إيصال التحويل (الكاميرا أو الاستوديو)</label>
+      <input type="file" id="foodReceiptInput" accept="image/*" />
+      <button type="button" class="btn-3d btn-amber" id="foodConfirmReceiptBtn">تأكيد</button>
 
-        <label for="breakfastMenuFileInput">صورة السندوتشات (صفحة فطار المدارس - من الاستوديو)</label>
-        <input type="file" id="breakfastMenuFileInput" accept="image/*" />
-        <img id="breakfastMenuAdminPreview" class="receipt-thumb hidden" alt="معاينة فطار المدارس" />
+      <label for="foodOrderText">اكتب طلبك (حتى 1000 حرف)</label>
+      <textarea id="foodOrderText" maxlength="1000" placeholder="اكتب تفاصيل طلبك هنا..."></textarea>
 
-        <label style="margin-top:16px;">7 أرقام موبيل للكاش (عدّل أي رقم واختر 3 أرقام للظهور في صفحات الخدمات)</label>
-        <div id="sevenCashInputs"></div>
+      <button type="button" class="btn-3d btn-green" id="foodSendOrderBtn">إرسال</button>
 
-        <button type="button" class="btn btn-success" style="width:100%; margin-top:14px;" id="saveSettingsBtn">حفظ الإعدادات</button>
-        <div id="settingsMsg"></div>
-      </section>
-    </div>
+      <div class="deliver-row">
+        <button type="button" class="btn-3d btn-sm" id="foodDeliveredBtn">تم وصول الطلب</button>
+        <span>اضغط الزرار بعد استلام الطلب</span>
+      </div>
+      <div id="foodStatusMsg"></div>
+    </section>
+
+    <!-- 3-ب. صفحة فطار المدارس -->
+    <section id="serviceBreakfastScreen" class="card hidden">
+      <button type="button" class="btn-3d btn-dark btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
+      <h2 style="color:#b45309;">فطار المدارس</h2>
+
+      <label>صورة السندوتشات</label>
+      <img id="breakfastMenuImg" class="zoomable-img hidden" src="" alt="صورة السندوتشات" />
+      <p id="breakfastMenuEmpty" class="msg msg-info">لا توجد صورة سندوتشات مضافة حالياً.</p>
+
+      <label>أرقام استلام التحويلات كاش</label>
+      <div class="cash-boxes" id="cashBoxesBreakfast"></div>
+
+      <div class="receipt-prompt">قم بتصوير ايصال الدفع</div>
+      <label for="breakfastReceiptInput">إرفاق إيصال التحويل (الكاميرا أو الاستوديو)</label>
+      <input type="file" id="breakfastReceiptInput" accept="image/*" />
+      <button type="button" class="btn-3d btn-amber" id="breakfastConfirmReceiptBtn">تأكيد</button>
+
+      <label for="breakfastOrderText">اكتب طلبك (حتى 1000 حرف)</label>
+      <textarea id="breakfastOrderText" maxlength="1000" placeholder="اكتب تفاصيل طلب فطار المدارس..."></textarea>
+
+      <button type="button" class="btn-3d btn-green" id="breakfastSendOrderBtn">إرسال</button>
+
+      <div class="deliver-row">
+        <button type="button" class="btn-3d btn-sm" id="breakfastDeliveredBtn">تم استلام الطلب</button>
+        <span>اضغط الزرار بعد تسليم الطلب</span>
+      </div>
+      <div id="breakfastStatusMsg"></div>
+    </section>
+
+    <!-- 3-ج. صفحة هات من السوق -->
+    <section id="serviceMarketScreen" class="card hidden">
+      <button type="button" class="btn-3d btn-dark btn-sm" data-back="servicesHomeScreen">رجوع للخدمات</button>
+      <h2 style="color:#be185d;">هات من السوق</h2>
+
+      <label>أرقام استلام التحويلات كاش</label>
+      <div class="cash-boxes" id="cashBoxesMarket"></div>
+
+      <div class="receipt-prompt">قم بتصوير ايصال الدفع</div>
+      <label for="marketReceiptInput">إرفاق إيصال التحويل (الكاميرا أو الاستوديو)</label>
+      <input type="file" id="marketReceiptInput" accept="image/*" />
+      <button type="button" class="btn-3d btn-amber" id="marketConfirmReceiptBtn">تأكيد</button>
+
+      <label for="marketOrderText">اكتب طلبك من السوق (حتى 1000 حرف)</label>
+      <textarea id="marketOrderText" maxlength="1000" placeholder="اكتب طلبات السوق هنا..."></textarea>
+
+      <button type="button" class="btn-3d btn-green" id="marketSendOrderBtn">إرسال</button>
+
+      <div class="deliver-row">
+        <button type="button" class="btn-3d btn-sm" id="marketDeliveredBtn">تم استلام الطلب</button>
+        <span>اضغط الزرار بعد تسليم الطلب</span>
+      </div>
+      <div id="marketStatusMsg"></div>
+    </section>
   </div>
+
+  <!-- سكريبت مستقل للعد التنازلي 30->0 وشريط التحميل 0%->100% -->
+  <script>
+    (function () {
+      const DURATION_MS = 30000;
+      const startTime = Date.now();
+      const countdownEl = document.getElementById("countdownDisplay");
+      const barEl = document.getElementById("splashProgressBar");
+      const labelEl = document.getElementById("splashProgressLabel");
+      const splashEl = document.getElementById("splashScreen");
+      const authEl = document.getElementById("authChoiceScreen");
+
+      const intervalId = setInterval(function () {
+        if (splashEl.classList.contains("hidden")) {
+          clearInterval(intervalId);
+          return;
+        }
+        const elapsed = Date.now() - startTime;
+        const pct = Math.min(100, Math.round((elapsed / DURATION_MS) * 100));
+        const remaining = Math.max(0, Math.ceil((DURATION_MS - elapsed) / 1000));
+
+        countdownEl.textContent = String(remaining);
+        barEl.style.width = pct + "%";
+        labelEl.textContent = pct + "%";
+
+        if (elapsed >= DURATION_MS) {
+          clearInterval(intervalId);
+          countdownEl.textContent = "0";
+          barEl.style.width = "100%";
+          labelEl.textContent = "100%";
+          splashEl.classList.add("hidden");
+          authEl.classList.remove("hidden");
+        }
+      }, 100);
+    })();
+  </script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
     import {
-      getDatabase, ref, get, set, push, update, remove, onValue
+      getDatabase, ref, get, set, push, update, onValue
     } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -266,22 +588,69 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const ADMIN_PASSCODE = "3852";
-    const tabs = ["subscribersTab", "requestsTab", "ordersTab", "completedTab", "challengeTab", "settingsTab"];
+    const MAX_ATTEMPTS = 3;
+    const SESSION_KEY = "engz_active_subscriber";
+    const SAVED_CREDS_KEY = "engz_saved_credentials";
+    const ATTEMPTS_KEY = "engz_attempts_count";
 
-    let subscribersCache = [];
-    let requestsCache = [];
-    let ordersCache = [];
-    let pendingCancelSubscriber = null;
-    let challengeDraftText = "";
-    let challengeSelectionMode = false;
+    const screens = [
+      "splashScreen",
+      "authChoiceScreen",
+      "registerScreen",
+      "subscriberLoginScreen",
+      "servicesHomeScreen",
+      "serviceFoodScreen",
+      "serviceBreakfastScreen",
+      "serviceMarketScreen"
+    ];
 
-    let settingsState = {
+    let appSettings = {
       foodMenuImage: "",
       breakfastMenuImage: "",
-      cashPool: ["", "", "", "", "", "", ""],
-      selectedCashIndexes: [0, 1, 2]
+      activeCashNumbers: ["", "", ""]
     };
+
+    let confirmedReceipts = {
+      food: "",
+      breakfast: "",
+      market: ""
+    };
+
+    let pendingRegisterPayload = null;
+    let pendingLoginCandidate = null;
+    let approvalRedirected = false;
+
+    const lightboxEl = document.getElementById("imageLightbox");
+    const lightboxImgEl = document.getElementById("lightboxImg");
+
+    function openZoomImage(src) {
+      if (!src) return;
+      lightboxImgEl.src = src;
+      lightboxEl.classList.remove("hidden");
+    }
+
+    lightboxEl.addEventListener("click", () => {
+      lightboxEl.classList.add("hidden");
+      lightboxImgEl.src = "";
+    });
+
+    document.addEventListener("click", (e) => {
+      const targetImg = e.target.closest("img.zoomable-img");
+      if (targetImg && targetImg.src) {
+        e.preventDefault();
+        openZoomImage(targetImg.src);
+      }
+    });
+
+    function showScreen(screenId) {
+      screens.forEach((id) => {
+        document.getElementById(id).classList.toggle("hidden", id !== screenId);
+      });
+    }
+
+    function isValidEgyptianPhone(phone) {
+      return /^01[0125][0-9]{8}$/.test(phone.trim());
+    }
 
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
@@ -292,418 +661,570 @@
       });
     }
 
-    function switchAdminTab(tabId) {
-      tabs.forEach((id) => {
-        document.getElementById(id).classList.toggle("hidden", id !== tabId);
+    function getLocalAttempts() {
+      const val = Number(localStorage.getItem(ATTEMPTS_KEY) || "0");
+      return Number.isNaN(val) ? 0 : val;
+    }
+
+    function setLocalAttempts(val) {
+      localStorage.setItem(ATTEMPTS_KEY, String(val));
+    }
+
+    function showPermanentReject() {
+      document.getElementById("permanentRejectScreen").classList.remove("hidden");
+    }
+
+    function getActiveSubscriber() {
+      try {
+        return JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+      } catch {
+        return null;
+      }
+    }
+
+    function setActiveSubscriber(sub) {
+      localStorage.setItem(SESSION_KEY, JSON.stringify(sub));
+    }
+
+    function clearActiveSubscriber() {
+      localStorage.removeItem(SESSION_KEY);
+    }
+
+    function getSavedCredentials() {
+      try {
+        return JSON.parse(localStorage.getItem(SAVED_CREDS_KEY) || "null");
+      } catch {
+        return null;
+      }
+    }
+
+    function setSavedCredentials(creds) {
+      localStorage.setItem(SAVED_CREDS_KEY, JSON.stringify(creds));
+    }
+
+    function clearSavedCredentials() {
+      localStorage.removeItem(SAVED_CREDS_KEY);
+    }
+
+    function updateSubscriberBadge() {
+      const sub = getActiveSubscriber();
+      const badge = document.getElementById("activeSubscriberBadge");
+      if (sub && badge) {
+        badge.textContent = `المشترك: ${sub.name} (${sub.phone})`;
+      }
+    }
+
+    function renderCashNumbers() {
+      const nums = appSettings.activeCashNumbers || ["", "", ""];
+      const boxesHtml = [0, 1, 2].map((idx) => {
+        const num = nums[idx] && String(nums[idx]).trim() ? String(nums[idx]).trim() : "غير محدد";
+        return `<div class="cash-box" data-copy-phone="${num}">كاش ${idx + 1}<br/>${num}</div>`;
+      }).join("");
+      ["cashBoxesFood", "cashBoxesBreakfast", "cashBoxesMarket"].forEach((id) => {
+        const el = document.getElementById(id);
+        el.innerHTML = boxesHtml;
+        el.querySelectorAll(".cash-box").forEach((box) => {
+          box.addEventListener("click", () => {
+            const phoneToCopy = box.getAttribute("data-copy-phone");
+            if (phoneToCopy && phoneToCopy !== "غير محدد" && navigator.clipboard) {
+              navigator.clipboard.writeText(phoneToCopy).catch(() => {});
+            }
+          });
+        });
       });
     }
 
-    document.getElementById("adminUnlockBtn").addEventListener("click", () => {
-      const entered = document.getElementById("adminPassInput").value.trim();
-      const msg = document.getElementById("adminLockMsg");
-      if (entered !== ADMIN_PASSCODE) {
-        msg.innerHTML = `<div class="msg msg-err">كلمة السر غير صحيحة.</div>`;
-        return;
+    function renderMenus() {
+      const foodImg = document.getElementById("foodMenuImg");
+      const foodEmpty = document.getElementById("foodMenuEmpty");
+      if (appSettings.foodMenuImage) {
+        foodImg.src = appSettings.foodMenuImage;
+        foodImg.classList.remove("hidden");
+        foodEmpty.classList.add("hidden");
+      } else {
+        foodImg.classList.add("hidden");
+        foodEmpty.classList.remove("hidden");
       }
-      document.getElementById("adminLockCard").classList.add("hidden");
-      document.getElementById("adminDashboard").classList.remove("hidden");
-      switchAdminTab("subscribersTab");
-    });
 
-    document.querySelectorAll("[data-admin-tab]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        if (btn.getAttribute("data-admin-tab") !== "subscribersTab") {
-          challengeSelectionMode = false;
-          document.getElementById("challengeSelectionBar").classList.add("hidden");
-          document.getElementById("challengeBanner").classList.add("hidden");
-        }
-        switchAdminTab(btn.getAttribute("data-admin-tab"));
-      });
-    });
-
-    // بناء 7 خانات أرقام الكاش مع اختيار 3 أرقام
-    function renderSevenCashForm() {
-      const wrap = document.getElementById("sevenCashInputs");
-      const pool = settingsState.cashPool || ["", "", "", "", "", "", ""];
-      const chosen = settingsState.selectedCashIndexes || [0, 1, 2];
-
-      wrap.innerHTML = Array.from({ length: 7 }, (_, i) => `
-        <div class="cash-pool-row">
-          <strong>#${i + 1}</strong>
-          <input type="tel" class="cash-pool-input" data-idx="${i}" value="${pool[i] || ""}" placeholder="رقم الكاش ${i + 1}" maxlength="11" />
-          <label style="margin:0; font-size:12px; display:flex; align-items:center; gap:4px; cursor:pointer;">
-            <input type="checkbox" class="cash-pick-check" data-idx="${i}" ${chosen.includes(i) ? "checked" : ""} />
-            اختيار
-          </label>
-        </div>
-      `).join("");
-
-      wrap.querySelectorAll(".cash-pick-check").forEach((chk) => {
-        chk.addEventListener("change", () => {
-          const checkedBoxes = [...wrap.querySelectorAll(".cash-pick-check:checked")];
-          if (checkedBoxes.length > 3) {
-            chk.checked = false;
-            alert("يمكنك اختيار 3 أرقام كاش فقط للظهور في صفحات الخدمات.");
-          }
-        });
-      });
+      const brImg = document.getElementById("breakfastMenuImg");
+      const brEmpty = document.getElementById("breakfastMenuEmpty");
+      if (appSettings.breakfastMenuImage) {
+        brImg.src = appSettings.breakfastMenuImage;
+        brImg.classList.remove("hidden");
+        brEmpty.classList.add("hidden");
+      } else {
+        brImg.classList.add("hidden");
+        brEmpty.classList.remove("hidden");
+      }
     }
 
     onValue(ref(db, "settings"), (snap) => {
       if (snap.exists()) {
-        settingsState = { ...settingsState, ...snap.val() };
+        appSettings = { ...appSettings, ...snap.val() };
       }
-      renderSevenCashForm();
-
-      const foodPrev = document.getElementById("foodMenuAdminPreview");
-      if (settingsState.foodMenuImage) {
-        foodPrev.src = settingsState.foodMenuImage;
-        foodPrev.classList.remove("hidden");
-      }
-
-      const brPrev = document.getElementById("breakfastMenuAdminPreview");
-      if (settingsState.breakfastMenuImage) {
-        brPrev.src = settingsState.breakfastMenuImage;
-        brPrev.classList.remove("hidden");
-      }
+      renderCashNumbers();
+      renderMenus();
     });
 
-    document.getElementById("foodMenuFileInput").addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      settingsState.foodMenuImage = await fileToBase64(file);
-      const prev = document.getElementById("foodMenuAdminPreview");
-      prev.src = settingsState.foodMenuImage;
-      prev.classList.remove("hidden");
-    });
+    onValue(ref(db, "registrationRequests"), (snap) => {
+      const sub = getActiveSubscriber();
+      const trackedPhone = sub?.phone || localStorage.getItem("engz_tracked_phone") || "";
+      if (!trackedPhone || !snap.exists()) return;
 
-    document.getElementById("breakfastMenuFileInput").addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      settingsState.breakfastMenuImage = await fileToBase64(file);
-      const prev = document.getElementById("breakfastMenuAdminPreview");
-      prev.src = settingsState.breakfastMenuImage;
-      prev.classList.remove("hidden");
-    });
+      const items = Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }));
+      const myReqs = items.filter((r) => r.phone === trackedPhone);
+      if (!myReqs.length) return;
 
-    document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
-      const inputs = [...document.querySelectorAll(".cash-pool-input")];
-      const checks = [...document.querySelectorAll(".cash-pick-check")];
-
-      const pool = inputs.map((inp) => inp.value.trim());
-      const pickedIndexes = checks.filter((c) => c.checked).map((c) => Number(c.getAttribute("data-idx")));
-
-      if (pickedIndexes.length !== 3) {
-        document.getElementById("settingsMsg").innerHTML =
-          `<div class="msg msg-err">يجب تحديد 3 أرقام بالضبط من الـ 7 أرقام للظهور في صفحات الخدمات.</div>`;
+      const rejectCount = myReqs.filter((r) => r.status === "rejected").length;
+      if (rejectCount >= MAX_ATTEMPTS || getLocalAttempts() >= MAX_ATTEMPTS) {
+        showPermanentReject();
         return;
       }
 
-      const activeCashNumbers = pickedIndexes.map((idx) => pool[idx] || "");
+      const latest = myReqs[myReqs.length - 1];
+      const msgBox = document.getElementById("registerMsg");
 
-      await set(ref(db, "settings"), {
-        foodMenuImage: settingsState.foodMenuImage || "",
-        breakfastMenuImage: settingsState.breakfastMenuImage || "",
-        cashPool: pool,
-        selectedCashIndexes: pickedIndexes,
-        activeCashNumbers
-      });
-
-      document.getElementById("settingsMsg").innerHTML =
-        `<div class="msg msg-ok">تم حفظ صور القوائم والأرقام الثلاثة المختارة بنجاح.</div>`;
-    });
-
-    // عرض المشتركين + إلغاء الاشتراك + تجميد العضوية + تحديد التحدي
-    function renderSubscribers() {
-      const box = document.getElementById("subscribersList");
-      const activeSubs = subscribersCache.filter((s) => !s.cancelled);
-      if (!activeSubs.length) {
-        box.innerHTML = "<p>لا يوجد مشتركين حالياً.</p>";
-        return;
+      if (latest.status === "approved" && !approvalRedirected) {
+        approvalRedirected = true;
+        if (msgBox) {
+          msgBox.innerHTML = `<div class="msg msg-ok">تم تسجيلك بنجاح جارى الانتقال الى صفحه الخدمات</div>`;
+        }
+        setTimeout(() => {
+          const userData = { name: latest.name, phone: latest.phone };
+          setActiveSubscriber(userData);
+          updateSubscriberBadge();
+          showScreen("servicesHomeScreen");
+        }, 5000);
+      } else if (latest.status === "rejected" && msgBox) {
+        msgBox.innerHTML = `<div class="msg msg-err">تم رفض طلبك حاول مره اخرى (${rejectCount} من ${MAX_ATTEMPTS})</div>`;
       }
-
-      box.innerHTML = activeSubs.map((sub) => `
-        <div class="item-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-            <div>
-              <strong>${sub.name}</strong> — <span>${sub.phone}</span>
-              ${sub.frozen ? `<span style="color:#b45309; font-weight:bold;"> (مجمد)</span>` : ""}
-            </div>
-            ${challengeSelectionMode
-              ? `<label style="margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
-                   <input type="checkbox" class="challenge-sub-checkbox" data-phone="${sub.phone}" />
-                   إدخال في التحدي
-                 </label>`
-              : `<div class="actions-row" style="margin-top:0;">
-                   <button type="button" class="btn btn-warning btn-sm toggle-freeze-btn" data-id="${sub.id}" data-frozen="${sub.frozen ? "1" : "0"}">
-                     ${sub.frozen ? "فك التجميد" : "تجميد"}
-                   </button>
-                   <button type="button" class="btn btn-danger btn-sm cancel-sub-btn" data-id="${sub.id}" data-name="${sub.name}" data-phone="${sub.phone}">
-                     الغاء الاشتراك
-                   </button>
-                 </div>`
-            }
-          </div>
-        </div>
-      `).join("");
-
-      box.querySelectorAll(".toggle-freeze-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const id = btn.getAttribute("data-id");
-          const isFrozen = btn.getAttribute("data-frozen") === "1";
-          await update(ref(db, `subscribers/${id}`), { frozen: !isFrozen });
-        });
-      });
-
-      box.querySelectorAll(".cancel-sub-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          pendingCancelSubscriber = {
-            id: btn.getAttribute("data-id"),
-            name: btn.getAttribute("data-name"),
-            phone: btn.getAttribute("data-phone")
-          };
-          document.getElementById("cancelPromptLine1").textContent =
-            `هل تريد الغاء اشتراك ${pendingCancelSubscriber.name}`;
-          document.getElementById("cancelPromptLine2").textContent =
-            `سيتم حذف المشترك ${pendingCancelSubscriber.name} من صفحه المشتركين`;
-          document.getElementById("cancelConfirmModal").classList.remove("hidden");
-        });
-      });
-    }
-
-    document.getElementById("confirmCancelNoBtn").addEventListener("click", () => {
-      pendingCancelSubscriber = null;
-      document.getElementById("cancelConfirmModal").classList.add("hidden");
-    });
-
-    document.getElementById("confirmCancelYesBtn").addEventListener("click", async () => {
-      if (!pendingCancelSubscriber) return;
-      const { id, phone } = pendingCancelSubscriber;
-      pendingCancelSubscriber = null;
-      document.getElementById("cancelConfirmModal").classList.add("hidden");
-
-      await remove(ref(db, `subscribers/${id}`));
-      const bannedRef = push(ref(db, "bannedPhones"));
-      await set(bannedRef, phone);
     });
 
     onValue(ref(db, "subscribers"), (snap) => {
-      subscribersCache = snap.exists()
-        ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
-        : [];
-      renderSubscribers();
+      const sub = getActiveSubscriber();
+      if (!sub) return;
+      const list = snap.exists() ? Object.values(snap.val()) : [];
+      const current = list.find((s) => s.phone === sub.phone);
+      if (!current || current.cancelled) {
+        clearActiveSubscriber();
+        clearSavedCredentials();
+        showScreen("authChoiceScreen");
+        document.getElementById("authChoiceMsg").innerHTML =
+          `<div class="msg msg-err">تم إلغاء اشتراكك من الإدارة.</div>`;
+      } else if (current.frozen) {
+        updateSubscriberBadge();
+        document.getElementById("activeSubscriberBadge").textContent =
+          `المشترك: ${current.name} (${current.phone}) - عضوية مجمدة`;
+      } else {
+        updateSubscriberBadge();
+      }
     });
 
-    // طلبات التسجيل: تأكيد / رفض
-    onValue(ref(db, "registrationRequests"), (snap) => {
-      requestsCache = snap.exists()
-        ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
-        : [];
-
-      const box = document.getElementById("requestsList");
-      const pendingList = requestsCache.filter((r) => r.status === "pending");
-
-      if (!pendingList.length) {
-        box.innerHTML = "<p>لا توجد طلبات تسجيل معلقة حالياً.</p>";
+    onValue(ref(db, "challenges"), (snap) => {
+      const sub = getActiveSubscriber();
+      const box = document.getElementById("myChallengesBox");
+      if (!sub || !box) return;
+      if (!snap.exists()) {
+        box.innerHTML = "لا توجد تحديات مرسلة لحسابك حالياً.";
         return;
       }
-
-      box.innerHTML = pendingList.map((r) => `
-        <div class="item-card">
-          <div><strong>${r.name}</strong> — <span>${r.phone}</span> (المحاولة ${r.attemptNumber || 1} من 3)</div>
-          ${r.photo ? `<img src="${r.photo}" class="receipt-thumb" alt="صورة المستخدم" />` : ""}
-          <div class="actions-row">
-            <button type="button" class="btn btn-success btn-sm approve-req-btn" data-id="${r.id}" data-name="${r.name}" data-phone="${r.phone}">تأكيد</button>
-            <button type="button" class="btn btn-danger btn-sm reject-req-btn" data-id="${r.id}">رفض</button>
-          </div>
-        </div>
-      `).join("");
-
-      box.querySelectorAll(".approve-req-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const reqId = btn.getAttribute("data-id");
-          const name = btn.getAttribute("data-name");
-          const phone = btn.getAttribute("data-phone");
-
-          await update(ref(db, `registrationRequests/${reqId}`), {
-            status: "approved",
-            decidedAt: new Date().toISOString()
-          });
-
-          const subRef = push(ref(db, "subscribers"));
-          await set(subRef, {
-            name,
-            phone,
-            frozen: false,
-            cancelled: false,
-            approvedAt: new Date().toISOString()
-          });
-        });
-      });
-
-      box.querySelectorAll(".reject-req-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const reqId = btn.getAttribute("data-id");
-          await update(ref(db, `registrationRequests/${reqId}`), {
-            status: "rejected",
-            decidedAt: new Date().toISOString()
-          });
-        });
-      });
+      const list = Object.values(snap.val()).filter(
+        (c) => Array.isArray(c.selectedPhones) && c.selectedPhones.includes(sub.phone)
+      );
+      if (!list.length) {
+        box.innerHTML = "لا توجد تحديات مرسلة لحسابك حالياً.";
+        return;
+      }
+      box.innerHTML = list.map((c) => {
+        const imgHtml = c.image
+          ? `<img src="${c.image}" class="zoomable-img" alt="صورة مرسلة" />`
+          : "";
+        return `<div class="challenge-box">${c.text || ""}${imgHtml}</div>`;
+      }).join("");
     });
 
-    // الطلبات النشطة والطلبات المنتهية
     onValue(ref(db, "orders"), (snap) => {
-      ordersCache = snap.exists()
-        ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
-        : [];
-
-      const activeBox = document.getElementById("activeOrdersList");
-      const completedBox = document.getElementById("completedOrdersList");
-
-      const activeList = ordersCache
-        .filter((o) => o.status !== "completed")
-        .sort((a, b) => Number(a.orderNumber || 0) - Number(b.orderNumber || 0));
-
-      const completedList = ordersCache
-        .filter((o) => o.status === "completed")
-        .sort((a, b) => Number(a.orderNumber || 0) - Number(b.orderNumber || 0));
-
-      if (!activeList.length) {
-        activeBox.innerHTML = "<p>لا توجد طلبات نشطة حالياً.</p>";
-      } else {
-        activeBox.innerHTML = activeList.map((o) => `
-          <div class="item-card">
-            <div><strong>طلب رقم #${o.orderNumber}</strong> — ${o.serviceLabel}</div>
-            <div>المشترك: <strong>${o.subscriberName}</strong> | رقم التليفون: <strong>${o.phone}</strong></div>
-            <div style="margin-top:6px;">الطلب: ${o.details}</div>
-            ${o.receiptImage ? `<img src="${o.receiptImage}" class="receipt-thumb" alt="صورة إيصال التحويل" />` : ""}
-
-            <div class="actions-row">
-              <input type="text" id="replyInput_${o.id}" value="${o.adminMessage || ""}" placeholder="اكتب رسالة أو استفسار للمشترك..." style="flex:1; min-width:200px; margin-top:0;" />
-              <button type="button" class="btn btn-sm send-reply-btn" data-id="${o.id}">ارسال</button>
-            </div>
-
-            <div class="actions-row">
-              <button type="button" class="btn btn-success btn-sm admin-complete-order-btn" data-id="${o.id}">تأكيد استلام الطلب</button>
-              <button type="button" class="btn btn-warning btn-sm admin-freeze-from-order-btn" data-phone="${o.phone}">تجميد</button>
-            </div>
-          </div>
-        `).join("");
-
-        activeBox.querySelectorAll(".send-reply-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const id = btn.getAttribute("data-id");
-            const txt = document.getElementById(`replyInput_${id}`).value.trim();
-            await update(ref(db, `orders/${id}`), { adminMessage: txt });
-            alert("تم إرسال الرسالة للمشترك.");
-          });
-        });
-
-        activeBox.querySelectorAll(".admin-complete-order-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const id = btn.getAttribute("data-id");
-            await update(ref(db, `orders/${id}`), {
-              status: "completed",
-              completedBy: "admin",
-              completedAt: new Date().toISOString()
-            });
-          });
-        });
-
-        activeBox.querySelectorAll(".admin-freeze-from-order-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const phone = btn.getAttribute("data-phone");
-            const targetSub = subscribersCache.find((s) => s.phone === phone && !s.cancelled);
-            if (!targetSub) {
-              alert("هذا المشترك غير موجود في قائمة المشتركين النشطين.");
-              return;
-            }
-            await update(ref(db, `subscribers/${targetSub.id}`), { frozen: true });
-            alert(`تم تجميد عضوية المشترك ${targetSub.name}.`);
-          });
-        });
-      }
-
-      if (!completedList.length) {
-        completedBox.innerHTML = "<p>لا توجد طلبات منتهية حالياً.</p>";
-      } else {
-        completedBox.innerHTML = completedList.map((o) => `
-          <div class="item-card">
-            <div><strong>طلب رقم #${o.orderNumber}</strong> — ${o.serviceLabel}</div>
-            <div>المشترك: <strong>${o.subscriberName}</strong> | رقم التليفون: <strong>${o.phone}</strong></div>
-            <div style="margin-top:4px;">الطلب: ${o.details}</div>
-            ${o.receiptImage ? `<img src="${o.receiptImage}" class="receipt-thumb" alt="صورة إيصال التحويل" />` : ""}
-          </div>
-        `).join("");
-      }
-    });
-
-    // حذف كل الطلبات المنتهية من سلة المحذوفات
-    document.getElementById("clearCompletedBtn").addEventListener("click", async () => {
-      const completedOnly = ordersCache.filter((o) => o.status === "completed");
-      if (!completedOnly.length) return;
-      await Promise.all(completedOnly.map((o) => remove(ref(db, `orders/${o.id}`))));
-    });
-
-    // التحديات: كتابة حتى 5000 حرف -> الانتقال للمشتركين مع مربعات الاختيار وتحديد الكل
-    document.getElementById("goSelectChallengeSubscribersBtn").addEventListener("click", () => {
-      const text = document.getElementById("challengeTextArea").value.trim();
-      const msg = document.getElementById("challengeMsg");
-      if (!text) {
-        msg.innerHTML = `<div class="msg msg-err">اكتب نص التحدي أولاً.</div>`;
+      const sub = getActiveSubscriber();
+      const box = document.getElementById("myOrdersList");
+      if (!sub || !box) return;
+      if (!snap.exists()) {
+        box.innerHTML = "لا توجد طلبات حتى الآن.";
         return;
       }
-      challengeDraftText = text;
-      challengeSelectionMode = true;
-      switchAdminTab("subscribersTab");
-      document.getElementById("challengeSelectionBar").classList.remove("hidden");
-      document.getElementById("challengeBanner").innerHTML =
-        "اختر المشتركين المراد إدخالهم في التحدي ثم اضغط <strong>تأكيد إرسال التحدي</strong>.";
-      document.getElementById("challengeBanner").classList.remove("hidden");
-      renderSubscribers();
+      const mine = Object.values(snap.val()).filter((o) => o.phone === sub.phone);
+      if (!mine.length) {
+        box.innerHTML = "لا توجد طلبات حتى الآن.";
+        return;
+      }
+      box.innerHTML = mine.map((o) => {
+        const replyImgHtml = o.adminImage
+          ? `<img src="${o.adminImage}" class="zoomable-img" alt="صورة مرفقة" />`
+          : "";
+        return `
+          <div class="order-item">
+            <div><strong>طلب رقم #${o.orderNumber}</strong> — ${o.serviceLabel} (${o.status === "completed" ? "منتهي" : "قيد التنفيذ"})</div>
+            <div style="margin-top:4px;">${o.details}</div>
+            ${o.adminMessage || o.adminImage
+              ? `<div class="admin-reply-box">${o.adminMessage ? `<div>${o.adminMessage}</div>` : ""}${replyImgHtml}</div>`
+              : ""}
+          </div>
+        `;
+      }).join("");
     });
 
-    document.getElementById("selectAllChallengeCheckbox").addEventListener("change", (e) => {
-      const checked = e.target.checked;
-      document.querySelectorAll(".challenge-sub-checkbox").forEach((cb) => {
-        cb.checked = checked;
-      });
+    document.getElementById("openRegisterBtn").addEventListener("click", () => {
+      if (getLocalAttempts() >= MAX_ATTEMPTS) {
+        showPermanentReject();
+        return;
+      }
+      showScreen("registerScreen");
     });
 
-    document.getElementById("cancelChallengeSelectBtn").addEventListener("click", () => {
-      challengeSelectionMode = false;
-      challengeDraftText = "";
-      document.getElementById("challengeSelectionBar").classList.add("hidden");
-      document.getElementById("challengeBanner").classList.add("hidden");
-      renderSubscribers();
+    document.getElementById("openSubscriberBtn").addEventListener("click", () => {
+      const saved = getSavedCredentials();
+      document.getElementById("subNameInput").value = saved?.name || "";
+      document.getElementById("subPhoneInput").value = saved?.phone || "";
+      document.getElementById("subLoginMsg").innerHTML = "";
+      showScreen("subscriberLoginScreen");
     });
 
-    document.getElementById("confirmChallengeSendBtn").addEventListener("click", async () => {
-      const selectedPhones = [...document.querySelectorAll(".challenge-sub-checkbox:checked")]
-        .map((cb) => cb.getAttribute("data-phone"));
+    document.getElementById("goServicesTopBtn").addEventListener("click", async () => {
+      const sub = getActiveSubscriber();
+      if (!sub) {
+        showScreen("subscriberLoginScreen");
+        return;
+      }
+      const snap = await get(ref(db, "subscribers"));
+      const list = snap.exists() ? Object.values(snap.val()) : [];
+      const active = list.find(
+        (s) => s.phone === sub.phone && !s.cancelled && s.name && s.name.trim().toLowerCase() === sub.name.trim().toLowerCase()
+      );
+      if (!active) {
+        clearActiveSubscriber();
+        showScreen("subscriberLoginScreen");
+        return;
+      }
+      updateSubscriberBadge();
+      showScreen("servicesHomeScreen");
+    });
 
-      if (!selectedPhones.length) {
-        alert("اختر مشتركاً واحداً على الأقل لإدخاله في التحدي.");
+    document.getElementById("subscriberEnterBtn").addEventListener("click", async () => {
+      const name = document.getElementById("subNameInput").value.trim();
+      const phone = document.getElementById("subPhoneInput").value.trim();
+      const msg = document.getElementById("subLoginMsg");
+
+      if (!name) {
+        msg.innerHTML = `<div class="msg msg-err">ادخل الاسم</div>`;
+        return;
+      }
+      if (!isValidEgyptianPhone(phone)) {
+        msg.innerHTML = `<div class="msg msg-err">ادخل رقم موبيل فعلى</div>`;
         return;
       }
 
-      const newChallengeRef = push(ref(db, "challenges"));
-      await set(newChallengeRef, {
-        text: challengeDraftText,
-        selectedPhones,
+      const snap = await get(ref(db, "subscribers"));
+      const list = snap.exists() ? Object.values(snap.val()) : [];
+      const found = list.find(
+        (s) => s.phone === phone && !s.cancelled && s.name && s.name.trim().toLowerCase() === name.toLowerCase()
+      );
+
+      if (!found) {
+        msg.innerHTML = `<div class="msg msg-err">الاسم أو رقم التليفون غير مطابق لحساب مشترك فعّال.</div>`;
+        return;
+      }
+
+      pendingLoginCandidate = { name: found.name.trim(), phone: found.phone.trim() };
+      document.getElementById("saveCredentialsSummary").innerHTML =
+        `الاسم: <strong>${pendingLoginCandidate.name}</strong><br/>رقم التليفون: <strong>${pendingLoginCandidate.phone}</strong>`;
+      document.getElementById("saveCredentialsModal").classList.remove("hidden");
+    });
+
+    document.getElementById("saveCredYesBtn").addEventListener("click", () => {
+      if (!pendingLoginCandidate) return;
+      const chosen = pendingLoginCandidate;
+      pendingLoginCandidate = null;
+      document.getElementById("saveCredentialsModal").classList.add("hidden");
+
+      setSavedCredentials(chosen);
+      setActiveSubscriber(chosen);
+      updateSubscriberBadge();
+      showScreen("servicesHomeScreen");
+    });
+
+    document.getElementById("saveCredNoBtn").addEventListener("click", () => {
+      if (!pendingLoginCandidate) return;
+      const chosen = pendingLoginCandidate;
+      pendingLoginCandidate = null;
+      document.getElementById("saveCredentialsModal").classList.add("hidden");
+
+      clearSavedCredentials();
+      clearActiveSubscriber();
+      document.getElementById("subNameInput").value = "";
+      document.getElementById("subPhoneInput").value = "";
+      updateSubscriberBadge();
+      showScreen("servicesHomeScreen");
+    });
+
+    document.getElementById("logoutSubscriberBtn").addEventListener("click", () => {
+      clearActiveSubscriber();
+      showScreen("authChoiceScreen");
+    });
+
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("registerMsg");
+      const currentAttempts = getLocalAttempts();
+
+      if (currentAttempts >= MAX_ATTEMPTS) {
+        showPermanentReject();
+        return;
+      }
+
+      const name = document.getElementById("regName").value.trim();
+      const phone = document.getElementById("regPhone").value.trim();
+
+      if (!isValidEgyptianPhone(phone)) {
+        msg.innerHTML = `<div class="msg msg-err">ادخل رقم موبيل فعلى</div>`;
+        return;
+      }
+
+      const bannedSnap = await get(ref(db, "bannedPhones"));
+      if (bannedSnap.exists()) {
+        const bannedList = Object.values(bannedSnap.val());
+        if (bannedList.includes(phone)) {
+          msg.innerHTML = `<div class="msg msg-err">لا يمكن قبول الاشتراك لهذا الرقم بعد إلغاء الاشتراك.</div>`;
+          return;
+        }
+      }
+
+      const [subsSnap, reqsSnap] = await Promise.all([
+        get(ref(db, "subscribers")),
+        get(ref(db, "registrationRequests"))
+      ]);
+
+      const takenNames = [];
+      if (subsSnap.exists()) {
+        Object.values(subsSnap.val()).forEach((s) => {
+          if (!s.cancelled && s.name) takenNames.push(s.name.trim().toLowerCase());
+        });
+      }
+      if (reqsSnap.exists()) {
+        Object.values(reqsSnap.val()).forEach((r) => {
+          if (r.status !== "rejected" && r.name) takenNames.push(r.name.trim().toLowerCase());
+        });
+      }
+
+      if (takenNames.includes(name.toLowerCase())) {
+        msg.innerHTML = `<div class="msg msg-err">هذا الاسم موجود بالفعل اختر اسم اخر باضافه حروف او رموز</div>`;
+        return;
+      }
+
+      pendingRegisterPayload = {
+        name,
+        phone,
+        attemptNumber: currentAttempts + 1
+      };
+
+      document.getElementById("confirmRegisterDetails").innerHTML =
+        `المحاولة <strong>${pendingRegisterPayload.attemptNumber}</strong> من <strong>${MAX_ATTEMPTS}</strong><br/>الاسم: <strong>${name}</strong><br/>الموبيل: <strong>${phone}</strong>`;
+      document.getElementById("confirmRegisterModal").classList.remove("hidden");
+    });
+
+    document.getElementById("confirmRegisterNo").addEventListener("click", () => {
+      pendingRegisterPayload = null;
+      document.getElementById("confirmRegisterModal").classList.add("hidden");
+    });
+
+    document.getElementById("confirmRegisterYes").addEventListener("click", async () => {
+      if (!pendingRegisterPayload) return;
+      const payload = pendingRegisterPayload;
+      pendingRegisterPayload = null;
+      document.getElementById("confirmRegisterModal").classList.add("hidden");
+
+      const nextAttempt = getLocalAttempts() + 1;
+      setLocalAttempts(nextAttempt);
+      localStorage.setItem("engz_tracked_phone", payload.phone);
+
+      const reqRef = push(ref(db, "registrationRequests"));
+      await set(reqRef, {
+        name: payload.name,
+        phone: payload.phone,
+        attemptNumber: nextAttempt,
+        status: "pending",
         createdAt: new Date().toISOString()
       });
 
-      challengeSelectionMode = false;
-      challengeDraftText = "";
-      document.getElementById("challengeTextArea").value = "";
-      document.getElementById("selectAllChallengeCheckbox").checked = false;
-      document.getElementById("challengeSelectionBar").classList.add("hidden");
-      document.getElementById("challengeBanner").classList.add("hidden");
-      renderSubscribers();
-      alert("تم إرسال التحدي للمشتركين المحددين بنجاح.");
+      document.getElementById("registerMsg").innerHTML =
+        `<div class="msg msg-info">تم تأكيد وإرسال طلب التسجيل (المحاولة ${nextAttempt} من ${MAX_ATTEMPTS}) وهو بانتظار قرار الأدمن.</div>`;
+      document.getElementById("registerForm").reset();
     });
+
+    document.querySelectorAll("[data-open-service]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const sub = getActiveSubscriber();
+        if (!sub) {
+          showScreen("subscriberLoginScreen");
+          return;
+        }
+        const snap = await get(ref(db, "subscribers"));
+        const list = snap.exists() ? Object.values(snap.val()) : [];
+        const current = list.find((s) => s.phone === sub.phone && !s.cancelled);
+        if (!current) {
+          clearActiveSubscriber();
+          showScreen("authChoiceScreen");
+          return;
+        }
+        if (current.frozen) {
+          alert("عضويتك مجمدة حالياً ولا يمكنك تنفيذ طلبات جديدة.");
+          return;
+        }
+        const svc = btn.getAttribute("data-open-service");
+        if (svc === "food") showScreen("serviceFoodScreen");
+        if (svc === "breakfast") showScreen("serviceBreakfastScreen");
+        if (svc === "market") showScreen("serviceMarketScreen");
+      });
+    });
+
+    document.querySelectorAll("[data-back]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        showScreen(btn.getAttribute("data-back"));
+      });
+    });
+
+    function initServicePage(cfg) {
+      let tempReceiptBase64 = "";
+      const fileInput = document.getElementById(cfg.fileInputId);
+      const confirmBtn = document.getElementById(cfg.confirmBtnId);
+      const textInput = document.getElementById(cfg.textInputId);
+      const sendBtn = document.getElementById(cfg.sendBtnId);
+      const deliveredBtn = document.getElementById(cfg.deliveredBtnId);
+      const statusBox = document.getElementById(cfg.statusBoxId);
+
+      fileInput.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) {
+          tempReceiptBase64 = "";
+          return;
+        }
+        tempReceiptBase64 = await fileToBase64(file);
+      });
+
+      confirmBtn.addEventListener("click", () => {
+        if (!tempReceiptBase64) {
+          statusBox.innerHTML = `<div class="msg msg-err">قم بتصوير ايصال الدفع أو اختياره أولاً ثم اضغط تأكيد.</div>`;
+          return;
+        }
+        confirmedReceipts[cfg.key] = tempReceiptBase64;
+        statusBox.innerHTML = `<div class="msg msg-ok">تم تأكيد إيصال الدفع بنجاح وسيتم إرساله مع الطلب.</div>`;
+      });
+
+      sendBtn.addEventListener("click", async () => {
+        const sub = getActiveSubscriber();
+        if (!sub) {
+          showScreen("subscriberLoginScreen");
+          return;
+        }
+        const details = textInput.value.trim();
+        if (!details) {
+          statusBox.innerHTML = `<div class="msg msg-err">يرجى كتابة تفاصيل الطلب أولاً.</div>`;
+          return;
+        }
+
+        const receiptToSend = confirmedReceipts[cfg.key] || tempReceiptBase64 || "";
+
+        const ordersSnap = await get(ref(db, "orders"));
+        let nextOrderNumber = 1;
+        if (ordersSnap.exists()) {
+          const allOrders = Object.values(ordersSnap.val());
+          const maxNum = allOrders.reduce((max, o) => Math.max(max, Number(o.orderNumber || 0)), 0);
+          nextOrderNumber = maxNum + 1;
+        }
+
+        const newOrderRef = push(ref(db, "orders"));
+        await set(newOrderRef, {
+          orderNumber: nextOrderNumber,
+          serviceKey: cfg.key,
+          serviceLabel: cfg.label,
+          subscriberName: sub.name,
+          phone: sub.phone,
+          details,
+          receiptImage: receiptToSend,
+          adminMessage: "",
+          adminImage: "",
+          status: "active",
+          createdAt: new Date().toISOString()
+        });
+
+        textInput.value = "";
+        fileInput.value = "";
+        tempReceiptBase64 = "";
+        confirmedReceipts[cfg.key] = "";
+
+        statusBox.innerHTML = `<div class="msg msg-ok">تم إرسال الطلب رقم #${nextOrderNumber} بنجاح.</div>`;
+      });
+
+      deliveredBtn.addEventListener("click", async () => {
+        const sub = getActiveSubscriber();
+        if (!sub) return;
+        const ordersSnap = await get(ref(db, "orders"));
+        if (!ordersSnap.exists()) return;
+
+        const entries = Object.entries(ordersSnap.val());
+        const target = [...entries].reverse().find(
+          ([, o]) => o.phone === sub.phone && o.serviceKey === cfg.key && o.status === "active"
+        );
+        if (!target) {
+          statusBox.innerHTML = `<div class="msg msg-info">لا يوجد طلب نشط حالياً في هذا القسم.</div>`;
+          return;
+        }
+        const [orderId, orderData] = target;
+        await update(ref(db, `orders/${orderId}`), {
+          status: "completed",
+          completedBy: "subscriber",
+          completedAt: new Date().toISOString()
+        });
+        statusBox.innerHTML = `<div class="msg msg-ok">تم تأكيد استلام الطلب رقم #${orderData.orderNumber} ونقله إلى الطلبات المنتهية.</div>`;
+      });
+    }
+
+    initServicePage({
+      key: "food",
+      label: "وجبات وسندوتشات",
+      fileInputId: "foodReceiptInput",
+      confirmBtnId: "foodConfirmReceiptBtn",
+      textInputId: "foodOrderText",
+      sendBtnId: "foodSendOrderBtn",
+      deliveredBtnId: "foodDeliveredBtn",
+      statusBoxId: "foodStatusMsg"
+    });
+
+    initServicePage({
+      key: "breakfast",
+      label: "فطار المدارس",
+      fileInputId: "breakfastReceiptInput",
+      confirmBtnId: "breakfastConfirmReceiptBtn",
+      textInputId: "breakfastOrderText",
+      sendBtnId: "breakfastSendOrderBtn",
+      deliveredBtnId: "breakfastDeliveredBtn",
+      statusBoxId: "breakfastStatusMsg"
+    });
+
+    initServicePage({
+      key: "market",
+      label: "هات من السوق",
+      fileInputId: "marketReceiptInput",
+      confirmBtnId: "marketConfirmReceiptBtn",
+      textInputId: "marketOrderText",
+      sendBtnId: "marketSendOrderBtn",
+      deliveredBtnId: "marketDeliveredBtn",
+      statusBoxId: "marketStatusMsg"
+    });
+
+    if (getLocalAttempts() >= MAX_ATTEMPTS) {
+      showPermanentReject();
+    } else {
+      clearActiveSubscriber();
+    }
   </script>
 </body>
 </html>
