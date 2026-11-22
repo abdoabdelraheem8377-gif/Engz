@@ -1084,4 +1084,89 @@
 
         const newOrderRef = push(ref(db, "orders"));
         await set(newOrderRef, {
-     
+          orderNumber: nextOrderNumber,
+          serviceKey: cfg.key,
+          serviceLabel: cfg.label,
+          subscriberName: sub.name,
+          phone: sub.phone,
+          details,
+          receiptImage: receiptToSend,
+          adminMessage: "",
+          adminImage: "",
+          status: "active",
+          createdAt: new Date().toISOString()
+        });
+
+        textInput.value = "";
+        fileInput.value = "";
+        tempReceiptBase64 = "";
+        confirmedReceipts[cfg.key] = "";
+
+        statusBox.innerHTML = `<div class="msg msg-ok">تم إرسال الطلب رقم #${nextOrderNumber} بنجاح.</div>`;
+      });
+
+      deliveredBtn.addEventListener("click", async () => {
+        const sub = getActiveSubscriber();
+        if (!sub) return;
+        const ordersSnap = await get(ref(db, "orders"));
+        if (!ordersSnap.exists()) return;
+
+        const entries = Object.entries(ordersSnap.val());
+        const target = [...entries].reverse().find(
+          ([, o]) => o.phone === sub.phone && o.serviceKey === cfg.key && o.status === "active"
+        );
+        if (!target) {
+          statusBox.innerHTML = `<div class="msg msg-info">لا يوجد طلب نشط حالياً في هذا القسم.</div>`;
+          return;
+        }
+        const [orderId, orderData] = target;
+        await update(ref(db, `orders/${orderId}`), {
+          status: "completed",
+          completedBy: "subscriber",
+          completedAt: new Date().toISOString()
+        });
+        statusBox.innerHTML = `<div class="msg msg-ok">تم تأكيد استلام الطلب رقم #${orderData.orderNumber} ونقله إلى الطلبات المنتهية.</div>`;
+      });
+    }
+
+    initServicePage({
+      key: "food",
+      label: "وجبات وسندوتشات",
+      fileInputId: "foodReceiptInput",
+      confirmBtnId: "foodConfirmReceiptBtn",
+      textInputId: "foodOrderText",
+      sendBtnId: "foodSendOrderBtn",
+      deliveredBtnId: "foodDeliveredBtn",
+      statusBoxId: "foodStatusMsg"
+    });
+
+    initServicePage({
+      key: "breakfast",
+      label: "فطار المدارس",
+      fileInputId: "breakfastReceiptInput",
+      confirmBtnId: "breakfastConfirmReceiptBtn",
+      textInputId: "breakfastOrderText",
+      sendBtnId: "breakfastSendOrderBtn",
+      deliveredBtnId: "breakfastDeliveredBtn",
+      statusBoxId: "breakfastStatusMsg"
+    });
+
+    initServicePage({
+      key: "market",
+      label: "هات من السوق",
+      fileInputId: "marketReceiptInput",
+      confirmBtnId: "marketConfirmReceiptBtn",
+      textInputId: "marketOrderText",
+      sendBtnId: "marketSendOrderBtn",
+      deliveredBtnId: "marketDeliveredBtn",
+      statusBoxId: "marketStatusMsg"
+    });
+
+    if (getLocalAttempts() >= MAX_ATTEMPTS) {
+      showPermanentReject();
+    } else {
+      startSplashCountdown();
+    }
+  </script>
+</body>
+</html>
