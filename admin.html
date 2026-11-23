@@ -259,7 +259,7 @@
     </div>
   </div>
 
-  <!-- 5. صفحة صور التحدي + اعتماد أكثر من فريق كفائز + رفض الصورة + نشر الإعلان + حذف الصور -->
+  <!-- 5. صفحة صور التحدي + اعتماد أكثر من فريق كفائز + إعلان فريق كخاسر + رفض الصورة + نشر الإعلان + حذف الصور -->
   <div id="challengePhotos" class="section">
     <div class="card">
       <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
@@ -271,7 +271,7 @@
           <button class="btn btn-danger btn-sm" onclick="deleteAllChallengePhotos()">🗑️ حذف كل صور التحدي</button>
         </div>
       </div>
-      <p style="color:var(--muted); font-size:0.88rem;">مرتبة حسب الأسبقية (الأسرع أولاً). يمكنك اعتماد <b>أكثر من فريق كفائز</b> أو <b>رفض الصورة</b> إذا لم تكن مناسبة.</p>
+      <p style="color:var(--muted); font-size:0.88rem;">مرتبة حسب الأسبقية (الأسرع أولاً). يمكنك اعتماد <b>أكثر من فريق كفائز</b>، أو <b>إعلان فريق كخاسر</b>، أو <b>رفض الصورة</b>.</p>
       <div id="challengePhotosList">جاري التحميل...</div>
     </div>
   </div>
@@ -662,7 +662,7 @@
   };
 
   // ==========================================
-  // 4. صفحة صور التحدي + اعتماد أكثر من فريق كفائز + رفض الصورة + نشر الإعلان + إنهاء الجولة
+  // 4. صفحة صور التحدي + اعتماد أكثر من فريق كفائز + إعلان فريق كخاسر + رفض الصورة + نشر الإعلان + إنهاء الجولة
   // ==========================================
   onValue(ref(db, "challengeSubmissions"), (snap) => {
     const subs = snap.val() || {};
@@ -674,9 +674,11 @@
 
     entries.forEach(([teamId, item], idx) => {
       const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString("ar-EG") : "";
+      const isLost = item.status === "lost";
+      const isRejected = item.status === "rejected";
       const borderColor = item.isWinner
         ? "var(--success)"
-        : item.status === "rejected"
+        : (isLost || isRejected)
           ? "var(--danger)"
           : "var(--card-light)";
 
@@ -692,9 +694,13 @@
               ? `<span style="color:var(--success); font-weight:bold;">🏆 تم اعتماده كفائز (+10 نقاط)</span>`
               : `<button class="btn btn-success" onclick="confirmChallengeWinner('${teamId}')">🏆 اعتماد كفائز (+10 نقاط)</button>`
             }
-            ${item.status === "rejected"
+            ${isLost
+              ? `<span style="color:var(--danger); font-weight:bold;">💔 تم إعلانه كخاسر</span>`
+              : `<button class="btn btn-danger" onclick="markTeamAsLost('${teamId}')">💔 إعلان كخاسر</button>`
+            }
+            ${isRejected
               ? `<span style="color:var(--danger); font-weight:bold;">❌ مرفوضة (${item.rejectReason || "غير مناسبة"})</span>`
-              : `<button class="btn btn-danger" onclick="rejectChallengePhoto('${teamId}')">❌ رفض الصورة</button>`
+              : `<button class="btn btn-danger btn-sm" onclick="rejectChallengePhoto('${teamId}')">❌ رفض الصورة</button>`
             }
             <button class="btn btn-danger btn-sm" onclick="deleteChallengePhoto('${teamId}')">🗑️ حذف الصورة</button>
           </div>
@@ -704,6 +710,22 @@
 
     if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لم يرسل أي فريق صور التحدي بعد.</p>";
   });
+
+  window.markTeamAsLost = async (teamId) => {
+    if (!confirm("هل تريد إعلان هذا الفريق كخاسر في الجولة الحالية؟")) return;
+
+    await update(ref(db, `teams/${teamId}`), {
+      status: "lost"
+    });
+
+    await update(ref(db, `challengeSubmissions/${teamId}`), {
+      status: "lost",
+      isWinner: false,
+      lostAt: Date.now()
+    });
+
+    alert("💔 تم إعلان الفريق كخاسر بنجاح.");
+  };
 
   window.rejectChallengePhoto = async (teamId) => {
     const reason = prompt("سبب رفض الصورة (اختياري، سيظهر للفريق):", "الصورة غير مطابقة للتحدي أو غير واضحة") || "الصورة غير مناسبة";
