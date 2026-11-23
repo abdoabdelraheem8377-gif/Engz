@@ -718,11 +718,14 @@
       status: "lost"
     });
 
-    await update(ref(db, `challengeSubmissions/${teamId}`), {
-      status: "lost",
-      isWinner: false,
-      lostAt: Date.now()
-    });
+    const subSnap = await get(ref(db, `challengeSubmissions/${teamId}`));
+    if (subSnap.exists()) {
+      await update(ref(db, `challengeSubmissions/${teamId}`), {
+        status: "lost",
+        isWinner: false,
+        lostAt: Date.now()
+      });
+    }
 
     alert("💔 تم إعلان الفريق كخاسر بنجاح.");
   };
@@ -771,10 +774,13 @@
       points: alreadyWon ? currentPoints : currentPoints + 10
     });
 
-    await update(ref(db, `challengeSubmissions/${winnerTeamId}`), {
-      status: "approved",
-      isWinner: true
-    });
+    const subSnap = await get(ref(db, `challengeSubmissions/${winnerTeamId}`));
+    if (subSnap.exists()) {
+      await update(ref(db, `challengeSubmissions/${winnerTeamId}`), {
+        status: "approved",
+        isWinner: true
+      });
+    }
 
     alert("🎉 تم اعتماد الفريق الفائز بنجاح! يمكنك الآن اعتماد فريق آخر أو الضغط على (نشر إعلان الفائزين لكل المجموعات).");
   };
@@ -822,7 +828,7 @@
   };
 
   // ==========================================
-  // 5. رابحو المفاتيح
+  // 5. رابحو المفاتيح + اعتماد الفوز أو إعلان كخاسر
   // ==========================================
   onValue(ref(db, "keyWinners"), (snap) => {
     const winners = snap.val() || {};
@@ -833,17 +839,29 @@
 
     entries.forEach(([teamId, w], idx) => {
       const timeStr = w.timestamp ? new Date(w.timestamp).toLocaleTimeString("ar-EG") : "";
+      const teamStatus = latestTeamsData[teamId]?.status;
+      const isLost = teamStatus === "lost" || w.status === "lost";
+
       container.innerHTML += `
-        <div class="card" style="background:#0f172a;">
+        <div class="card" style="background:#0f172a; border-color:${w.confirmed ? 'var(--success)' : isLost ? 'var(--danger)' : 'var(--card-light)'};">
           <div class="row-flex" style="justify-content:space-between;">
             <strong>🏆 #${idx + 1} — فريق: ${w.teamName} (📱 ${w.phone})</strong>
             <span style="color:var(--success);">أتم تجميع ${w.keysCount} مفاتيح — ⏱️ ${timeStr}</span>
           </div>
-          ${!w.confirmed ? `
-            <button class="btn btn-success btn-sm" style="margin-top:8px;" onclick="confirmChallengeWinner('${teamId}'); update(ref(db, 'keyWinners/${teamId}'), {confirmed:true});">
-              ✅ اعتماد الفوز (+10 نقاط)
-            </button>
-          ` : `<span style="color:var(--primary); font-size:0.85rem;">✔️ تم الاعتماد</span>`}
+          <div class="row-flex" style="margin-top:8px;">
+            ${!w.confirmed ? `
+              <button class="btn btn-success btn-sm" onclick="confirmChallengeWinner('${teamId}'); update(ref(db, 'keyWinners/${teamId}'), {confirmed:true, status:'approved'});">
+                ✅ اعتماد الفوز (+10 نقاط)
+              </button>
+            ` : `<span style="color:var(--primary); font-size:0.85rem; font-weight:bold;">✔️ تم الاعتماد</span>`}
+            ${isLost ? `
+              <span style="color:var(--danger); font-size:0.85rem; font-weight:bold;">💔 تم إعلانه كخاسر</span>
+            ` : `
+              <button class="btn btn-danger btn-sm" onclick="markTeamAsLost('${teamId}'); update(ref(db, 'keyWinners/${teamId}'), {confirmed:false, status:'lost'});">
+                💔 إعلان كخاسر
+              </button>
+            `}
+          </div>
         </div>
       `;
     });
