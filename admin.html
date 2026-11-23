@@ -129,6 +129,8 @@
 <header>
   <h1>⚔️ صراع الوحوش - Admin</h1>
   <div class="row-flex">
+    <button class="btn btn-primary btn-sm" onclick="publishWinnersAnnouncement()">📢 نشر إعلان الفائزين لكل المجموعات</button>
+    <button class="btn btn-info btn-sm" onclick="finishRoundAndMarkLosers()">🏁 إنهاء الجولة وإعلان الخاسرين</button>
     <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
     <button class="btn btn-danger btn-sm" onclick="resetRoundData()">🔄 تصفير الجولة وحذف الصور</button>
   </div>
@@ -257,17 +259,19 @@
     </div>
   </div>
 
-  <!-- 5. صفحة صور التحدي + حذف صور الإيصالات وحذف صور التحدي -->
+  <!-- 5. صفحة صور التحدي + اعتماد أكثر من فريق كفائز + نشر الإعلان + حذف الصور -->
   <div id="challengePhotos" class="section">
     <div class="card">
       <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
         <h2 style="margin:0;">صور التحدي المرسلة من الفرق</h2>
         <div class="row-flex">
+          <button class="btn btn-primary btn-sm" onclick="publishWinnersAnnouncement()">📢 نشر إعلان الفائزين لكل المجموعات</button>
+          <button class="btn btn-info btn-sm" onclick="finishRoundAndMarkLosers()">🏁 إنهاء الجولة وإعلان الخاسرين</button>
           <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
           <button class="btn btn-danger btn-sm" onclick="deleteAllChallengePhotos()">🗑️ حذف كل صور التحدي</button>
         </div>
       </div>
-      <p style="color:var(--muted); font-size:0.88rem;">مرتبة حسب الأسبقية (الأسرع أولاً). راجع الصورة ثم اضغط <b>اعتماد كفائز</b> أو احذف الصور بعد انتهاء التحدي.</p>
+      <p style="color:var(--muted); font-size:0.88rem;">مرتبة حسب الأسبقية (الأسرع أولاً). يمكنك اعتماد <b>أكثر من فريق كفائز</b> ثم نشر الإعلان لكل المجموعات أو إنهاء الجولة.</p>
       <div id="challengePhotosList">جاري التحميل...</div>
     </div>
   </div>
@@ -275,7 +279,13 @@
   <!-- 6. صفحة رابحو المفاتيح -->
   <div id="keyWinners" class="section">
     <div class="card">
-      <h2>🗝️ الفرق التي أتمت تجميع المفاتيح</h2>
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
+        <h2 style="margin:0;">🗝️ الفرق التي أتمت تجميع المفاتيح</h2>
+        <div class="row-flex">
+          <button class="btn btn-primary btn-sm" onclick="publishWinnersAnnouncement()">📢 نشر إعلان الفائزين لكل المجموعات</button>
+          <button class="btn btn-info btn-sm" onclick="finishRoundAndMarkLosers()">🏁 إنهاء الجولة وإعلان الخاسرين</button>
+        </div>
+      </div>
       <div id="keyWinnersList">جاري التحميل...</div>
     </div>
   </div>
@@ -652,7 +662,7 @@
   };
 
   // ==========================================
-  // 4. صفحة صور التحدي + حذف الصور
+  // 4. صفحة صور التحدي + اعتماد أكثر من فريق كفائز + نشر الإعلان + إنهاء الجولة
   // ==========================================
   onValue(ref(db, "challengeSubmissions"), (snap) => {
     const subs = snap.val() || {};
@@ -674,7 +684,7 @@
           <div class="row-flex">
             ${item.isWinner
               ? `<span style="color:var(--success); font-weight:bold;">🏆 تم اعتماده كفائز (+10 نقاط)</span>`
-              : `<button class="btn btn-success" onclick="confirmChallengeWinner('${teamId}')">🏆 اعتماد كفائز وإنهاء الجولة</button>`
+              : `<button class="btn btn-success" onclick="confirmChallengeWinner('${teamId}')">🏆 اعتماد كفائز (+10 نقاط)</button>`
             }
             <button class="btn btn-danger btn-sm" onclick="deleteChallengePhoto('${teamId}')">🗑️ حذف الصورة</button>
           </div>
@@ -698,30 +708,65 @@
   };
 
   window.confirmChallengeWinner = async (winnerTeamId) => {
-    if (!confirm("هل تريد اعتماد هذا الفريق كفائز وإعلان باقي الفرق كخاسرة؟")) return;
+    if (!confirm("هل تريد اعتماد هذا الفريق كفائز ومنحه 10 نقاط؟ (يمكنك اعتماد فرق أخرى أيضاً قبل إنهاء الجولة)")) return;
 
     const winnerSnap = await get(ref(db, `teams/${winnerTeamId}`));
     const winnerData = winnerSnap.val() || {};
     const currentPoints = winnerData.points || 0;
+    const alreadyWon = winnerData.status === "won";
 
     await update(ref(db, `teams/${winnerTeamId}`), {
       status: "won",
-      points: currentPoints + 10
+      points: alreadyWon ? currentPoints : currentPoints + 10
     });
 
     await update(ref(db, `challengeSubmissions/${winnerTeamId}`), {
       isWinner: true
     });
 
+    alert("🎉 تم اعتماد الفريق الفائز بنجاح! يمكنك الآن اعتماد فريق آخر أو الضغط على (نشر إعلان الفائزين لكل المجموعات).");
+  };
+
+  window.publishWinnersAnnouncement = async () => {
+    const allTeamsSnap = await get(ref(db, "teams"));
+    const allTeams = allTeamsSnap.val() || {};
+
+    const wonTeams = Object.entries(allTeams)
+      .filter(([, t]) => t && t.status === "won")
+      .map(([tId, t]) => ({
+        teamId: tId,
+        teamName: t.teamName || t.members?.[0]?.name || "فريق فائز",
+        points: t.points || 10
+      }));
+
+    if (wonTeams.length === 0) {
+      alert("⚠️ لا توجد فرق معتمدة كفائزة حالياً لنشر إعلانها.");
+      return;
+    }
+
+    await set(ref(db, "settings/winnersAnnouncement"), {
+      id: "win_ann_" + Date.now(),
+      announcedAt: Date.now(),
+      title: "✨ أبطال صراع الوحوش ✨",
+      subtitle: "تألقت فرقنا وحسمت التحدي بجدارة — تحية لكل أبطال اللعبة!",
+      winners: wonTeams
+    });
+
+    alert("📢 تم إرسال إعلان الفرق الفائزة الخلاب إلى جميع المجموعات بنجاح!");
+  };
+
+  window.finishRoundAndMarkLosers = async () => {
+    if (!confirm("هل تريد إنهاء الجولة الحالية وإعلان باقي الفرق المشاركة (غير الفائزة) كخاسرة؟")) return;
+
     const allTeamsSnap = await get(ref(db, "teams"));
     const allTeams = allTeamsSnap.val() || {};
     for (const [tId, tData] of Object.entries(allTeams)) {
-      if (tId !== winnerTeamId && tData.status === "in_challenge") {
+      if (tData.status === "in_challenge") {
         await update(ref(db, `teams/${tId}`), { status: "lost" });
       }
     }
 
-    alert("🎉 تم اعتماد الفريق الفائز ومنحه 10 نقاط، وتم إشعار باقي الفرق!");
+    alert("🏁 تم إنهاء الجولة وإعلان الفرق المتبقية كخاسرة.");
   };
 
   // ==========================================
@@ -744,7 +789,7 @@
           </div>
           ${!w.confirmed ? `
             <button class="btn btn-success btn-sm" style="margin-top:8px;" onclick="confirmChallengeWinner('${teamId}'); update(ref(db, 'keyWinners/${teamId}'), {confirmed:true});">
-              ✅ اعتماد الفوز ومنح المكافأة
+              ✅ اعتماد الفوز (+10 نقاط)
             </button>
           ` : `<span style="color:var(--primary); font-size:0.85rem;">✔️ تم الاعتماد</span>`}
         </div>
