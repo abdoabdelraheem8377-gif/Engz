@@ -259,7 +259,7 @@
     </div>
   </div>
 
-  <!-- 5. صفحة صور التحدي + اعتماد أكثر من فريق كفائز + نشر الإعلان + حذف الصور -->
+  <!-- 5. صفحة صور التحدي + اعتماد أكثر من فريق كفائز + رفض الصورة + نشر الإعلان + حذف الصور -->
   <div id="challengePhotos" class="section">
     <div class="card">
       <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
@@ -271,7 +271,7 @@
           <button class="btn btn-danger btn-sm" onclick="deleteAllChallengePhotos()">🗑️ حذف كل صور التحدي</button>
         </div>
       </div>
-      <p style="color:var(--muted); font-size:0.88rem;">مرتبة حسب الأسبقية (الأسرع أولاً). يمكنك اعتماد <b>أكثر من فريق كفائز</b> ثم نشر الإعلان لكل المجموعات أو إنهاء الجولة.</p>
+      <p style="color:var(--muted); font-size:0.88rem;">مرتبة حسب الأسبقية (الأسرع أولاً). يمكنك اعتماد <b>أكثر من فريق كفائز</b> أو <b>رفض الصورة</b> إذا لم تكن مناسبة.</p>
       <div id="challengePhotosList">جاري التحميل...</div>
     </div>
   </div>
@@ -662,7 +662,7 @@
   };
 
   // ==========================================
-  // 4. صفحة صور التحدي + اعتماد أكثر من فريق كفائز + نشر الإعلان + إنهاء الجولة
+  // 4. صفحة صور التحدي + اعتماد أكثر من فريق كفائز + رفض الصورة + نشر الإعلان + إنهاء الجولة
   // ==========================================
   onValue(ref(db, "challengeSubmissions"), (snap) => {
     const subs = snap.val() || {};
@@ -674,8 +674,14 @@
 
     entries.forEach(([teamId, item], idx) => {
       const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString("ar-EG") : "";
+      const borderColor = item.isWinner
+        ? "var(--success)"
+        : item.status === "rejected"
+          ? "var(--danger)"
+          : "var(--card-light)";
+
       container.innerHTML += `
-        <div class="card" style="background:#0f172a; border-color:${item.isWinner ? 'var(--success)' : 'var(--card-light)'};">
+        <div class="card" style="background:#0f172a; border-color:${borderColor};">
           <div class="row-flex" style="justify-content:space-between;">
             <strong>#${idx + 1} — فريق: ${item.teamName} (📱 ${item.phone})</strong>
             <span style="color:var(--muted); font-size:0.85rem;">⏱️ وقت الإرسال: ${timeStr}</span>
@@ -686,6 +692,10 @@
               ? `<span style="color:var(--success); font-weight:bold;">🏆 تم اعتماده كفائز (+10 نقاط)</span>`
               : `<button class="btn btn-success" onclick="confirmChallengeWinner('${teamId}')">🏆 اعتماد كفائز (+10 نقاط)</button>`
             }
+            ${item.status === "rejected"
+              ? `<span style="color:var(--danger); font-weight:bold;">❌ مرفوضة (${item.rejectReason || "غير مناسبة"})</span>`
+              : `<button class="btn btn-danger" onclick="rejectChallengePhoto('${teamId}')">❌ رفض الصورة</button>`
+            }
             <button class="btn btn-danger btn-sm" onclick="deleteChallengePhoto('${teamId}')">🗑️ حذف الصورة</button>
           </div>
         </div>
@@ -694,6 +704,25 @@
 
     if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لم يرسل أي فريق صور التحدي بعد.</p>";
   });
+
+  window.rejectChallengePhoto = async (teamId) => {
+    const reason = prompt("سبب رفض الصورة (اختياري، سيظهر للفريق):", "الصورة غير مطابقة للتحدي أو غير واضحة") || "الصورة غير مناسبة";
+    if (!confirm(`هل تريد رفض صورة التحدي لهذا الفريق؟\nالسبب: ${reason}`)) return;
+
+    await update(ref(db, `challengeSubmissions/${teamId}`), {
+      status: "rejected",
+      isWinner: false,
+      rejectReason: reason,
+      rejectedAt: Date.now()
+    });
+
+    await update(ref(db, `teams/${teamId}`), {
+      challengePhotoStatus: "rejected",
+      challengePhotoRejectReason: reason
+    });
+
+    alert("❌ تم رفض صورة التحدي وإبلاغ الفريق.");
+  };
 
   window.deleteChallengePhoto = async (teamId) => {
     if (!confirm("هل تريد حذف صورة التحدي لهذا الفريق لتوفير الذاكرة؟")) return;
@@ -721,6 +750,7 @@
     });
 
     await update(ref(db, `challengeSubmissions/${winnerTeamId}`), {
+      status: "approved",
       isWinner: true
     });
 
