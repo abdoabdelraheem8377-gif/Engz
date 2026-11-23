@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>لوحة تحكم الأدمن - صراع الوحوش</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <title>صراع الوحوش - تحديات ومكافآت</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --card-light: #334155;
+      --bg: #090d16;
+      --card: #131b2e;
+      --card-2: #1d2942;
       --primary: #f59e0b;
-      --primary-hover: #d97706;
+      --primary-dark: #d97706;
       --success: #10b981;
       --danger: #ef4444;
       --info: #3b82f6;
@@ -21,316 +20,448 @@
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body {
       margin: 0;
-      background: var(--bg);
+      background: radial-gradient(circle at top, #182238 0%, var(--bg) 70%);
       color: var(--text);
-      padding-bottom: 40px;
+      min-height: 100vh;
     }
-    #loginOverlay {
-      position: fixed; inset: 0; background: var(--bg);
-      display: flex; align-items: center; justify-content: center; z-index: 9999;
-      padding: 20px;
+    .screen { display: none; min-height: 100vh; padding: 20px; }
+    .screen.active { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .screen-top { justify-content: flex-start; padding-top: 28px; }
+
+    /* شاشة البداية 30 ثانية */
+    .splash-box { text-align: center; max-width: 420px; width: 100%; }
+    .game-title {
+      font-size: 2.1rem; font-weight: 900; color: var(--primary);
+      text-shadow: 0 0 22px rgba(245, 158, 11, 0.45); margin-bottom: 10px;
     }
-    .login-box {
-      background: var(--card); padding: 30px; border-radius: 16px;
-      width: 100%; max-width: 380px; text-align: center;
-      border: 1px solid var(--card-light); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    .timer-circle {
+      width: 110px; height: 110px; border-radius: 50%; margin: 22px auto;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem; font-weight: bold; color: var(--primary);
+      border: 4px solid var(--primary); background: var(--card);
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
     }
-    header {
-      background: var(--card); padding: 15px 20px;
-      border-bottom: 2px solid var(--primary);
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
-      position: sticky; top: 0; z-index: 1000;
+    .progress-wrap {
+      width: 100%; height: 18px; background: var(--card);
+      border-radius: 999px; overflow: hidden; border: 1px solid var(--card-2);
     }
-    header h1 { margin: 0; font-size: 1.2rem; color: var(--primary); }
-    .nav-tabs {
-      display: flex; gap: 8px; overflow-x: auto; padding: 12px 15px;
-      background: #162033; border-bottom: 1px solid var(--card-light);
+    .progress-fill {
+      height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary-dark), var(--success));
+      transition: width 0.25s linear;
     }
-    .tab-btn {
-      background: var(--card); color: var(--text); border: 1px solid var(--card-light);
-      padding: 10px 14px; border-radius: 10px; cursor: pointer; white-space: nowrap;
-      font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;
+    .progress-label { margin-top: 10px; color: var(--muted); font-weight: bold; }
+
+    /* البطاقات والأزرار */
+    .box {
+      width: 100%; max-width: 520px; background: var(--card);
+      border: 1px solid var(--card-2); border-radius: 18px; padding: 22px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
     }
-    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
-    .badge {
-      background: var(--danger); color: #fff; padding: 2px 7px;
-      border-radius: 999px; font-size: 0.75rem;
-    }
-    .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
-    .section { display: none; }
-    .section.active { display: block; }
-    .card {
-      background: var(--card); border-radius: 14px; padding: 18px;
-      margin-bottom: 16px; border: 1px solid var(--card-light);
-    }
-    .card h2, .card h3 { margin-top: 0; color: var(--primary); }
-    label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 0.9rem; }
-    input[type="text"], input[type="number"], input[type="password"], textarea, select {
-      width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--card-light);
-      background: #0f172a; color: var(--text); font-size: 0.95rem; margin-bottom: 12px;
-    }
+    h2, h3 { margin-top: 0; color: var(--primary); text-align: center; }
     .btn {
-      padding: 10px 16px; border: none; border-radius: 8px; font-weight: bold;
-      cursor: pointer; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;
+      width: 100%; padding: 13px 16px; border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: bold; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.12s ease, opacity 0.2s ease;
     }
+    .btn:active { transform: scale(0.98); }
+    .btn-sm { padding: 9px 12px; font-size: 0.88rem; width: auto; }
     .btn-primary { background: var(--primary); color: #000; }
     .btn-success { background: var(--success); color: #fff; }
-    .btn-danger { background: var(--danger); color: #fff; }
     .btn-info { background: var(--info); color: #fff; }
-    .btn-sm { padding: 7px 12px; font-size: 0.82rem; }
-    .row-flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .cash-row {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-      background: #0f172a; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--card-light);
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--card-2); }
+    .gap-10 { display: flex; flex-direction: column; gap: 12px; }
+
+    /* صفوف التسجيل والتحقق من الأخطاء */
+    .field-group { margin-bottom: 12px; }
+    .field-label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 5px; }
+    .member-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin-bottom: 10px;
     }
-    .cash-row input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; }
-    .cash-row input[type="text"] { margin-bottom: 0; }
-    .member-list { background: #0f172a; padding: 10px; border-radius: 8px; margin: 10px 0; }
-    .member-item { padding: 5px 0; border-bottom: 1px solid #1e293b; font-size: 0.9rem; }
-    .member-item:last-child { border-bottom: none; }
-    .thumb-img {
-      width: 100%; max-width: 240px; max-height: 220px; object-fit: cover;
-      border-radius: 10px; border: 2px solid var(--card-light); cursor: zoom-in; margin: 10px 0;
+    input[type="text"], input[type="tel"], select {
+      width: 100%; padding: 11px 12px; border-radius: 10px;
+      border: 1.5px solid var(--card-2); background: #0b101d;
+      color: var(--text); font-size: 0.95rem; outline: none;
     }
-    #adminMap {
-      height: 330px; width: 100%; border-radius: 12px; margin: 12px 0;
-      border: 2px solid var(--primary); z-index: 1;
+    input.input-error, select.input-error {
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
     }
-    .key-item {
-      display: flex; justify-content: space-between; align-items: center;
-      background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 8px;
-      border: 1px solid var(--card-light);
+    .error-msg {
+      color: var(--danger); font-size: 0.88rem; font-weight: bold;
+      margin: 6px 0 12px; display: none; text-align: center;
     }
-    #imgModal {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
-      z-index: 10000; align-items: center; justify-content: center; padding: 20px;
+    .add-btn {
+      width: 44px; height: 44px; border-radius: 50%; border: 2px dashed var(--primary);
+      background: rgba(245, 158, 11, 0.1); color: var(--primary);
+      font-size: 1.5rem; font-weight: bold; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
     }
-    #imgModal img { max-width: 95%; max-height: 90vh; border-radius: 10px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* شريط بيانات اللاعب وإدارة المجموعة */
+    .player-bar {
+      background: #0b101d; border: 1px solid var(--card-2); border-radius: 12px;
+      padding: 10px 12px; margin-bottom: 14px;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .player-meta { font-size: 0.85rem; color: var(--muted); }
+    .player-meta strong { color: var(--primary); }
+
+    /* 3 خانات أرقام الكاش */
+    .cash-slot {
+      background: #0b101d; border: 1px solid var(--card-2); border-radius: 12px;
+      padding: 11px 14px; margin-bottom: 10px; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .copy-chip {
+      background: var(--card-2); color: var(--primary); border: none;
+      padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.82rem;
+    }
+
+    /* أزرار الكاميرا والاستوديو */
+    .media-pair {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin: 12px 0;
+    }
+    .media-choice-btn {
+      padding: 13px 10px; border-radius: 12px;
+      background: #0b101d; border: 1px solid var(--card-2);
+      color: var(--primary); font-weight: bold; font-size: 0.92rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .media-choice-btn:active { transform: scale(0.98); }
+    .preview-img {
+      width: 100%; max-height: 240px; object-fit: contain;
+      border-radius: 10px; margin-bottom: 12px; display: none;
+    }
+
+    /* النقاط المتحركة للتحميل */
+    .dots::after {
+      content: "";
+      animation: dotsAnim 1.4s infinite steps(4, end);
+    }
+    @keyframes dotsAnim {
+      0% { content: ""; }
+      25% { content: "."; }
+      50% { content: ".."; }
+      75% { content: "..."; }
+    }
+
+    /* مفاتيح GPS */
+    .keys-grid {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+      margin: 16px 0;
+    }
+    .key-slot {
+      width: 74px; height: 74px; border-radius: 14px;
+      background: #0b101d; border: 2px solid #334155;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0.35; filter: grayscale(100%); transition: all 0.3s ease;
+    }
+    .key-slot.found {
+      opacity: 1; filter: grayscale(0%);
+      border-color: var(--primary); background: rgba(245, 158, 11, 0.16);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.45);
+    }
+
+    /* احتفال الفوز ومكافآت الصور القابلة للتكبير */
+    .celebration-banner {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(245, 158, 11, 0.25));
+      border: 1px solid var(--success); border-radius: 14px;
+      padding: 16px; text-align: center; margin-bottom: 16px;
+    }
+    .meal-menu-img {
+      width: 100%; border-radius: 12px; margin-top: 12px;
+      cursor: zoom-in; border: 2px solid var(--primary); display: none;
+    }
+    #zoomModal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+      z-index: 9999; align-items: center; justify-content: center; padding: 15px;
+    }
+    #zoomModal img { max-width: 96%; max-height: 92vh; border-radius: 12px; }
   </style>
 </head>
 <body>
 
-<div id="loginOverlay">
-  <div class="login-box">
-    <h2 style="color:var(--primary); margin-top:0;">🛡️ لوحة تحكم صراع الوحوش</h2>
-    <p style="color:var(--muted); font-size:0.9rem;">أدخل كلمة مرور الأدمن للمتابعة</p>
-    <input type="password" id="adminPassInput" placeholder="كلمة المرور..." />
-    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="checkAdminLogin()">دخول</button>
-    <p id="loginErr" style="color:var(--danger); font-size:0.85rem; display:none; margin-top:10px;">كلمة المرور غير صحيحة!</p>
-  </div>
+<!-- نافذة تكبير قائمة الطعام -->
+<div id="zoomModal" onclick="this.style.display='none'">
+  <img id="zoomedImg" src="" alt="قائمة الطعام" />
 </div>
 
-<div id="imgModal" onclick="this.style.display='none'">
-  <img id="modalImgSrc" src="" alt="تكبير الصورة" />
-</div>
-
-<header>
-  <h1>⚔️ صراع الوحوش - Admin</h1>
-  <div class="row-flex">
-    <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
-    <button class="btn btn-danger btn-sm" onclick="resetRoundData()">🔄 تصفير الجولة وحذف الصور</button>
-  </div>
-</header>
-
-<div class="nav-tabs">
-  <button class="tab-btn active" onclick="switchTab('regRequests', this)">
-    📋 طلبات التسجيل <span class="badge" id="badgeReg">0</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab('cashSettings', this)">
-    💳 الاشتراك في التحدي
-  </button>
-  <button class="tab-btn" onclick="switchTab('subscribers', this)">
-    🧾 المشتركين في التحدي <span class="badge" id="badgeSub">0</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab('dailyChallenge', this)">
-    🎯 التحدي اليومي
-  </button>
-  <button class="tab-btn" onclick="switchTab('challengePhotos', this)">
-    📸 صور التحدي <span class="badge" id="badgePhotos">0</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab('keyWinners', this)">
-    🗝️ رابحو المفاتيح <span class="badge" id="badgeKeys">0</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab('rewardsTab', this)">
-    💰 المكافآت والتحويلات <span class="badge" id="badgePayouts">0</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab('mealsTab', this)">
-    🍔 وجبات الطعام
-  </button>
-</div>
-
-<div class="container">
-
-  <!-- 1. صفحة طلبات التسجيل -->
-  <div id="regRequests" class="section active">
-    <div class="card">
-      <h2>طلبات تسجيل الفرق الجديدة (<span id="countRegTitle">0</span>)</h2>
-      <p style="color:var(--muted); font-size:0.88rem;">عند قبول الفريق يصبح مشتركاً وينتقل تلقائياً لشاشة التحويل المالي.</p>
-      <div id="regRequestsList">جاري التحميل...</div>
+<!-- 1. شاشة البداية: مرحباً بك في صراع الوحوش + عداد 30 ثانية وشريط 100% -->
+<section id="splashScreen" class="screen active">
+  <div class="splash-box">
+    <div class="game-title">مرحباً بك في صراع الوحوش</div>
+    <p style="color:var(--muted);">استعد للتحديات والمكافآت...</p>
+    <div class="timer-circle" id="splashTimer">30</div>
+    <div class="progress-wrap">
+      <div class="progress-fill" id="splashProgressBar"></div>
     </div>
+    <div class="progress-label" id="splashPercent">0%</div>
   </div>
+</section>
 
-  <!-- 2. صفحة الاشتراك في التحدي (7 أرقام كاش واختيار 3) -->
-  <div id="cashSettings" class="section">
-    <div class="card">
-      <h2>أرقام استقبال تحويلات الكاش (اختر 3 أرقام فقط)</h2>
-      <p style="color:var(--muted); font-size:0.88rem;">أدخل حتى 7 أرقام موبايل مصرية، وحدد علامة (✓) بجانب 3 أرقام فقط لتظهر للمستخدمين.</p>
-      <div id="cashInputsContainer"></div>
-      <button class="btn btn-primary" onclick="saveCashNumbers()">💾 حفظ الأرقام المحددة</button>
+<!-- 2. الشاشة التالية: تسجيل (فريق جديد) أو مشترك (فريق مسجل سابقاً) -->
+<section id="homeChoiceScreen" class="screen">
+  <div class="box gap-10">
+    <h2>صراع الوحوش</h2>
+    <p style="color:var(--muted); text-align:center; margin-top:-4px;">اختر طريقة الدخول للمتابعة</p>
+    <button class="btn btn-primary" onclick="showScreen('registerScreen')">📝 تسجيل (فريق جديد)</button>
+    <button class="btn btn-info" onclick="showScreen('memberLoginScreen')">🛡️ مشترك (مسجل مسبقاً)</button>
+  </div>
+</section>
+
+<!-- 3. صفحة التسجيل (اسم الفريق + حتى 5 أسماء وأرقام موبايل مصرية وفريدة) -->
+<section id="registerScreen" class="screen screen-top">
+  <div class="box">
+    <h2>📝 تسجيل فريق جديد</h2>
+    <p style="color:var(--muted); font-size:0.86rem; text-align:center;">
+      أدخل اسم الفريق ثم الاسم ورقم الموبايل المصري (بحد أقصى 5 أعضاء). يجب أن يكون كل اسم ورقم فريدين.
+    </p>
+
+    <div class="field-group">
+      <label class="field-label" for="teamNameInput">اسم الفريق:</label>
+      <input type="text" id="teamNameInput" placeholder="اكتب اسم الفريق (مثال: وحوش الغردقة)" />
     </div>
-  </div>
 
-  <!-- 3. صفحة المشتركين في التحدي (إيصالات الدفع + زر تأكيد استلام الإيصال + زر حذف صور الإيصالات) -->
-  <div id="subscribers" class="section">
-    <div class="card">
-      <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
-        <h2 style="margin:0;">مراجعة إيصالات الدفع والمشتركين</h2>
-        <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
+    <div id="membersContainer"></div>
+
+    <div style="text-align:center; margin: 10px 0;">
+      <button type="button" class="add-btn" id="addMemberBtn" onclick="addMemberRow()" title="إضافة عضو">+</button>
+      <div style="font-size:0.8rem; color:var(--muted); margin-top:4px;">
+        إضافة عضو (<span id="membersCountText">1</span> / 5)
       </div>
-      <p style="color:var(--muted); font-size:0.88rem;">اضغط على صورة الإيصال لتكبيرها، ثم اضغط <b>تأكيد استلام الإيصال</b> لنقل الفريق للتحدي.</p>
-      <div id="subscribersList">جاري التحميل...</div>
     </div>
+
+    <div id="regErrorMsg" class="error-msg">الاسم او الرقم غير صحيح</div>
+
+    <button class="btn btn-success" id="submitRegBtn" onclick="submitRegistration()">تسجيل</button>
+    <button class="btn btn-outline" style="margin-top:10px;" onclick="showScreen('homeChoiceScreen')">⬅️ رجوع</button>
   </div>
+</section>
 
-  <!-- 4. صفحة التحدي اليومي -->
-  <div id="dailyChallenge" class="section">
-    <div class="card">
-      <h2>إعدادات التحدي اليومي وعدد الفرق</h2>
-      
-      <div class="grid-2">
-        <div>
-          <label>عدد الفرق المسموح لها بالمشاركة (زرار عدد الفرق):</label>
-          <input type="number" id="maxTeamsInput" min="1" placeholder="مثال: 10" />
-        </div>
-        <div>
-          <label>موعد التحدي التالي (يظهر عند اكتمال العدد):</label>
-          <input type="text" id="nextChallengeTimeInput" placeholder="مثال: غداً الساعة 8:00 مساءً" />
-        </div>
+<!-- 4. شاشة انتظار موافقة الأدمن أو إشعار الرفض -->
+<section id="waitingApprovalScreen" class="screen">
+  <div class="box" style="text-align:center;">
+    <h2 id="approvalTitle">⏳ تم إرسال طلب التسجيل</h2>
+    <p id="approvalDesc" style="color:var(--muted); line-height:1.7;">
+      طلبك الآن في صفحة طلبات التسجيل لدى الأدمن. سيتم نقلك تلقائياً فور الموافقة.
+    </p>
+    <div id="rejectedBanner" style="display:none; background:rgba(239,68,68,0.18); border:1px solid var(--danger); padding:14px; border-radius:12px; color:#fca5a5; font-weight:bold; margin-bottom:14px;">
+      ❌ تم رفض طلبك — لا يمكنك الانتقال إلى الصفحة التالية.
+    </div>
+    <button class="btn btn-outline" onclick="showScreen('homeChoiceScreen')">⬅️ العودة للبداية</button>
+  </div>
+</section>
+
+<!-- 5. شاشة دخول المشترك المسجل مسبقاً (الاسم + رقم الموبايل) -->
+<section id="memberLoginScreen" class="screen">
+  <div class="box gap-10">
+    <h2>🛡️ دخول المشتركين</h2>
+    <p style="color:var(--muted); font-size:0.88rem; text-align:center;">
+      أدخل الاسم ورقم الموبايل المسجلين لفريقك:
+    </p>
+    <input type="text" id="loginNameInput" placeholder="الاسم المسجل" />
+    <input type="tel" id="loginPhoneInput" placeholder="رقم الموبايل (01xxxxxxxxx)" maxlength="11" />
+    <div id="loginErrorMsg" class="error-msg">الاسم او الرقم غير صحيح</div>
+    <button class="btn btn-primary" onclick="loginExistingMember()">دخول</button>
+    <button class="btn btn-outline" onclick="showScreen('homeChoiceScreen')">⬅️ رجوع</button>
+  </div>
+</section>
+
+<!-- 5.5 صفحة إدارة عضوية اللاعب (الخروج من الفريق الحالي والانضمام لفريق آخر) -->
+<section id="playerGroupScreen" class="screen screen-top">
+  <div class="box">
+    <h2>👤 صفحتي الشخصية وإدارة المجموعة</h2>
+
+    <div class="player-bar">
+      <div class="player-meta">
+        اللاعب: <strong id="myProfileName">—</strong> | 📱 <span id="myProfilePhone">—</span><br/>
+        الفريق الحالي: <strong id="myCurrentTeamLabel">بدون فريق (مستقل)</strong>
       </div>
+    </div>
 
-      <label>نوع التحدي الحالي:</label>
-      <select id="challengeTypeSelect" onchange="toggleChallengeTypeUI()">
-        <option value="photo">📸 تحدي إرسال صورة (أسرع فريق يرسل الصورة الصحيحة)</option>
-        <option value="keys">🗝️ تحدي إيجاد المفاتيح على الخريطة (GPS)</option>
+    <div id="leaveGroupBox" style="background:#0b101d; border:1px solid var(--card-2); border-radius:12px; padding:14px; margin-bottom:14px;">
+      <div style="font-size:0.9rem; margin-bottom:10px;">هل تريد الخروج من مجموعتك الحالية للانضمام إلى فريق آخر؟</div>
+      <button type="button" class="btn btn-danger" onclick="leaveCurrentGroup()">🚪 خروج من المجموعة الحالية</button>
+    </div>
+
+    <div id="joinOtherGroupBox" style="background:#0b101d; border:1px solid var(--primary); border-radius:12px; padding:14px; margin-bottom:14px;">
+      <h3 style="text-align:right; font-size:1rem; margin-bottom:8px;">🔄 الانضمام إلى فريق آخر</h3>
+      <label class="field-label" for="targetGroupSelect">اختر الفريق المطلوب الانضمام إليه:</label>
+      <select id="targetGroupSelect">
+        <option value="">-- اختر فريقاً --</option>
       </select>
+      <div id="groupActionError" class="error-msg"></div>
+      <div id="groupActionSuccess" style="display:none; color:var(--success); font-weight:bold; font-size:0.88rem; text-align:center; margin-bottom:10px;"></div>
+      <button type="button" class="btn btn-success" onclick="joinSelectedGroup()">🤝 انضمام إلى هذا الفريق</button>
+    </div>
 
-      <label>وصف / نص التحدي اليومي (يظهر للمشتركين):</label>
-      <textarea id="challengeTextInput" rows="3" placeholder="اكتب تفاصيل التحدي أو اللغز هنا..."></textarea>
+    <button type="button" class="btn btn-outline" onclick="returnFromProfileScreen()">⬅️ رجوع</button>
+  </div>
+</section>
 
-      <div id="keysConfigBox" style="display:none; border-top:1px solid var(--card-light); padding-top:15px; margin-top:10px;">
-        <h3>🗺️ إعدادات المفاتيح والمواقع الجغرافية</h3>
-        <div class="grid-2">
-          <div>
-            <label>عدد المفاتيح المطلوب تجميعها للفوز:</label>
-            <input type="number" id="requiredKeysCount" min="1" max="20" value="3" />
-          </div>
-          <div>
-            <label>نصف قطر دائرة إيجاد المفتاح (بالمتر):</label>
-            <input type="number" id="keyRadiusMeters" min="5" max="5000" value="30" placeholder="مثال: 30" />
-          </div>
-        </div>
-
-        <p style="color:var(--primary); font-size:0.9rem; margin-bottom:5px;">
-          📍 اضغط على أي مكان معلوم على الخريطة لإضافة مفتاح في ذلك الموقع:
-        </p>
-        <div id="adminMap"></div>
-
-        <div class="grid-2">
-          <div>
-            <input type="text" id="manualKeyName" placeholder="اسم المكان / تلميح للمفتاح (اختياري)" />
-          </div>
-          <div class="row-flex">
-            <input type="text" id="pickedCoords" readonly placeholder="الإحداثيات المختارة من الخريطة" style="margin-bottom:0; flex:1;" />
-            <button class="btn btn-success" onclick="addKeyFromMap()">➕ إضافة مفتاح</button>
-          </div>
-        </div>
-
-        <h4 style="margin-bottom:8px;">المفاتيح المضافة حالياً على الخريطة:</h4>
-        <div id="adminKeysList"></div>
+<!-- 6. شاشة الاشتراك في التحدي والتحويل المالي (3 خانات أرقام كاش + زرار الكاميرا / الاستوديو + تأكيد) -->
+<section id="paymentScreen" class="screen screen-top">
+  <div class="box">
+    <div class="player-bar">
+      <div class="player-meta">
+        الفريق: <strong id="payTeamBadge">—</strong> | اللاعب: <strong id="payPlayerBadge">—</strong>
       </div>
+      <button type="button" class="btn btn-outline btn-sm" onclick="openPlayerGroupScreen('paymentScreen')">👤 مجموعتي</button>
+    </div>
 
-      <button class="btn btn-primary" style="margin-top:15px; width:100%; justify-content:center;" onclick="saveChallengeSettings()">
-        🚀 حفظ ونشر إعدادات التحدي
+    <h2>💳 الاشتراك في التحدي والتحويل المالي</h2>
+    <p style="color:var(--muted); font-size:0.88rem; text-align:center;">
+      حوّل قيمة الاشتراك على أحد أرقام الكاش التالية ثم ارفع صورة الإيصال:
+    </p>
+
+    <div id="cashNumbersList">
+      <div class="cash-slot">
+        <div><span style="color:var(--muted); font-size:0.8rem;">رقم كاش 1:</span><br/><strong id="cashSlot_0">جاري التحميل...</strong></div>
+        <button type="button" class="copy-chip" id="copyBtn_0" onclick="copySlotNum(0)">نسخ</button>
+      </div>
+      <div class="cash-slot">
+        <div><span style="color:var(--muted); font-size:0.8rem;">رقم كاش 2:</span><br/><strong id="cashSlot_1">جاري التحميل...</strong></div>
+        <button type="button" class="copy-chip" id="copyBtn_1" onclick="copySlotNum(1)">نسخ</button>
+      </div>
+      <div class="cash-slot">
+        <div><span style="color:var(--muted); font-size:0.8rem;">رقم كاش 3:</span><br/><strong id="cashSlot_2">جاري التحميل...</strong></div>
+        <button type="button" class="copy-chip" id="copyBtn_2" onclick="copySlotNum(2)">نسخ</button>
+      </div>
+    </div>
+
+    <!-- زرار الكاميرا وزر الاستوديو لصورة الإيصال -->
+    <div class="media-pair">
+      <button type="button" class="media-choice-btn" onclick="openMediaSource('receipt', 'camera')">
+        📷 الكاميرا
+      </button>
+      <button type="button" class="media-choice-btn" onclick="openMediaSource('receipt', 'gallery')">
+        🖼️ الاستوديو
+      </button>
+    </div>
+    <input type="file" id="receiptCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleReceiptSelected(event)" />
+    <input type="file" id="receiptGalleryInput" accept="image/*" style="display:none;" onchange="handleReceiptSelected(event)" />
+    <img id="receiptPreview" class="preview-img" alt="معاينة الإيصال" />
+
+    <button class="btn btn-success" id="confirmReceiptBtn" onclick="submitReceipt()">تأكيد</button>
+
+    <div id="receiptLoadingBox" style="display:none; text-align:center; margin-top:14px; color:var(--primary); font-weight:bold;">
+      جارى تنفيذ طلبك<span class="dots"></span>
+    </div>
+  </div>
+</section>
+
+<!-- 7. شاشة انتظار موعد التحدي التالي (عند اكتمال عدد الفرق) -->
+<section id="nextChallengeScreen" class="screen">
+  <div class="box" style="text-align:center;">
+    <h2>⏳ اكتمل عدد الفرق لهذا التحدي</h2>
+    <p style="color:var(--muted);">تم الوصول للحد الأقصى للفرق المشاركة حالياً.</p>
+    <div style="background:#0b101d; border:1px solid var(--primary); padding:16px; border-radius:12px; margin:16px 0;">
+      <div style="color:var(--muted); font-size:0.9rem;">موعد التحدي التالي:</div>
+      <div id="nextChallengeTimeDisplay" style="font-size:1.3rem; font-weight:bold; color:var(--primary); margin-top:6px;">
+        سيتم تحديده قريباً
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. شاشة التحدي اليومي (صور أو مفاتيح GPS) -->
+<section id="challengeScreen" class="screen screen-top">
+  <div class="box">
+    <div class="player-bar">
+      <div class="player-meta">
+        الفريق: <strong id="chalTeamBadge">—</strong> | اللاعب: <strong id="chalPlayerBadge">—</strong>
+      </div>
+      <button type="button" class="btn btn-outline btn-sm" onclick="openPlayerGroupScreen('challengeScreen')">👤 مجموعتي</button>
+    </div>
+
+    <h2>🎯 التحدي اليومي</h2>
+    <div id="challengeDescriptionBox" style="background:#0b101d; padding:14px; border-radius:12px; border:1px solid var(--card-2); margin-bottom:14px; line-height:1.7;">
+      جاري تحميل التحدي...
+    </div>
+
+    <!-- وضع تحدي الصور -->
+    <div id="photoChallengeSection" style="display:none;">
+      <div class="media-pair">
+        <button type="button" class="media-choice-btn" onclick="openMediaSource('challenge', 'camera')">
+          📷 الكاميرا
+        </button>
+        <button type="button" class="media-choice-btn" onclick="openMediaSource('challenge', 'gallery')">
+          🖼️ الاستوديو
+        </button>
+      </div>
+      <input type="file" id="challengeCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleChallengePhotoSelected(event)" />
+      <input type="file" id="challengeGalleryInput" accept="image/*" style="display:none;" onchange="handleChallengePhotoSelected(event)" />
+      <img id="challengePhotoPreview" class="preview-img" alt="صورة التحدي" />
+      <button class="btn btn-primary" onclick="sendChallengePhoto()">إرسال</button>
+      <div id="photoSentStatus" style="margin-top:12px; text-align:center; color:var(--success); font-weight:bold;"></div>
+    </div>
+
+    <!-- وضع تحدي المفاتيح (GPS) -->
+    <div id="keysChallengeSection" style="display:none;">
+      <div style="text-align:center; color:var(--muted); font-size:0.9rem;">
+        المفاتيح المجمعة: <b id="foundKeysCount" style="color:var(--primary);">0</b> / <b id="requiredKeysTarget">3</b>
+      </div>
+      <div class="keys-grid" id="keysSlotsContainer"></div>
+      <div id="gpsStatusText" style="text-align:center; font-size:0.85rem; color:var(--muted); margin-bottom:12px;">
+        جاري تتبع موقعك الجغرافي للبحث عن المفاتيح...
+      </div>
+      <button class="btn btn-success" id="submitKeysWinnerBtn" style="display:none;" onclick="submitKeysVictory()">
+        إرسال
       </button>
     </div>
   </div>
+</section>
 
-  <!-- 5. صفحة صور التحدي + حذف صور الإيصالات وحذف صور التحدي -->
-  <div id="challengePhotos" class="section">
-    <div class="card">
-      <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
-        <h2 style="margin:0;">صور التحدي المرسلة من الفرق</h2>
-        <div class="row-flex">
-          <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteAllChallengePhotos()">🗑️ حذف كل صور التحدي</button>
-        </div>
+<!-- 9. شاشة المكافآت والنتائج (فوز أو خسارة) -->
+<section id="rewardsScreen" class="screen screen-top">
+  <div class="box">
+    <!-- حالة الفوز -->
+    <div id="winnerView" style="display:none;">
+      <div class="celebration-banner">
+        <div style="font-size:2.3rem;">🎉🏆🎊</div>
+        <h2 style="color:var(--success); margin:8px 0;">لقد ربحت!</h2>
+        <div style="font-weight:bold; color:var(--primary);">✨ ربحت 10 نقاط ✨</div>
       </div>
-      <p style="color:var(--muted); font-size:0.88rem;">مرتبة حسب الأسبقية (الأسرع أولاً). راجع الصورة ثم اضغط <b>اعتماد كفائز</b> أو احذف الصور بعد انتهاء التحدي.</p>
-      <div id="challengePhotosList">جاري التحميل...</div>
+
+      <h3>🎁 المكافآت</h3>
+      <div class="gap-10">
+        <button class="btn btn-primary" onclick="openCashRewardBox()">💵 نقدي</button>
+        <button class="btn btn-info" onclick="openFreeMealMenu()">🍔 وجبات مجانية</button>
+      </div>
+
+      <!-- قسم المكسب النقدي -->
+      <div id="cashRewardBox" style="display:none; background:#0b101d; padding:14px; border-radius:12px; margin-top:14px; border:1px solid var(--card-2);">
+        <div style="color:var(--muted); font-size:0.9rem;">قيمة مكسبك النقدي:</div>
+        <div id="prizeAmountValue" style="font-size:1.25rem; font-weight:bold; color:var(--success); margin:6px 0 12px;">—</div>
+        <label style="font-size:0.88rem; color:var(--muted);">أدخل رقم الموبايل لاستلام التحويل عليه:</label>
+        <input type="tel" id="payoutPhoneInput" placeholder="010xxxxxxxx" style="margin-top:6px;" />
+        <button class="btn btn-success" style="margin-top:10px;" onclick="confirmPayoutRequest()">تأكيد</button>
+        <div id="payoutConfirmMsg" style="margin-top:10px; text-align:center; color:var(--success); font-weight:bold;"></div>
+      </div>
+
+      <!-- صورة الوجبات المجانية -->
+      <img id="freeMealMenuImg" class="meal-menu-img" onclick="zoomImage(this.src)" alt="قائمة الوجبات المجانية" />
+    </div>
+
+    <!-- حالة الخسارة -->
+    <div id="loserView" style="display:none; text-align:center;">
+      <div style="background:rgba(239,68,68,0.15); border:1px solid var(--danger); border-radius:14px; padding:16px; margin-bottom:14px;">
+        <h2 style="color:#fca5a5; margin-bottom:6px;">لقد خسرت ولكنك ربحت وجبات بنصف الثمن</h2>
+        <p style="color:var(--muted); margin:0; font-size:0.9rem;">اضغط على صورة القائمة لتكبيرها</p>
+      </div>
+      <img id="halfMealMenuImg" class="meal-menu-img" style="display:block;" onclick="zoomImage(this.src)" alt="قائمة الوجبات بنصف الثمن" />
     </div>
   </div>
+</section>
 
-  <!-- 6. صفحة رابحو المفاتيح -->
-  <div id="keyWinners" class="section">
-    <div class="card">
-      <h2>🗝️ الفرق التي أتمت تجميع المفاتيح</h2>
-      <div id="keyWinnersList">جاري التحميل...</div>
-    </div>
-  </div>
-
-  <!-- 7. صفحة المكافآت والتحويلات المرسلة -->
-  <div id="rewardsTab" class="section">
-    <div class="card">
-      <h2>تحديد قيمة المكافأة النقدية للفائز</h2>
-      <div class="row-flex">
-        <input type="text" id="cashPrizeAmount" placeholder="مثال: 500 جنيه مصري" style="margin-bottom:0; flex:1;" />
-        <button class="btn btn-primary" onclick="savePrizeAmount()">💾 حفظ قيمة الجائزة</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>💸 التحويلات المرسلة / طلبات سحب الجوائز النقدية</h2>
-      <div id="payoutRequestsList">جاري التحميل...</div>
-    </div>
-  </div>
-
-  <!-- 8. صفحة وجبات الطعام + زر حذف صور الإيصالات وحذف صور الوجبات -->
-  <div id="mealsTab" class="section">
-    <div class="card">
-      <div class="row-flex" style="justify-content:space-between; margin-bottom:12px;">
-        <h2 style="margin:0;">🍔 إدارة صور قوائم الطعام (للفائزين والخاسرين)</h2>
-        <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
-      </div>
-      
-      <div style="margin-bottom:20px; border-bottom:1px solid var(--card-light); padding-bottom:16px;">
-        <div class="row-flex" style="justify-content:space-between;">
-          <label style="margin:0;">1️⃣ صورة قائمة الوجبات المجانية (تظهر للفريق الفائز):</label>
-          <button class="btn btn-danger btn-sm" onclick="deleteMealImage('freeMealImg')">🗑️ حذف الصورة</button>
-        </div>
-        <input type="file" accept="image/*" style="margin-top:8px;" onchange="uploadMealImage(event, 'freeMealImg')" />
-        <div id="previewFreeMeal"></div>
-      </div>
-
-      <div>
-        <div class="row-flex" style="justify-content:space-between;">
-          <label style="margin:0;">2️⃣ صورة قائمة الوجبات بنصف الثمن (تظهر للفرق الخاسرة):</label>
-          <button class="btn btn-danger btn-sm" onclick="deleteMealImage('halfMealImg')">🗑️ حذف الصورة</button>
-        </div>
-        <input type="file" accept="image/*" style="margin-top:8px;" onchange="uploadMealImage(event, 'halfMealImg')" />
-        <div id="previewHalfMeal"></div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getDatabase, ref, set, get, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { getDatabase, ref, set, get, update, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
@@ -346,461 +477,450 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // كلمة سر الأدمن المحددة
-  const ADMIN_PASSWORD = "38512385";
+  let splashCompleted = false;
+  let pendingScreenAfterSplash = "homeChoiceScreen";
+  let previousScreenId = "homeChoiceScreen";
+  let currentTeamId = null;
+  let currentTeamData = null;
+  let currentPlayerMember = null;
+  let allTeamsCache = {};
+  let challengeConfig = {};
+  let receiptBase64 = "";
+  let challengePhotoBase64 = "";
+  let foundKeyIds = new Set();
+  let gpsWatchId = null;
+  let activeCashSlots = ["", "", ""];
 
-  window.checkAdminLogin = () => {
-    const val = document.getElementById("adminPassInput").value;
-    if (val === ADMIN_PASSWORD) {
-      document.getElementById("loginOverlay").style.display = "none";
-      sessionStorage.setItem("mc_admin_auth", "1");
+  window.openMediaSource = (target, mode) => {
+    const inputId =
+      target === "receipt"
+        ? (mode === "camera" ? "receiptCameraInput" : "receiptGalleryInput")
+        : (mode === "camera" ? "challengeCameraInput" : "challengeGalleryInput");
+    const inp = document.getElementById(inputId);
+    if (inp) {
+      inp.value = "";
+      inp.click();
+    }
+  };
+
+  window.showScreen = (screenId, force = false) => {
+    if (!splashCompleted && !force) {
+      pendingScreenAfterSplash = screenId;
+      return;
+    }
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(screenId).classList.add("active");
+    window.scrollTo(0, 0);
+  };
+
+  window.zoomImage = (src) => {
+    if (!src) return;
+    document.getElementById("zoomedImg").src = src;
+    document.getElementById("zoomModal").style.display = "flex";
+  };
+
+  function refreshPlayerBadges() {
+    const pName = currentPlayerMember?.name || "لاعب";
+    const pPhone = currentPlayerMember?.phone || "";
+    const tName = currentTeamId && allTeamsCache[currentTeamId]
+      ? (allTeamsCache[currentTeamId].teamName || allTeamsCache[currentTeamId].members?.[0]?.name || "فريق")
+      : "بدون فريق";
+
+    document.getElementById("myProfileName").innerText = pName;
+    document.getElementById("myProfilePhone").innerText = pPhone;
+    document.getElementById("myCurrentTeamLabel").innerText = tName;
+
+    document.getElementById("payTeamBadge").innerText = tName;
+    document.getElementById("payPlayerBadge").innerText = pName;
+    document.getElementById("chalTeamBadge").innerText = tName;
+    document.getElementById("chalPlayerBadge").innerText = pName;
+  }
+
+  function populateTargetGroupsDropdown() {
+    const sel = document.getElementById("targetGroupSelect");
+    sel.innerHTML = `<option value="">-- اختر فريقاً --</option>`;
+    Object.entries(allTeamsCache).forEach(([tId, tData]) => {
+      if (tId === currentTeamId) return;
+      const membersLen = (tData.members || []).length;
+      const label = tData.teamName || tData.members?.[0]?.name || tId;
+      sel.innerHTML += `<option value="${tId}">${label} (${membersLen}/5 أعضاء)</option>`;
+    });
+  }
+
+  window.openPlayerGroupScreen = (fromScreen) => {
+    previousScreenId = fromScreen || "paymentScreen";
+    document.getElementById("groupActionError").style.display = "none";
+    document.getElementById("groupActionSuccess").style.display = "none";
+    refreshPlayerBadges();
+    populateTargetGroupsDropdown();
+    showScreen("playerGroupScreen");
+  };
+
+  window.returnFromProfileScreen = () => {
+    if (currentTeamId) {
+      showScreen(previousScreenId);
     } else {
-      document.getElementById("loginErr").style.display = "block";
+      showScreen("memberLoginScreen");
     }
   };
-  if (sessionStorage.getItem("mc_admin_auth") === "1") {
-    document.getElementById("loginOverlay").style.display = "none";
+
+  // خروج اللاعب من مجموعته الحالية
+  window.leaveCurrentGroup = async () => {
+    document.getElementById("groupActionError").style.display = "none";
+    document.getElementById("groupActionSuccess").style.display = "none";
+
+    if (!currentTeamId || !currentPlayerMember) {
+      const err = document.getElementById("groupActionError");
+      err.innerText = "أنت غير منضم لأي مجموعة حالياً.";
+      err.style.display = "block";
+      return;
+    }
+
+    const oldTeamId = currentTeamId;
+    const oldTeamSnap = await get(ref(db, `teams/${oldTeamId}`));
+    const oldTeam = oldTeamSnap.val();
+    const remainingMembers = (oldTeam?.members || []).filter(
+      m => m.phone !== currentPlayerMember.phone
+    );
+
+    await update(ref(db, `teams/${oldTeamId}`), {
+      members: remainingMembers
+    });
+
+    currentTeamId = null;
+    currentTeamData = null;
+    refreshPlayerBadges();
+    populateTargetGroupsDropdown();
+
+    const ok = document.getElementById("groupActionSuccess");
+    ok.innerText = "✅ تم خروجك من المجموعة الحالية. يمكنك الآن اختيار فريق آخر للانضمام إليه.";
+    ok.style.display = "block";
+  };
+
+  // انضمام اللاعب إلى فريق آخر
+  window.joinSelectedGroup = async () => {
+    const err = document.getElementById("groupActionError");
+    const ok = document.getElementById("groupActionSuccess");
+    err.style.display = "none";
+    ok.style.display = "none";
+
+    if (!currentPlayerMember) {
+      err.innerText = "يرجى تسجيل الدخول بالاسم ورقم الموبايل أولاً.";
+      err.style.display = "block";
+      return;
+    }
+
+    const targetTeamId = document.getElementById("targetGroupSelect").value;
+    if (!targetTeamId) {
+      err.innerText = "يرجى اختيار فريق من القائمة أولاً.";
+      err.style.display = "block";
+      return;
+    }
+
+    const targetSnap = await get(ref(db, `teams/${targetTeamId}`));
+    const targetTeam = targetSnap.val();
+    if (!targetTeam) {
+      err.innerText = "الفريق المختار غير متاح.";
+      err.style.display = "block";
+      return;
+    }
+
+    const members = targetTeam.members || [];
+    const alreadyInTarget = members.some(m => m.phone === currentPlayerMember.phone);
+    if (!alreadyInTarget && members.length >= 5) {
+      err.innerText = "هذا الفريق مكتمل (الحد الأقصى 5 أعضاء).";
+      err.style.display = "block";
+      return;
+    }
+
+    const updatedMembers = alreadyInTarget ? members : [...members, currentPlayerMember];
+    await update(ref(db, `teams/${targetTeamId}`), {
+      members: updatedMembers
+    });
+
+    currentTeamId = targetTeamId;
+    listenToTeamState(currentTeamId);
+    refreshPlayerBadges();
+    populateTargetGroupsDropdown();
+
+    ok.innerText = `✅ تم انضمامك إلى فريق (${targetTeam.teamName || "الفريق"}) بنجاح!`;
+    ok.style.display = "block";
+  };
+
+  // ==========================================
+  // 1. شاشة البداية: عداد 30 ثانية وشريط 100% إلزامي قبل الدخول
+  // ==========================================
+  function startSplashCountdown() {
+    const totalSeconds = 30;
+    let remaining = totalSeconds;
+    const timerEl = document.getElementById("splashTimer");
+    const barEl = document.getElementById("splashProgressBar");
+    const pctEl = document.getElementById("splashPercent");
+
+    const interval = setInterval(() => {
+      remaining--;
+      const elapsed = totalSeconds - remaining;
+      const pct = Math.min(100, Math.round((elapsed / totalSeconds) * 100));
+
+      timerEl.innerText = Math.max(0, remaining);
+      barEl.style.width = `${pct}%`;
+      pctEl.innerText = `${pct}%`;
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        barEl.style.width = "100%";
+        pctEl.innerText = "100%";
+        splashCompleted = true;
+        window.showScreen(pendingScreenAfterSplash, true);
+      }
+    }, 1000);
   }
-
-  window.switchTab = (tabId, btn) => {
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.getElementById(tabId).classList.add("active");
-    btn.classList.add("active");
-    if (tabId === "dailyChallenge" && mapInstance) {
-      setTimeout(() => mapInstance.invalidateSize(), 200);
-    }
-  };
-
-  window.openModal = (src) => {
-    document.getElementById("modalImgSrc").src = src;
-    document.getElementById("imgModal").style.display = "flex";
-  };
-
-  let latestTeamsData = {};
+  startSplashCountdown();
 
   // ==========================================
-  // 1. طلبات التسجيل والمشتركين + تأكيد استلام الإيصال + حذف صور الإيصالات
+  // 2. تسجيل الفريق (اسم الفريق + حتى 5 أسماء وأرقام مصرية فريدة)
   // ==========================================
-  onValue(ref(db, "teams"), (snap) => {
-    const data = snap.val() || {};
-    latestTeamsData = data;
-    const regContainer = document.getElementById("regRequestsList");
-    const subContainer = document.getElementById("subscribersList");
-    regContainer.innerHTML = "";
-    subContainer.innerHTML = "";
+  const MAX_MEMBERS = 5;
+  let memberRowsCount = 0;
+  const membersContainer = document.getElementById("membersContainer");
 
-    let pendingRegCount = 0;
-    let pendingReceiptCount = 0;
-
-    Object.entries(data).forEach(([teamId, team]) => {
-      const membersHtml = (team.members || []).map((m, idx) =>
-        `<div class="member-item">👤 ${idx + 1}. <b>${m.name}</b> — 📱 ${m.phone}</div>`
-      ).join("");
-
-      if (team.status === "pending_registration") {
-        pendingRegCount++;
-        regContainer.innerHTML += `
-          <div class="card" style="background:#0f172a;">
-            <div class="row-flex" style="justify-content:space-between;">
-              <strong style="color:var(--primary);">فريق: ${team.teamName || team.members?.[0]?.name || teamId}</strong>
-              <span style="color:var(--muted); font-size:0.8rem;">${team.createdAt || ""}</span>
-            </div>
-            <div class="member-list">${membersHtml}</div>
-            <div class="row-flex">
-              <button class="btn btn-success" onclick="approveRegistration('${teamId}')">✅ قبول الطلب</button>
-              <button class="btn btn-danger" onclick="rejectRegistration('${teamId}')">❌ رفض الطلب</button>
-            </div>
-          </div>
-        `;
-      }
-
-      if (team.status === "receipt_uploaded" || team.status === "in_challenge" || team.status === "won" || team.status === "lost") {
-        if (team.status === "receipt_uploaded") pendingReceiptCount++;
-        const statusLabel = {
-          receipt_uploaded: "⏳ بانتظار اعتماد الإيصال",
-          in_challenge: "✅ مشترك داخل التحدي",
-          won: "🏆 فائز بالتحدي",
-          lost: "💔 خاسر (مؤهل لوجبة نصف الثمن)"
-        }[team.status] || team.status;
-
-        subContainer.innerHTML += `
-          <div class="card" style="background:#0f172a;">
-            <div class="row-flex" style="justify-content:space-between;">
-              <strong>فريق: ${team.teamName || team.members?.[0]?.name}</strong>
-              <span style="color:var(--primary); font-weight:bold;">${statusLabel}</span>
-            </div>
-            <div class="member-list">${membersHtml}</div>
-            ${team.receiptImage ? `
-              <div>
-                <span style="font-size:0.85rem; color:var(--muted);">صورة إيصال التحويل (اضغط للتكبير):</span><br/>
-                <img src="${team.receiptImage}" class="thumb-img" onclick="openModal('${team.receiptImage}')" /><br/>
-              </div>
-            ` : `<p style="color:var(--muted); font-size:0.85rem;">لا توجد صورة إيصال محفوظة حالياً.</p>`}
-            <div class="row-flex" style="margin-top:8px;">
-              ${team.status !== "in_challenge" && team.status !== "won" && team.status !== "lost" ? `
-                <button class="btn btn-success btn-sm" onclick="approveReceipt('${teamId}')">✅ تأكيد استلام الإيصال</button>
-              ` : ""}
-              ${team.receiptImage ? `
-                <button class="btn btn-danger btn-sm" onclick="deleteTeamReceipt('${teamId}')">🗑️ حذف صورة الإيصال</button>
-              ` : ""}
-            </div>
-          </div>
-        `;
-      }
-    });
-
-    document.getElementById("badgeReg").innerText = pendingRegCount;
-    document.getElementById("countRegTitle").innerText = pendingRegCount;
-    document.getElementById("badgeSub").innerText = pendingReceiptCount;
-
-    if (!regContainer.innerHTML) regContainer.innerHTML = "<p style='color:var(--muted);'>لا توجد طلبات تسجيل جديدة حالياً.</p>";
-    if (!subContainer.innerHTML) subContainer.innerHTML = "<p style='color:var(--muted);'>لا يوجد مشتركين أو إيصالات حالياً.</p>";
-  });
-
-  window.approveRegistration = (teamId) => {
-    update(ref(db, `teams/${teamId}`), { status: "approved_for_payment" });
-  };
-
-  window.rejectRegistration = (teamId) => {
-    if (confirm("هل أنت متأكد من رفض طلب هذا الفريق؟")) {
-      update(ref(db, `teams/${teamId}`), { status: "rejected" });
-    }
-  };
-
-  window.approveReceipt = (teamId) => {
-    update(ref(db, `teams/${teamId}`), {
-      status: "in_challenge",
-      joinedChallengeAt: Date.now()
-    });
-  };
-
-  window.deleteTeamReceipt = async (teamId) => {
-    if (!confirm("هل تريد حذف صورة الإيصال لتوفير مساحة الذاكرة؟")) return;
-    await remove(ref(db, `teams/${teamId}/receiptImage`));
-    alert("✅ تم حذف صورة الإيصال.");
-  };
-
-  window.deleteAllReceipts = async () => {
-    if (!confirm("هل تريد حذف كل صور الإيصالات بعد انتهاء التحدي لتوفير مساحة الذاكرة؟")) return;
-    for (const tId of Object.keys(latestTeamsData)) {
-      if (latestTeamsData[tId]?.receiptImage) {
-        await remove(ref(db, `teams/${tId}/receiptImage`));
-      }
-    }
-    alert("✅ تم حذف كل صور الإيصالات بنجاح.");
-  };
-
-  // ==========================================
-  // 2. أرقام الكاش (7 خانات واختيار 3 بـ Checkbox)
-  // ==========================================
-  const cashContainer = document.getElementById("cashInputsContainer");
-  for (let i = 0; i < 7; i++) {
-    cashContainer.innerHTML += `
-      <div class="cash-row">
-        <input type="checkbox" id="cashChk_${i}" onchange="enforceMaxThreeCash(this)" />
-        <input type="text" id="cashNum_${i}" placeholder="رقم كاش مصري رقم ${i + 1} (مثال: 010xxxxxxxx)" />
-      </div>
+  window.addMemberRow = () => {
+    if (memberRowsCount >= MAX_MEMBERS) return;
+    memberRowsCount++;
+    const idx = memberRowsCount;
+    const div = document.createElement("div");
+    div.className = "member-row";
+    div.id = `memberRow_${idx}`;
+    div.innerHTML = `
+      <input type="text" id="memberName_${idx}" placeholder="الاسم ${idx}" />
+      <input type="tel" id="memberPhone_${idx}" placeholder="رقم الموبايل (01xxxxxxxxx)" maxlength="11" />
     `;
-  }
-
-  window.enforceMaxThreeCash = (chk) => {
-    const checked = document.querySelectorAll("#cashInputsContainer input[type='checkbox']:checked");
-    if (checked.length > 3) {
-      chk.checked = false;
-      alert("⚠️ يمكنك تحديد 3 أرقام فقط لتظهر للمستخدمين في صفحة الدفع.");
+    membersContainer.appendChild(div);
+    document.getElementById("membersCountText").innerText = memberRowsCount;
+    if (memberRowsCount >= MAX_MEMBERS) {
+      document.getElementById("addMemberBtn").style.display = "none";
     }
   };
+  addMemberRow();
 
-  onValue(ref(db, "settings/cashNumbers"), (snap) => {
-    const list = snap.val() || [];
-    for (let i = 0; i < 7; i++) {
-      if (list[i]) {
-        document.getElementById(`cashNum_${i}`).value = list[i].number || "";
-        document.getElementById(`cashChk_${i}`).checked = !!list[i].active;
+  function isValidEgyptianPhone(phone) {
+    return /^01[0125][0-9]{8}$/.test(phone.trim());
+  }
+
+  function clearValidationErrors() {
+    document.getElementById("regErrorMsg").style.display = "none";
+    document.getElementById("teamNameInput").classList.remove("input-error");
+    document.querySelectorAll("#membersContainer input").forEach(inp => inp.classList.remove("input-error"));
+  }
+
+  window.submitRegistration = async () => {
+    clearValidationErrors();
+    const errEl = document.getElementById("regErrorMsg");
+    const teamNameInp = document.getElementById("teamNameInput");
+    const teamName = teamNameInp.value.trim();
+
+    const members = [];
+    const seenNames = new Set();
+    const seenPhones = new Set();
+    let hasError = false;
+
+    const existingTeamNames = new Set();
+    const existingNames = new Set();
+    const existingPhones = new Set();
+
+    Object.values(allTeamsCache).forEach(t => {
+      if (t.teamName) existingTeamNames.add(t.teamName.trim().toLowerCase());
+      (t.members || []).forEach(m => {
+        if (m.name) existingNames.add(m.name.trim().toLowerCase());
+        if (m.phone) existingPhones.add(m.phone.trim());
+      });
+    });
+
+    if (!teamName || existingTeamNames.has(teamName.toLowerCase())) {
+      teamNameInp.classList.add("input-error");
+      hasError = true;
+    }
+
+    for (let i = 1; i <= memberRowsCount; i++) {
+      const nameInp = document.getElementById(`memberName_${i}`);
+      const phoneInp = document.getElementById(`memberPhone_${i}`);
+      const name = nameInp.value.trim();
+      const phone = phoneInp.value.trim();
+
+      if (!name && !phone && i > 1) continue;
+
+      const nameKey = name.toLowerCase();
+      const isNameInvalid = !name || seenNames.has(nameKey) || existingNames.has(nameKey);
+      const isPhoneInvalid = !isValidEgyptianPhone(phone) || seenPhones.has(phone) || existingPhones.has(phone);
+
+      if (isNameInvalid) {
+        nameInp.classList.add("input-error");
+        hasError = true;
+      }
+      if (isPhoneInvalid) {
+        phoneInp.classList.add("input-error");
+        hasError = true;
+      }
+
+      if (!isNameInvalid && !isPhoneInvalid) {
+        seenNames.add(nameKey);
+        seenPhones.add(phone);
+        members.push({ name, phone });
       }
     }
-  });
 
-  window.saveCashNumbers = () => {
-    const allNumbers = [];
-    const activeNumbers = [];
-    for (let i = 0; i < 7; i++) {
-      const number = document.getElementById(`cashNum_${i}`).value.trim();
-      const active = document.getElementById(`cashChk_${i}`).checked;
-      if (active && !number) {
-        alert(`⚠️ الخانة رقم ${i + 1} محددة بعلامة صح ولكنها فارغة!`);
+    if (members.length === 0 || hasError) {
+      errEl.innerText = "الاسم او الرقم غير صحيح";
+      errEl.style.display = "block";
+      return;
+    }
+
+    currentPlayerMember = members[0];
+    const newTeamRef = push(ref(db, "teams"));
+    currentTeamId = newTeamRef.key;
+
+    await set(newTeamRef, {
+      teamName,
+      members,
+      status: "pending_registration",
+      points: 0,
+      createdAt: new Date().toLocaleString("ar-EG")
+    });
+
+    refreshPlayerBadges();
+    listenToTeamState(currentTeamId);
+    showScreen("waitingApprovalScreen");
+  };
+
+  // ==========================================
+  // 3. دخول المشترك المسجل مسبقاً (الاسم + رقم الموبايل)
+  // ==========================================
+  window.loginExistingMember = () => {
+    const nameInp = document.getElementById("loginNameInput");
+    const phoneInp = document.getElementById("loginPhoneInput");
+    const rawName = nameInp.value.trim();
+    const name = rawName.toLowerCase();
+    const phone = phoneInp.value.trim();
+    const errEl = document.getElementById("loginErrorMsg");
+
+    nameInp.classList.remove("input-error");
+    phoneInp.classList.remove("input-error");
+    errEl.style.display = "none";
+
+    if (!name || !isValidEgyptianPhone(phone)) {
+      if (!name) nameInp.classList.add("input-error");
+      if (!isValidEgyptianPhone(phone)) phoneInp.classList.add("input-error");
+      errEl.innerText = "الاسم او الرقم غير صحيح";
+      errEl.style.display = "block";
+      return;
+    }
+
+    let matchedId = null;
+    let matchedMember = null;
+
+    Object.entries(allTeamsCache).forEach(([tId, tData]) => {
+      const foundMember = (tData.members || []).find(
+        m => (m.name || "").trim().toLowerCase() === name && (m.phone || "").trim() === phone
+      );
+      if (foundMember) {
+        matchedId = tId;
+        matchedMember = foundMember;
+      }
+    });
+
+    if (!matchedId) {
+      nameInp.classList.add("input-error");
+      phoneInp.classList.add("input-error");
+      errEl.innerText = "الاسم او الرقم غير صحيح";
+      errEl.style.display = "block";
+      return;
+    }
+
+    currentTeamId = matchedId;
+    currentPlayerMember = matchedMember;
+    refreshPlayerBadges();
+    listenToTeamState(currentTeamId);
+    showScreen("paymentScreen");
+  };
+
+  // ==========================================
+  // 4. متابعة حالة الفريق والانتقال التلقائي
+  // ==========================================
+  function listenToTeamState(teamId) {
+    onValue(ref(db, `teams/${teamId}`), (snap) => {
+      const team = snap.val();
+      if (!team) return;
+      currentTeamData = team;
+      refreshPlayerBadges();
+
+      if (team.status === "rejected") {
+        showScreen("waitingApprovalScreen");
+        document.getElementById("approvalTitle").innerText = "❌ تم رفض طلبك";
+        document.getElementById("approvalDesc").style.display = "none";
+        document.getElementById("rejectedBanner").style.display = "block";
         return;
       }
-      allNumbers.push({ number, active });
-      if (active && number) activeNumbers.push(number);
-    }
-    if (activeNumbers.length === 0) {
-      alert("⚠️ يرجى تحديد رقم واحد على الأقل (بحد أقصى 3 أرقام).");
-      return;
-    }
-    set(ref(db, "settings/cashNumbers"), allNumbers);
-    set(ref(db, "settings/activeCashNumbers"), activeNumbers);
-    alert("✅ تم حفظ الأرقام المحددة بنجاح وستظهر الآن للمشتركين.");
-  };
 
-  // ==========================================
-  // 3. إعدادات التحدي اليومي وخريطة المفاتيح
-  // ==========================================
-  let mapInstance = null;
-  let tempMarker = null;
-  let selectedLatLng = null;
-  let mapMarkersLayer = null;
+      if (team.status === "approved_for_payment") {
+        showScreen("paymentScreen");
+        return;
+      }
 
-  function initAdminMap() {
-    mapInstance = L.map("adminMap").setView([27.2579, 33.8116], 13);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap"
-    }).addTo(mapInstance);
+      if (team.status === "in_challenge") {
+        evaluateChallengeAccess();
+        return;
+      }
 
-    mapMarkersLayer = L.layerGroup().addTo(mapInstance);
+      if (team.status === "won") {
+        showRewardsScreen("winner");
+        return;
+      }
 
-    mapInstance.on("click", (e) => {
-      selectedLatLng = e.latlng;
-      document.getElementById("pickedCoords").value = `${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
-      if (tempMarker) mapInstance.removeLayer(tempMarker);
-      tempMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapInstance)
-        .bindPopup("موقع المفتاح الجديد").openPopup();
+      if (team.status === "lost") {
+        showRewardsScreen("loser");
+        return;
+      }
     });
   }
-  initAdminMap();
 
-  window.toggleChallengeTypeUI = () => {
-    const type = document.getElementById("challengeTypeSelect").value;
-    document.getElementById("keysConfigBox").style.display = type === "keys" ? "block" : "none";
-    if (type === "keys" && mapInstance) {
-      setTimeout(() => mapInstance.invalidateSize(), 200);
+  onValue(ref(db, "teams"), (snap) => {
+    allTeamsCache = snap.val() || {};
+    refreshPlayerBadges();
+    if (document.getElementById("playerGroupScreen").classList.contains("active")) {
+      populateTargetGroupsDropdown();
     }
-  };
-
-  onValue(ref(db, "settings/challenge"), (snap) => {
-    const c = snap.val() || {};
-    document.getElementById("maxTeamsInput").value = c.maxTeams || 10;
-    document.getElementById("nextChallengeTimeInput").value = c.nextChallengeTime || "";
-    document.getElementById("challengeTypeSelect").value = c.type || "photo";
-    document.getElementById("challengeTextInput").value = c.description || "";
-    document.getElementById("requiredKeysCount").value = c.requiredKeys || 3;
-    document.getElementById("keyRadiusMeters").value = c.keyRadius || 30;
-    toggleChallengeTypeUI();
   });
-
-  window.saveChallengeSettings = () => {
-    const payload = {
-      maxTeams: parseInt(document.getElementById("maxTeamsInput").value) || 10,
-      nextChallengeTime: document.getElementById("nextChallengeTimeInput").value.trim(),
-      type: document.getElementById("challengeTypeSelect").value,
-      description: document.getElementById("challengeTextInput").value.trim(),
-      requiredKeys: parseInt(document.getElementById("requiredKeysCount").value) || 3,
-      keyRadius: parseInt(document.getElementById("keyRadiusMeters").value) || 30,
-      updatedAt: Date.now()
-    };
-    update(ref(db, "settings/challenge"), payload);
-    alert("✅ تم حفظ ونشر إعدادات التحدي بنجاح!");
-  };
-
-  onValue(ref(db, "gpsCoins"), (snap) => {
-    const keys = snap.val() || {};
-    const listEl = document.getElementById("adminKeysList");
-    listEl.innerHTML = "";
-    if (mapMarkersLayer) mapMarkersLayer.clearLayers();
-
-    const radius = parseInt(document.getElementById("keyRadiusMeters").value) || 30;
-
-    Object.entries(keys).forEach(([keyId, k], index) => {
-      listEl.innerHTML += `
-        <div class="key-item">
-          <div>
-            <strong>🗝️ مفتاح #${index + 1}: ${k.label || "موقع محدد"}</strong><br/>
-            <span style="color:var(--muted); font-size:0.8rem;">Lat: ${k.lat}, Lng: ${k.lng}</span>
-          </div>
-          <button class="btn btn-danger btn-sm" onclick="deleteMapKey('${keyId}')">حذف</button>
-        </div>
-      `;
-      if (mapMarkersLayer) {
-        L.marker([k.lat, k.lng]).addTo(mapMarkersLayer).bindPopup(`🗝️ ${k.label || "مفتاح #" + (index + 1)}`);
-        L.circle([k.lat, k.lng], { radius, color: "#f59e0b", fillOpacity: 0.2 }).addTo(mapMarkersLayer);
-      }
-    });
-
-    if (!listEl.innerHTML) listEl.innerHTML = "<p style='color:var(--muted); font-size:0.85rem;'>لم يتم إضافة مفاتيح بعد. اضغط على الخريطة لإضافة مفتاح.</p>";
-  });
-
-  window.addKeyFromMap = () => {
-    if (!selectedLatLng) {
-      alert("⚠️ اضغط على الخريطة أولاً لتحديد مكان المفتاح.");
-      return;
-    }
-    const label = document.getElementById("manualKeyName").value.trim() || "مفتاح سري";
-    push(ref(db, "gpsCoins"), {
-      lat: selectedLatLng.lat,
-      lng: selectedLatLng.lng,
-      label
-    });
-    document.getElementById("manualKeyName").value = "";
-    document.getElementById("pickedCoords").value = "";
-    if (tempMarker) mapInstance.removeLayer(tempMarker);
-    selectedLatLng = null;
-  };
-
-  window.deleteMapKey = (keyId) => {
-    remove(ref(db, `gpsCoins/${keyId}`));
-  };
 
   // ==========================================
-  // 4. صفحة صور التحدي + حذف الصور
+  // 5. شاشة الاشتراك والتحويل المالي (3 خانات كاش + إيصال)
   // ==========================================
-  onValue(ref(db, "challengeSubmissions"), (snap) => {
-    const subs = snap.val() || {};
-    const container = document.getElementById("challengePhotosList");
-    container.innerHTML = "";
-
-    const entries = Object.entries(subs).sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
-    document.getElementById("badgePhotos").innerText = entries.length;
-
-    entries.forEach(([teamId, item], idx) => {
-      const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString("ar-EG") : "";
-      container.innerHTML += `
-        <div class="card" style="background:#0f172a; border-color:${item.isWinner ? 'var(--success)' : 'var(--card-light)'};">
-          <div class="row-flex" style="justify-content:space-between;">
-            <strong>#${idx + 1} — فريق: ${item.teamName} (📱 ${item.phone})</strong>
-            <span style="color:var(--muted); font-size:0.85rem;">⏱️ وقت الإرسال: ${timeStr}</span>
-          </div>
-          ${item.photo ? `<img src="${item.photo}" class="thumb-img" onclick="openModal('${item.photo}')" />` : `<p style="color:var(--muted); font-size:0.85rem;">تم حذف الصورة.</p>`}
-          <div class="row-flex">
-            ${item.isWinner
-              ? `<span style="color:var(--success); font-weight:bold;">🏆 تم اعتماده كفائز (+10 نقاط)</span>`
-              : `<button class="btn btn-success" onclick="confirmChallengeWinner('${teamId}')">🏆 اعتماد كفائز وإنهاء الجولة</button>`
-            }
-            <button class="btn btn-danger btn-sm" onclick="deleteChallengePhoto('${teamId}')">🗑️ حذف الصورة</button>
-          </div>
-        </div>
-      `;
-    });
-
-    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لم يرسل أي فريق صور التحدي بعد.</p>";
-  });
-
-  window.deleteChallengePhoto = async (teamId) => {
-    if (!confirm("هل تريد حذف صورة التحدي لهذا الفريق لتوفير الذاكرة؟")) return;
-    await remove(ref(db, `challengeSubmissions/${teamId}/photo`));
-    alert("✅ تم حذف صورة التحدي.");
-  };
-
-  window.deleteAllChallengePhotos = async () => {
-    if (!confirm("هل تريد مسح كل صور التحدي المرسلة لتوفير الذاكرة؟")) return;
-    await remove(ref(db, "challengeSubmissions"));
-    alert("✅ تم حذف كل صور التحدي.");
-  };
-
-  window.confirmChallengeWinner = async (winnerTeamId) => {
-    if (!confirm("هل تريد اعتماد هذا الفريق كفائز وإعلان باقي الفرق كخاسرة؟")) return;
-
-    const winnerSnap = await get(ref(db, `teams/${winnerTeamId}`));
-    const winnerData = winnerSnap.val() || {};
-    const currentPoints = winnerData.points || 0;
-
-    await update(ref(db, `teams/${winnerTeamId}`), {
-      status: "won",
-      points: currentPoints + 10
-    });
-
-    await update(ref(db, `challengeSubmissions/${winnerTeamId}`), {
-      isWinner: true
-    });
-
-    const allTeamsSnap = await get(ref(db, "teams"));
-    const allTeams = allTeamsSnap.val() || {};
-    for (const [tId, tData] of Object.entries(allTeams)) {
-      if (tId !== winnerTeamId && tData.status === "in_challenge") {
-        await update(ref(db, `teams/${tId}`), { status: "lost" });
+  onValue(ref(db, "settings/activeCashNumbers"), (snap) => {
+    const nums = snap.val() || [];
+    for (let i = 0; i < 3; i++) {
+      const val = nums[i] || "";
+      activeCashSlots[i] = val;
+      const slotEl = document.getElementById(`cashSlot_${i}`);
+      const btnEl = document.getElementById(`copyBtn_${i}`);
+      if (val) {
+        slotEl.innerText = val;
+        slotEl.style.color = "var(--text)";
+        btnEl.style.display = "inline-block";
+      } else {
+        slotEl.innerText = "غير محدد بعد";
+        slotEl.style.color = "var(--muted)";
+        btnEl.style.display = "none";
       }
     }
-
-    alert("🎉 تم اعتماد الفريق الفائز ومنحه 10 نقاط، وتم إشعار باقي الفرق!");
-  };
-
-  // ==========================================
-  // 5. رابحو المفاتيح
-  // ==========================================
-  onValue(ref(db, "keyWinners"), (snap) => {
-    const winners = snap.val() || {};
-    const container = document.getElementById("keyWinnersList");
-    container.innerHTML = "";
-    const entries = Object.entries(winners).sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
-    document.getElementById("badgeKeys").innerText = entries.length;
-
-    entries.forEach(([teamId, w], idx) => {
-      const timeStr = w.timestamp ? new Date(w.timestamp).toLocaleTimeString("ar-EG") : "";
-      container.innerHTML += `
-        <div class="card" style="background:#0f172a;">
-          <div class="row-flex" style="justify-content:space-between;">
-            <strong>🏆 #${idx + 1} — فريق: ${w.teamName} (📱 ${w.phone})</strong>
-            <span style="color:var(--success);">أتم تجميع ${w.keysCount} مفاتيح — ⏱️ ${timeStr}</span>
-          </div>
-          ${!w.confirmed ? `
-            <button class="btn btn-success btn-sm" style="margin-top:8px;" onclick="confirmChallengeWinner('${teamId}'); update(ref(db, 'keyWinners/${teamId}'), {confirmed:true});">
-              ✅ اعتماد الفوز ومنح المكافأة
-            </button>
-          ` : `<span style="color:var(--primary); font-size:0.85rem;">✔️ تم الاعتماد</span>`}
-        </div>
-      `;
-    });
-
-    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لا يوجد رابحون للمفاتيح حتى الآن.</p>";
   });
 
-  // ==========================================
-  // 6. المكافآت والتحويلات المرسلة
-  // ==========================================
-  onValue(ref(db, "settings/prizeAmount"), (snap) => {
-    document.getElementById("cashPrizeAmount").value = snap.val() || "";
-  });
-
-  window.savePrizeAmount = () => {
-    const val = document.getElementById("cashPrizeAmount").value.trim();
-    set(ref(db, "settings/prizeAmount"), val);
-    alert("✅ تم حفظ قيمة المكافأة النقدية.");
+  window.copySlotNum = (idx) => {
+    const num = activeCashSlots[idx];
+    if (!num) return;
+    navigator.clipboard?.writeText(num);
+    alert("تم نسخ الرقم: " + num);
   };
 
-  onValue(ref(db, "payoutRequests"), (snap) => {
-    const reqs = snap.val() || {};
-    const container = document.getElementById("payoutRequestsList");
-    container.innerHTML = "";
-    let pendingCount = 0;
-
-    Object.entries(reqs).forEach(([id, r]) => {
-      if (!r.sent) pendingCount++;
-      container.innerHTML += `
-        <div class="key-item">
-          <div>
-            <strong>📱 رقم الاستلام: ${r.walletPhone}</strong> — <span style="color:var(--primary); font-weight:bold;">المبلغ: ${r.amount}</span><br/>
-            <span style="color:var(--muted); font-size:0.82rem;">الفريق: ${r.teamName}</span>
-          </div>
-          ${r.sent
-            ? `<span style="color:var(--success); font-weight:bold;">✅ تم التحويل</span>`
-            : `<button class="btn btn-success btn-sm" onclick="markPayoutSent('${id}')">💸 تأكيد إرسال التحويل</button>`
-          }
-        </div>
-      `;
-    });
-
-    document.getElementById("badgePayouts").innerText = pendingCount;
-    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لا توجد طلبات تحويل نقدي حالياً.</p>";
-  });
-
-  window.markPayoutSent = (id) => {
-    update(ref(db, `payoutRequests/${id}`), { sent: true, sentAt: Date.now() });
-  };
-
-  // ==========================================
-  // 7. وجبات الطعام + زر حذف الصور
-  // ==========================================
-  function compressImage(file, callback) {
+  function compressImageToBase64(file, callback) {
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
@@ -810,8 +930,7 @@
         const scale = Math.min(1, maxW / img.width);
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
         callback(canvas.toDataURL("image/jpeg", 0.7));
       };
       img.src = e.target.result;
@@ -819,37 +938,261 @@
     reader.readAsDataURL(file);
   }
 
-  window.uploadMealImage = (event, dbKey) => {
-    const file = event.target.files[0];
+  window.handleReceiptSelected = (ev) => {
+    const file = ev.target.files[0];
     if (!file) return;
-    compressImage(file, (base64) => {
-      set(ref(db, `settings/meals/${dbKey}`), base64);
-      alert("✅ تم رفع وحفظ صورة قائمة الطعام بنجاح!");
+    compressImageToBase64(file, (b64) => {
+      receiptBase64 = b64;
+      const img = document.getElementById("receiptPreview");
+      img.src = b64;
+      img.style.display = "block";
     });
   };
 
-  window.deleteMealImage = async (dbKey) => {
-    if (!confirm("هل تريد حذف صورة قائمة الطعام هذه لتوفير الذاكرة؟")) return;
-    await remove(ref(db, `settings/meals/${dbKey}`));
-    alert("✅ تم حذف صورة قائمة الطعام.");
+  window.submitReceipt = async () => {
+    if (!receiptBase64) {
+      alert("يرجى التقاط صورة الإيصال أو اختيارها من الاستوديو أولاً.");
+      return;
+    }
+    if (!currentTeamId) {
+      alert("يرجى الانضمام إلى فريق أولاً.");
+      return;
+    }
+
+    document.getElementById("receiptLoadingBox").style.display = "block";
+    document.getElementById("confirmReceiptBtn").disabled = true;
+
+    await update(ref(db, `teams/${currentTeamId}`), {
+      receiptImage: receiptBase64,
+      status: "receipt_uploaded"
+    });
   };
 
-  onValue(ref(db, "settings/meals"), (snap) => {
-    const meals = snap.val() || {};
-    document.getElementById("previewFreeMeal").innerHTML = meals.freeMealImg
-      ? `<img src="${meals.freeMealImg}" class="thumb-img" onclick="openModal('${meals.freeMealImg}')" />`
-      : `<p style="color:var(--muted); font-size:0.85rem;">لا توجد صورة مرفوعة حالياً.</p>`;
-
-    document.getElementById("previewHalfMeal").innerHTML = meals.halfMealImg
-      ? `<img src="${meals.halfMealImg}" class="thumb-img" onclick="openModal('${meals.halfMealImg}')" />`
-      : `<p style="color:var(--muted); font-size:0.85rem;">لا توجد صورة مرفوعة حالياً.</p>`;
+  // ==========================================
+  // 6. التحقق من عدد الفرق والدخول للتحدي اليومي
+  // ==========================================
+  onValue(ref(db, "settings/challenge"), (snap) => {
+    challengeConfig = snap.val() || {};
+    if (currentTeamData && currentTeamData.status === "in_challenge") {
+      evaluateChallengeAccess();
+    }
   });
 
-  window.resetRoundData = async () => {
-    if (!confirm("⚠️ هل تريد مسح صور التحدي ورابحو المفاتيح لبدء جولة تحدي جديدة؟ (لن يتم حذف الفرق المسجلة)")) return;
-    await remove(ref(db, "challengeSubmissions"));
-    await remove(ref(db, "keyWinners"));
-    alert("✅ تم تصفير بيانات الجولة وحذف الصور بنجاح.");
+  function evaluateChallengeAccess() {
+    const maxTeams = parseInt(challengeConfig.maxTeams) || 10;
+    const activeChallengeTeams = Object.entries(allTeamsCache).filter(([tId, t]) =>
+      ["in_challenge", "won", "lost"].includes(t.status)
+    );
+
+    const isAlreadyInside = activeChallengeTeams.some(([tId]) => tId === currentTeamId);
+    const currentCount = activeChallengeTeams.length;
+
+    if (!isAlreadyInside && currentCount >= maxTeams) {
+      document.getElementById("nextChallengeTimeDisplay").innerText =
+        challengeConfig.nextChallengeTime || "سيتم الإعلان عن الموعد قريباً";
+      showScreen("nextChallengeScreen");
+      return;
+    }
+
+    renderChallengeScreen();
+  }
+
+  function renderChallengeScreen() {
+    refreshPlayerBadges();
+    showScreen("challengeScreen");
+    document.getElementById("challengeDescriptionBox").innerText =
+      challengeConfig.description || "التحدي اليومي جاهز!";
+
+    const type = challengeConfig.type || "photo";
+    document.getElementById("photoChallengeSection").style.display = type === "photo" ? "block" : "none";
+    document.getElementById("keysChallengeSection").style.display = type === "keys" ? "block" : "none";
+
+    if (type === "keys") {
+      startKeysGpsChallenge();
+    }
+  }
+
+  window.handleChallengePhotoSelected = (ev) => {
+    const file = ev.target.files[0];
+    if (!file) return;
+    compressImageToBase64(file, (b64) => {
+      challengePhotoBase64 = b64;
+      const img = document.getElementById("challengePhotoPreview");
+      img.src = b64;
+      img.style.display = "block";
+    });
+  };
+
+  window.sendChallengePhoto = async () => {
+    if (!challengePhotoBase64) {
+      alert("يرجى التقاط أو اختيار صورة التحدي أولاً.");
+      return;
+    }
+    const primaryMember = currentPlayerMember || currentTeamData?.members?.[0] || { name: "فريق", phone: "" };
+    await set(ref(db, `challengeSubmissions/${currentTeamId}`), {
+      teamName: currentTeamData?.teamName || primaryMember.name,
+      phone: primaryMember.phone,
+      photo: challengePhotoBase64,
+      timestamp: Date.now()
+    });
+    document.getElementById("photoSentStatus").innerText = "✅ تم إرسال صورتك إلى صفحة صور التحدي بنجاح!";
+  };
+
+  function getDistanceMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function startKeysGpsChallenge() {
+    const requiredKeys = parseInt(challengeConfig.requiredKeys) || 3;
+    const radius = parseFloat(challengeConfig.keyRadius) || 30;
+    document.getElementById("requiredKeysTarget").innerText = requiredKeys;
+
+    onValue(ref(db, "gpsCoins"), (snap) => {
+      const keysObj = snap.val() || {};
+      const keysArr = Object.entries(keysObj);
+      const slotsEl = document.getElementById("keysSlotsContainer");
+      slotsEl.innerHTML = "";
+
+      for (let i = 0; i < requiredKeys; i++) {
+        const keyEntry = keysArr[i];
+        const keyId = keyEntry ? keyEntry[0] : `slot_${i}`;
+        const isFound = foundKeyIds.has(keyId);
+        slotsEl.innerHTML += `
+          <div class="key-slot ${isFound ? "found" : ""}" id="keySlot_${keyId}">
+            <span style="font-size:1.6rem;">🗝️</span>
+            <span style="font-size:0.72rem; margin-top:3px;">مفتاح ${i + 1}</span>
+          </div>
+        `;
+      }
+
+      if (navigator.geolocation && !gpsWatchId) {
+        gpsWatchId = navigator.geolocation.watchPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            document.getElementById("gpsStatusText").innerText =
+              `📍 موقعك الحالي نشط (نصف قطر الإيجاد: ${radius} متر)`;
+
+            let changed = false;
+            keysArr.slice(0, requiredKeys).forEach(([kId, kData]) => {
+              if (!foundKeyIds.has(kId)) {
+                const dist = getDistanceMeters(latitude, longitude, kData.lat, kData.lng);
+                if (dist <= radius) {
+                  foundKeyIds.add(kId);
+                  changed = true;
+                }
+              }
+            });
+
+            if (changed) {
+              document.getElementById("foundKeysCount").innerText = foundKeyIds.size;
+              foundKeyIds.forEach(id => {
+                const el = document.getElementById(`keySlot_${id}`);
+                if (el) el.classList.add("found");
+              });
+              if (foundKeyIds.size >= requiredKeys) {
+                document.getElementById("submitKeysWinnerBtn").style.display = "flex";
+              }
+            }
+          },
+          () => {
+            document.getElementById("gpsStatusText").innerText =
+              "⚠️ يرجى تفعيل خدمة الموقع (GPS) على هاتفك للعثور على المفاتيح.";
+          },
+          { enableHighAccuracy: true }
+        );
+      }
+    });
+  }
+
+  window.submitKeysVictory = async () => {
+    const primaryMember = currentPlayerMember || currentTeamData?.members?.[0] || { name: "فريق", phone: "" };
+    await set(ref(db, `keyWinners/${currentTeamId}`), {
+      teamName: currentTeamData?.teamName || primaryMember.name,
+      phone: primaryMember.phone,
+      keysCount: foundKeyIds.size,
+      timestamp: Date.now()
+    });
+    alert("🎉 تم إرسال إتمام المفاتيح إلى صفحة رابحو المفاتيح بنجاح!");
+  };
+
+  // ==========================================
+  // 7. صفحة المكافآت والنتائج
+  // ==========================================
+  function showRewardsScreen(mode) {
+    showScreen("rewardsScreen");
+    document.getElementById("winnerView").style.display = mode === "winner" ? "block" : "none";
+    document.getElementById("loserView").style.display = mode === "loser" ? "block" : "none";
+
+    onValue(ref(db, "settings/prizeAmount"), (snap) => {
+      document.getElementById("prizeAmountValue").innerText = snap.val() || "جائزة نقدية";
+    });
+
+    onValue(ref(db, "settings/meals"), (snap) => {
+      const meals = snap.val() || {};
+      const freeImg = document.getElementById("freeMealMenuImg");
+      const halfImg = document.getElementById("halfMealMenuImg");
+
+      if (meals.freeMealImg) {
+        freeImg.src = meals.freeMealImg;
+      } else {
+        freeImg.removeAttribute("src");
+        freeImg.style.display = "none";
+      }
+
+      if (meals.halfMealImg) {
+        halfImg.src = meals.halfMealImg;
+        halfImg.style.display = "block";
+      } else {
+        halfImg.removeAttribute("src");
+        halfImg.style.display = "none";
+      }
+    });
+  }
+
+  window.openCashRewardBox = () => {
+    document.getElementById("cashRewardBox").style.display = "block";
+    document.getElementById("freeMealMenuImg").style.display = "none";
+  };
+
+  window.openFreeMealMenu = () => {
+    document.getElementById("cashRewardBox").style.display = "none";
+    const img = document.getElementById("freeMealMenuImg");
+    if (img.getAttribute("src")) {
+      img.style.display = "block";
+    } else {
+      alert("لم يقم الأدمن برفع صورة قائمة الوجبات المجانية بعد.");
+    }
+  };
+
+  window.confirmPayoutRequest = async () => {
+    const walletPhone = document.getElementById("payoutPhoneInput").value.trim();
+    if (!isValidEgyptianPhone(walletPhone)) {
+      alert("يرجى إدخال رقم موبايل مصري صحيح لاستلام التحويل.");
+      return;
+    }
+    const amount = document.getElementById("prizeAmountValue").innerText;
+    const primaryMember = currentPlayerMember || currentTeamData?.members?.[0] || { name: "فريق" };
+
+    await push(ref(db, "payoutRequests"), {
+      teamId: currentTeamId,
+      teamName: currentTeamData?.teamName || primaryMember.name,
+      walletPhone,
+      amount,
+      sent: false,
+      createdAt: Date.now()
+    });
+
+    document.getElementById("payoutConfirmMsg").innerText =
+      "✅ تم إرسال رقمك وقيمة المكسب إلى صفحة التحويلات المرسلة بنجاح.";
   };
 </script>
 
