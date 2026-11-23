@@ -3,906 +3,855 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>إدارة Engz</title>
+  <title>لوحة تحكم الأدمن - صراع الوحوش</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    * { box-sizing: border-box; }
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-light: #334155;
+      --primary: #f59e0b;
+      --primary-hover: #d97706;
+      --success: #10b981;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body {
-      font-family: Tahoma, Arial, sans-serif;
       margin: 0;
-      padding: 16px;
-      min-height: 100vh;
-      color: #0f172a;
-      background: linear-gradient(135deg, #1e1b4b 0%, #0284c7 52%, #10b981 100%);
-      background-attachment: fixed;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 40px;
     }
-    .container {
-      max-width: 780px;
-      margin: 0 auto;
+    #loginOverlay {
+      position: fixed; inset: 0; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+      padding: 20px;
     }
+    .login-box {
+      background: var(--card); padding: 30px; border-radius: 16px;
+      width: 100%; max-width: 380px; text-align: center;
+      border: 1px solid var(--card-light); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    header {
+      background: var(--card); padding: 15px 20px;
+      border-bottom: 2px solid var(--primary);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+      position: sticky; top: 0; z-index: 1000;
+    }
+    header h1 { margin: 0; font-size: 1.2rem; color: var(--primary); }
+    .nav-tabs {
+      display: flex; gap: 8px; overflow-x: auto; padding: 12px 15px;
+      background: #162033; border-bottom: 1px solid var(--card-light);
+    }
+    .tab-btn {
+      background: var(--card); color: var(--text); border: 1px solid var(--card-light);
+      padding: 10px 14px; border-radius: 10px; cursor: pointer; white-space: nowrap;
+      font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;
+    }
+    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+    .badge {
+      background: var(--danger); color: #fff; padding: 2px 7px;
+      border-radius: 999px; font-size: 0.75rem;
+    }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
+    .section { display: none; }
+    .section.active { display: block; }
     .card {
-      background: rgba(255, 255, 255, 0.97);
-      border-radius: 20px;
-      padding: 22px;
-      margin-bottom: 18px;
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.25);
-      border: 2px solid rgba(255, 255, 255, 0.9);
+      background: var(--card); border-radius: 14px; padding: 18px;
+      margin-bottom: 16px; border: 1px solid var(--card-light);
     }
-    .hidden { display: none !important; }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
+    .card h2, .card h3 { margin-top: 0; color: var(--primary); }
+    label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 0.9rem; }
+    input[type="text"], input[type="number"], input[type="password"], textarea, select {
+      width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--card-light);
+      background: #0f172a; color: var(--text); font-size: 0.95rem; margin-bottom: 12px;
     }
-    .brand {
-      font-size: 24px;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
-    }
-    .nav-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
-      align-items: end;
-    }
-    .nav-slot {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .stat-above-btn {
-      text-align: center;
-      font-size: 13px;
-      font-weight: 900;
-      color: #ffffff;
-      background: rgba(15, 23, 42, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.45);
-      border-radius: 10px;
-      padding: 4px 8px;
-      margin-bottom: 6px;
-      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.2);
-    }
-
-    /* مفاتيح 3D بإحساس حقيقي عند الضغط */
     .btn {
-      display: inline-block;
-      width: 100%;
-      padding: 11px 14px;
-      border: none;
-      border-radius: 14px;
-      background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
-      color: #ffffff;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      text-decoration: none;
-      text-align: center;
-      box-shadow: 0 5px 0 #1e3a8a, 0 8px 16px rgba(29, 78, 216, 0.3);
-      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
+      padding: 10px 16px; border: none; border-radius: 8px; font-weight: bold;
+      cursor: pointer; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px;
     }
-    .btn:hover { filter: brightness(1.05); }
-    .btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 1px 0 #1e3a8a, 0 3px 6px rgba(29, 78, 216, 0.2);
+    .btn-primary { background: var(--primary); color: #000; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-info { background: var(--info); color: #fff; }
+    .btn-sm { padding: 7px 12px; font-size: 0.82rem; }
+    .row-flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .cash-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+      background: #0f172a; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--card-light);
     }
-    .btn-success {
-      background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
-      box-shadow: 0 5px 0 #14532d, 0 8px 16px rgba(21, 128, 61, 0.3);
+    .cash-row input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--primary); cursor: pointer; }
+    .cash-row input[type="text"] { margin-bottom: 0; }
+    .member-list { background: #0f172a; padding: 10px; border-radius: 8px; margin: 10px 0; }
+    .member-item { padding: 5px 0; border-bottom: 1px solid #1e293b; font-size: 0.9rem; }
+    .member-item:last-child { border-bottom: none; }
+    .thumb-img {
+      width: 100%; max-width: 240px; max-height: 220px; object-fit: cover;
+      border-radius: 10px; border: 2px solid var(--card-light); cursor: zoom-in; margin: 10px 0;
     }
-    .btn-success:active {
-      box-shadow: 0 1px 0 #14532d, 0 3px 6px rgba(21, 128, 61, 0.2);
+    #adminMap {
+      height: 330px; width: 100%; border-radius: 12px; margin: 12px 0;
+      border: 2px solid var(--primary); z-index: 1;
     }
-    .btn-danger {
-      background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
-      box-shadow: 0 5px 0 #7f1d1d, 0 8px 16px rgba(185, 28, 28, 0.3);
+    .key-item {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 8px;
+      border: 1px solid var(--card-light);
     }
-    .btn-danger:active {
-      box-shadow: 0 1px 0 #7f1d1d, 0 3px 6px rgba(185, 28, 28, 0.2);
+    #imgModal {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+      z-index: 10000; align-items: center; justify-content: center; padding: 20px;
     }
-    .btn-warning {
-      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
-      box-shadow: 0 5px 0 #92400e, 0 8px 16px rgba(217, 119, 6, 0.3);
-    }
-    .btn-warning:active {
-      box-shadow: 0 1px 0 #92400e, 0 3px 6px rgba(217, 119, 6, 0.2);
-    }
-    .btn-secondary {
-      background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
-      box-shadow: 0 5px 0 #0f172a, 0 8px 16px rgba(15, 23, 42, 0.3);
-    }
-    .btn-secondary:active {
-      box-shadow: 0 1px 0 #0f172a, 0 3px 6px rgba(15, 23, 42, 0.2);
-    }
-    .btn-outline {
-      width: auto;
-      background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
-      color: #1d4ed8;
-      border: 2px solid #93c5fd;
-      box-shadow: 0 4px 0 #0284c7, 0 6px 12px rgba(2, 132, 199, 0.25);
-    }
-    .btn-outline:active {
-      box-shadow: 0 1px 0 #0284c7;
-    }
-    .btn-sm {
-      width: auto;
-      padding: 7px 12px;
-      font-size: 12px;
-      border-radius: 11px;
-      box-shadow: 0 4px 0 rgba(15, 23, 42, 0.35), 0 6px 12px rgba(15, 23, 42, 0.2);
-    }
-    .btn-sm:active {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.35);
-    }
-
-    label {
-      display: block;
-      font-weight: bold;
-      color: #1e293b;
-      margin-top: 10px;
-    }
-    input[type="password"],
-    input[type="text"],
-    input[type="tel"],
-    input[type="file"],
-    textarea {
-      width: 100%;
-      padding: 11px;
-      border: 2px solid #cbd5e1;
-      border-radius: 12px;
-      font-size: 14px;
-      margin-top: 6px;
-      background: #f8fafc;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    input[type="password"]:focus,
-    input[type="text"]:focus,
-    input[type="tel"]:focus,
-    textarea:focus {
-      outline: none;
-      border-color: #2563eb;
-      background: #ffffff;
-    }
-    textarea { min-height: 150px; resize: vertical; }
-    .item-card {
-      border: 1px solid #cbd5e1;
-      border-radius: 14px;
-      padding: 14px;
-      margin-top: 12px;
-      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
-    }
-    .actions-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-      align-items: center;
-    }
-    .img-block {
-      margin-top: 8px;
-    }
-    .receipt-thumb {
-      max-width: 220px;
-      max-height: 180px;
-      border-radius: 10px;
-      margin-top: 8px;
-      border: 2px solid #cbd5e1;
-      display: block;
-    }
-    .msg {
-      padding: 11px 13px;
-      border-radius: 12px;
-      margin-top: 12px;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    .msg-err { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-    .msg-ok { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.65);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 2000;
-    }
-    .modal-card {
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 22px;
-      max-width: 420px;
-      width: 100%;
-      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.35);
-    }
-    .cash-pool-row {
-      display: grid;
-      grid-template-columns: 44px 1fr 90px;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 8px;
-    }
+    #imgModal img { max-width: 95%; max-height: 90vh; border-radius: 10px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <!-- نافذة تأكيد إلغاء الاشتراك نهائياً -->
-  <div id="cancelConfirmModal" class="modal-backdrop hidden">
-    <div class="modal-card">
-      <h3 style="margin-top:0; color:#b91c1c;">تأكيد إلغاء الاشتراك</h3>
-      <p id="cancelPromptLine1"></p>
-      <p id="cancelPromptLine2"></p>
-      <p>هل تريد مسح المشترك نهائيا من قاعده المشتركين</p>
-      <div class="actions-row">
-        <button type="button" class="btn btn-danger" id="confirmCancelYesBtn">نعم</button>
-        <button type="button" class="btn btn-secondary" id="confirmCancelNoBtn">لا</button>
+
+<div id="loginOverlay">
+  <div class="login-box">
+    <h2 style="color:var(--primary); margin-top:0;">🛡️ لوحة تحكم صراع الوحوش</h2>
+    <p style="color:var(--muted); font-size:0.9rem;">أدخل كلمة مرور الأدمن للمتابعة</p>
+    <input type="password" id="adminPassInput" placeholder="كلمة المرور..." />
+    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="checkAdminLogin()">دخول</button>
+    <p id="loginErr" style="color:var(--danger); font-size:0.85rem; display:none; margin-top:10px;">كلمة المرور غير صحيحة!</p>
+  </div>
+</div>
+
+<div id="imgModal" onclick="this.style.display='none'">
+  <img id="modalImgSrc" src="" alt="تكبير الصورة" />
+</div>
+
+<header>
+  <h1>⚔️ صراع الوحوش - Admin</h1>
+  <div class="row-flex">
+    <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
+    <button class="btn btn-danger btn-sm" onclick="resetRoundData()">🔄 تصفير الجولة وحذف الصور</button>
+  </div>
+</header>
+
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('regRequests', this)">
+    📋 طلبات التسجيل <span class="badge" id="badgeReg">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('cashSettings', this)">
+    💳 الاشتراك في التحدي
+  </button>
+  <button class="tab-btn" onclick="switchTab('subscribers', this)">
+    🧾 المشتركين في التحدي <span class="badge" id="badgeSub">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('dailyChallenge', this)">
+    🎯 التحدي اليومي
+  </button>
+  <button class="tab-btn" onclick="switchTab('challengePhotos', this)">
+    📸 صور التحدي <span class="badge" id="badgePhotos">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('keyWinners', this)">
+    🗝️ رابحو المفاتيح <span class="badge" id="badgeKeys">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('rewardsTab', this)">
+    💰 المكافآت والتحويلات <span class="badge" id="badgePayouts">0</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('mealsTab', this)">
+    🍔 وجبات الطعام
+  </button>
+</div>
+
+<div class="container">
+
+  <!-- 1. صفحة طلبات التسجيل -->
+  <div id="regRequests" class="section active">
+    <div class="card">
+      <h2>طلبات تسجيل الفرق الجديدة (<span id="countRegTitle">0</span>)</h2>
+      <p style="color:var(--muted); font-size:0.88rem;">عند قبول الفريق يصبح مشتركاً وينتقل تلقائياً لشاشة التحويل المالي.</p>
+      <div id="regRequestsList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 2. صفحة الاشتراك في التحدي (7 أرقام كاش واختيار 3) -->
+  <div id="cashSettings" class="section">
+    <div class="card">
+      <h2>أرقام استقبال تحويلات الكاش (اختر 3 أرقام فقط)</h2>
+      <p style="color:var(--muted); font-size:0.88rem;">أدخل حتى 7 أرقام موبايل مصرية، وحدد علامة (✓) بجانب 3 أرقام فقط لتظهر للمستخدمين.</p>
+      <div id="cashInputsContainer"></div>
+      <button class="btn btn-primary" onclick="saveCashNumbers()">💾 حفظ الأرقام المحددة</button>
+    </div>
+  </div>
+
+  <!-- 3. صفحة المشتركين في التحدي (إيصالات الدفع + زر تأكيد استلام الإيصال + زر حذف صور الإيصالات) -->
+  <div id="subscribers" class="section">
+    <div class="card">
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
+        <h2 style="margin:0;">مراجعة إيصالات الدفع والمشتركين</h2>
+        <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
+      </div>
+      <p style="color:var(--muted); font-size:0.88rem;">اضغط على صورة الإيصال لتكبيرها، ثم اضغط <b>تأكيد استلام الإيصال</b> لنقل الفريق للتحدي.</p>
+      <div id="subscribersList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 4. صفحة التحدي اليومي -->
+  <div id="dailyChallenge" class="section">
+    <div class="card">
+      <h2>إعدادات التحدي اليومي وعدد الفرق</h2>
+      
+      <div class="grid-2">
+        <div>
+          <label>عدد الفرق المسموح لها بالمشاركة (زرار عدد الفرق):</label>
+          <input type="number" id="maxTeamsInput" min="1" placeholder="مثال: 10" />
+        </div>
+        <div>
+          <label>موعد التحدي التالي (يظهر عند اكتمال العدد):</label>
+          <input type="text" id="nextChallengeTimeInput" placeholder="مثال: غداً الساعة 8:00 مساءً" />
+        </div>
+      </div>
+
+      <label>نوع التحدي الحالي:</label>
+      <select id="challengeTypeSelect" onchange="toggleChallengeTypeUI()">
+        <option value="photo">📸 تحدي إرسال صورة (أسرع فريق يرسل الصورة الصحيحة)</option>
+        <option value="keys">🗝️ تحدي إيجاد المفاتيح على الخريطة (GPS)</option>
+      </select>
+
+      <label>وصف / نص التحدي اليومي (يظهر للمشتركين):</label>
+      <textarea id="challengeTextInput" rows="3" placeholder="اكتب تفاصيل التحدي أو اللغز هنا..."></textarea>
+
+      <div id="keysConfigBox" style="display:none; border-top:1px solid var(--card-light); padding-top:15px; margin-top:10px;">
+        <h3>🗺️ إعدادات المفاتيح والمواقع الجغرافية</h3>
+        <div class="grid-2">
+          <div>
+            <label>عدد المفاتيح المطلوب تجميعها للفوز:</label>
+            <input type="number" id="requiredKeysCount" min="1" max="20" value="3" />
+          </div>
+          <div>
+            <label>نصف قطر دائرة إيجاد المفتاح (بالمتر):</label>
+            <input type="number" id="keyRadiusMeters" min="5" max="5000" value="30" placeholder="مثال: 30" />
+          </div>
+        </div>
+
+        <p style="color:var(--primary); font-size:0.9rem; margin-bottom:5px;">
+          📍 اضغط على أي مكان معلوم على الخريطة لإضافة مفتاح في ذلك الموقع:
+        </p>
+        <div id="adminMap"></div>
+
+        <div class="grid-2">
+          <div>
+            <input type="text" id="manualKeyName" placeholder="اسم المكان / تلميح للمفتاح (اختياري)" />
+          </div>
+          <div class="row-flex">
+            <input type="text" id="pickedCoords" readonly placeholder="الإحداثيات المختارة من الخريطة" style="margin-bottom:0; flex:1;" />
+            <button class="btn btn-success" onclick="addKeyFromMap()">➕ إضافة مفتاح</button>
+          </div>
+        </div>
+
+        <h4 style="margin-bottom:8px;">المفاتيح المضافة حالياً على الخريطة:</h4>
+        <div id="adminKeysList"></div>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:15px; width:100%; justify-content:center;" onclick="saveChallengeSettings()">
+        🚀 حفظ ونشر إعدادات التحدي
+      </button>
+    </div>
+  </div>
+
+  <!-- 5. صفحة صور التحدي + حذف صور الإيصالات وحذف صور التحدي -->
+  <div id="challengePhotos" class="section">
+    <div class="card">
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:10px;">
+        <h2 style="margin:0;">صور التحدي المرسلة من الفرق</h2>
+        <div class="row-flex">
+          <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAllChallengePhotos()">🗑️ حذف كل صور التحدي</button>
+        </div>
+      </div>
+      <p style="color:var(--muted); font-size:0.88rem;">مرتبة حسب الأسبقية (الأسرع أولاً). راجع الصورة ثم اضغط <b>اعتماد كفائز</b> أو احذف الصور بعد انتهاء التحدي.</p>
+      <div id="challengePhotosList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 6. صفحة رابحو المفاتيح -->
+  <div id="keyWinners" class="section">
+    <div class="card">
+      <h2>🗝️ الفرق التي أتمت تجميع المفاتيح</h2>
+      <div id="keyWinnersList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 7. صفحة المكافآت والتحويلات المرسلة -->
+  <div id="rewardsTab" class="section">
+    <div class="card">
+      <h2>تحديد قيمة المكافأة النقدية للفائز</h2>
+      <div class="row-flex">
+        <input type="text" id="cashPrizeAmount" placeholder="مثال: 500 جنيه مصري" style="margin-bottom:0; flex:1;" />
+        <button class="btn btn-primary" onclick="savePrizeAmount()">💾 حفظ قيمة الجائزة</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>💸 التحويلات المرسلة / طلبات سحب الجوائز النقدية</h2>
+      <div id="payoutRequestsList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <!-- 8. صفحة وجبات الطعام + زر حذف صور الإيصالات وحذف صور الوجبات -->
+  <div id="mealsTab" class="section">
+    <div class="card">
+      <div class="row-flex" style="justify-content:space-between; margin-bottom:12px;">
+        <h2 style="margin:0;">🍔 إدارة صور قوائم الطعام (للفائزين والخاسرين)</h2>
+        <button class="btn btn-danger btn-sm" onclick="deleteAllReceipts()">🗑️ حذف صور الإيصالات</button>
+      </div>
+      
+      <div style="margin-bottom:20px; border-bottom:1px solid var(--card-light); padding-bottom:16px;">
+        <div class="row-flex" style="justify-content:space-between;">
+          <label style="margin:0;">1️⃣ صورة قائمة الوجبات المجانية (تظهر للفريق الفائز):</label>
+          <button class="btn btn-danger btn-sm" onclick="deleteMealImage('freeMealImg')">🗑️ حذف الصورة</button>
+        </div>
+        <input type="file" accept="image/*" style="margin-top:8px;" onchange="uploadMealImage(event, 'freeMealImg')" />
+        <div id="previewFreeMeal"></div>
+      </div>
+
+      <div>
+        <div class="row-flex" style="justify-content:space-between;">
+          <label style="margin:0;">2️⃣ صورة قائمة الوجبات بنصف الثمن (تظهر للفرق الخاسرة):</label>
+          <button class="btn btn-danger btn-sm" onclick="deleteMealImage('halfMealImg')">🗑️ حذف الصورة</button>
+        </div>
+        <input type="file" accept="image/*" style="margin-top:8px;" onchange="uploadMealImage(event, 'halfMealImg')" />
+        <div id="previewHalfMeal"></div>
       </div>
     </div>
   </div>
 
-  <div class="container">
-    <div class="topbar">
-      <div class="brand">لوحة تحكم الأدمن - Engz</div>
-      <a href="index.html" class="btn btn-outline btn-sm">صفحة المستخدم</a>
-    </div>
+</div>
 
-    <!-- شاشة حماية الأدمن بكلمة السر 3852 -->
-    <section id="adminLockCard" class="card">
-      <h2 style="margin-top:0; color:#1e40af;">دخول الأدمن</h2>
-      <label for="adminPassInput">أدخل كلمة السر</label>
-      <input type="password" id="adminPassInput" placeholder="أدخل كلمة السر" />
-      <button type="button" class="btn" style="width:100%; margin-top:14px;" id="adminUnlockBtn">دخول</button>
-      <div id="adminLockMsg"></div>
-    </section>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- لوحة الأدمن بعد التحقق من كلمة السر -->
-    <div id="adminDashboard" class="hidden">
-      <div class="nav-grid">
-        <div class="nav-slot">
-          <div class="stat-above-btn" id="subscribersCountBadge">المشتركين: 0</div>
-          <button type="button" class="btn" data-admin-tab="subscribersTab">المشتركين</button>
-        </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, set, get, update, remove, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        <div class="nav-slot">
-          <div class="stat-above-btn" id="requestsCountBadge">طلبات التسجيل: 0</div>
-          <button type="button" class="btn btn-warning" data-admin-tab="requestsTab">طلبات التسجيل</button>
-        </div>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCHTbDGlhQu4G1YWPksojwLjGHVHiPGRyM",
+    authDomain: "monester-challenge.firebaseapp.com",
+    databaseURL: "https://monester-challenge-default-rtdb.firebaseio.com",
+    projectId: "monester-challenge",
+    storageBucket: "monester-challenge.firebasestorage.app",
+    messagingSenderId: "258204342725",
+    appId: "1:258204342725:web:17877d4b3778d6b08e13ac",
+    measurementId: "G-RW050GJMCZ"
+  };
 
-        <div class="nav-slot">
-          <div class="stat-above-btn" id="ordersCountBadge">الطلبات: 0</div>
-          <button type="button" class="btn btn-success" data-admin-tab="ordersTab">الطلبات</button>
-        </div>
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-        <div class="nav-slot">
-          <button type="button" class="btn btn-danger" data-admin-tab="completedTab">طلبات منتهيه</button>
-        </div>
+  // كلمة سر الأدمن المحددة
+  const ADMIN_PASSWORD = "38512385";
 
-        <div class="nav-slot">
-          <button type="button" class="btn" data-admin-tab="challengeTab">تحدى</button>
-        </div>
+  window.checkAdminLogin = () => {
+    const val = document.getElementById("adminPassInput").value;
+    if (val === ADMIN_PASSWORD) {
+      document.getElementById("loginOverlay").style.display = "none";
+      sessionStorage.setItem("mc_admin_auth", "1");
+    } else {
+      document.getElementById("loginErr").style.display = "block";
+    }
+  };
+  if (sessionStorage.getItem("mc_admin_auth") === "1") {
+    document.getElementById("loginOverlay").style.display = "none";
+  }
 
-        <div class="nav-slot">
-          <button type="button" class="btn btn-secondary" data-admin-tab="settingsTab">إعدادات الصور والكاش</button>
-        </div>
+  window.switchTab = (tabId, btn) => {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById(tabId).classList.add("active");
+    btn.classList.add("active");
+    if (tabId === "dailyChallenge" && mapInstance) {
+      setTimeout(() => mapInstance.invalidateSize(), 200);
+    }
+  };
+
+  window.openModal = (src) => {
+    document.getElementById("modalImgSrc").src = src;
+    document.getElementById("imgModal").style.display = "flex";
+  };
+
+  let latestTeamsData = {};
+
+  // ==========================================
+  // 1. طلبات التسجيل والمشتركين + تأكيد استلام الإيصال + حذف صور الإيصالات
+  // ==========================================
+  onValue(ref(db, "teams"), (snap) => {
+    const data = snap.val() || {};
+    latestTeamsData = data;
+    const regContainer = document.getElementById("regRequestsList");
+    const subContainer = document.getElementById("subscribersList");
+    regContainer.innerHTML = "";
+    subContainer.innerHTML = "";
+
+    let pendingRegCount = 0;
+    let pendingReceiptCount = 0;
+
+    Object.entries(data).forEach(([teamId, team]) => {
+      const membersHtml = (team.members || []).map((m, idx) =>
+        `<div class="member-item">👤 ${idx + 1}. <b>${m.name}</b> — 📱 ${m.phone}</div>`
+      ).join("");
+
+      if (team.status === "pending_registration") {
+        pendingRegCount++;
+        regContainer.innerHTML += `
+          <div class="card" style="background:#0f172a;">
+            <div class="row-flex" style="justify-content:space-between;">
+              <strong style="color:var(--primary);">فريق: ${team.teamName || team.members?.[0]?.name || teamId}</strong>
+              <span style="color:var(--muted); font-size:0.8rem;">${team.createdAt || ""}</span>
+            </div>
+            <div class="member-list">${membersHtml}</div>
+            <div class="row-flex">
+              <button class="btn btn-success" onclick="approveRegistration('${teamId}')">✅ قبول الطلب</button>
+              <button class="btn btn-danger" onclick="rejectRegistration('${teamId}')">❌ رفض الطلب</button>
+            </div>
+          </div>
+        `;
+      }
+
+      if (team.status === "receipt_uploaded" || team.status === "in_challenge" || team.status === "won" || team.status === "lost") {
+        if (team.status === "receipt_uploaded") pendingReceiptCount++;
+        const statusLabel = {
+          receipt_uploaded: "⏳ بانتظار اعتماد الإيصال",
+          in_challenge: "✅ مشترك داخل التحدي",
+          won: "🏆 فائز بالتحدي",
+          lost: "💔 خاسر (مؤهل لوجبة نصف الثمن)"
+        }[team.status] || team.status;
+
+        subContainer.innerHTML += `
+          <div class="card" style="background:#0f172a;">
+            <div class="row-flex" style="justify-content:space-between;">
+              <strong>فريق: ${team.teamName || team.members?.[0]?.name}</strong>
+              <span style="color:var(--primary); font-weight:bold;">${statusLabel}</span>
+            </div>
+            <div class="member-list">${membersHtml}</div>
+            ${team.receiptImage ? `
+              <div>
+                <span style="font-size:0.85rem; color:var(--muted);">صورة إيصال التحويل (اضغط للتكبير):</span><br/>
+                <img src="${team.receiptImage}" class="thumb-img" onclick="openModal('${team.receiptImage}')" /><br/>
+              </div>
+            ` : `<p style="color:var(--muted); font-size:0.85rem;">لا توجد صورة إيصال محفوظة حالياً.</p>`}
+            <div class="row-flex" style="margin-top:8px;">
+              ${team.status !== "in_challenge" && team.status !== "won" && team.status !== "lost" ? `
+                <button class="btn btn-success btn-sm" onclick="approveReceipt('${teamId}')">✅ تأكيد استلام الإيصال</button>
+              ` : ""}
+              ${team.receiptImage ? `
+                <button class="btn btn-danger btn-sm" onclick="deleteTeamReceipt('${teamId}')">🗑️ حذف صورة الإيصال</button>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }
+    });
+
+    document.getElementById("badgeReg").innerText = pendingRegCount;
+    document.getElementById("countRegTitle").innerText = pendingRegCount;
+    document.getElementById("badgeSub").innerText = pendingReceiptCount;
+
+    if (!regContainer.innerHTML) regContainer.innerHTML = "<p style='color:var(--muted);'>لا توجد طلبات تسجيل جديدة حالياً.</p>";
+    if (!subContainer.innerHTML) subContainer.innerHTML = "<p style='color:var(--muted);'>لا يوجد مشتركين أو إيصالات حالياً.</p>";
+  });
+
+  window.approveRegistration = (teamId) => {
+    update(ref(db, `teams/${teamId}`), { status: "approved_for_payment" });
+  };
+
+  window.rejectRegistration = (teamId) => {
+    if (confirm("هل أنت متأكد من رفض طلب هذا الفريق؟")) {
+      update(ref(db, `teams/${teamId}`), { status: "rejected" });
+    }
+  };
+
+  window.approveReceipt = (teamId) => {
+    update(ref(db, `teams/${teamId}`), {
+      status: "in_challenge",
+      joinedChallengeAt: Date.now()
+    });
+  };
+
+  window.deleteTeamReceipt = async (teamId) => {
+    if (!confirm("هل تريد حذف صورة الإيصال لتوفير مساحة الذاكرة؟")) return;
+    await remove(ref(db, `teams/${teamId}/receiptImage`));
+    alert("✅ تم حذف صورة الإيصال.");
+  };
+
+  window.deleteAllReceipts = async () => {
+    if (!confirm("هل تريد حذف كل صور الإيصالات بعد انتهاء التحدي لتوفير مساحة الذاكرة؟")) return;
+    for (const tId of Object.keys(latestTeamsData)) {
+      if (latestTeamsData[tId]?.receiptImage) {
+        await remove(ref(db, `teams/${tId}/receiptImage`));
+      }
+    }
+    alert("✅ تم حذف كل صور الإيصالات بنجاح.");
+  };
+
+  // ==========================================
+  // 2. أرقام الكاش (7 خانات واختيار 3 بـ Checkbox)
+  // ==========================================
+  const cashContainer = document.getElementById("cashInputsContainer");
+  for (let i = 0; i < 7; i++) {
+    cashContainer.innerHTML += `
+      <div class="cash-row">
+        <input type="checkbox" id="cashChk_${i}" onchange="enforceMaxThreeCash(this)" />
+        <input type="text" id="cashNum_${i}" placeholder="رقم كاش مصري رقم ${i + 1} (مثال: 010xxxxxxxx)" />
       </div>
+    `;
+  }
 
-      <!-- 1. المشتركين (العادية + وضع اختيار المشتركين للتحدي) -->
-      <section id="subscribersTab" class="card">
-        <div class="topbar">
-          <h2 style="margin:0; color:#1e40af;">المشتركين</h2>
-          <div id="challengeSelectionBar" class="hidden" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <label style="margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
-              <input type="checkbox" id="selectAllChallengeCheckbox" />
-              تحديد الكل
-            </label>
-            <button type="button" class="btn btn-success btn-sm" id="confirmChallengeSendBtn">تأكيد إرسال التحدي</button>
-            <button type="button" class="btn btn-secondary btn-sm" id="cancelChallengeSelectBtn">إلغاء</button>
-          </div>
-        </div>
-        <div id="challengeBanner" class="msg msg-ok hidden"></div>
-        <div id="subscribersList">جاري التحميل...</div>
-      </section>
-
-      <!-- 2. طلبات التسجيل -->
-      <section id="requestsTab" class="card hidden">
-        <h2 style="margin-top:0; color:#b45309;">طلبات التسجيل</h2>
-        <div id="requestsList">جاري التحميل...</div>
-      </section>
-
-      <!-- 3. الطلبات -->
-      <section id="ordersTab" class="card hidden">
-        <h2 style="margin-top:0; color:#15803d;">الطلبات</h2>
-        <div id="activeOrdersList">جاري التحميل...</div>
-      </section>
-
-      <!-- 4. طلبات منتهيه -->
-      <section id="completedTab" class="card hidden">
-        <h2 style="margin-top:0; color:#b91c1c;">طلبات منتهيه</h2>
-        <div id="completedOrdersList">جاري التحميل...</div>
-        <div style="margin-top:18px; text-align:left;">
-          <button type="button" class="btn btn-danger" id="clearCompletedBtn">🗑️ حذف كل الطلبات المنتهية</button>
-        </div>
-      </section>
-
-      <!-- 5. تحدى (5000 حرف) -->
-      <section id="challengeTab" class="card hidden">
-        <h2 style="margin-top:0; color:#1e40af;">تحدى</h2>
-        <label for="challengeTextArea">اكتب التحدي أو الطلب (حتى 5000 حرف)</label>
-        <textarea id="challengeTextArea" maxlength="5000" placeholder="اكتب نص التحدي هنا..."></textarea>
-        <button type="button" class="btn btn-success" style="width:100%; margin-top:14px;" id="goSelectChallengeSubscribersBtn">إرسال</button>
-        <div id="challengeMsg"></div>
-      </section>
-
-      <!-- 6. إعدادات الصور و7 أرقام كاش (اختيار 3 منها) -->
-      <section id="settingsTab" class="card hidden">
-        <h2 style="margin-top:0; color:#1e293b;">إعدادات الصور وأرقام الكاش</h2>
-
-        <label for="foodMenuFileInput">صورة قائمة الطعام (صفحة وجبات وسندوتشات - من الاستوديو)</label>
-        <input type="file" id="foodMenuFileInput" accept="image/*" />
-        <div id="foodMenuPreviewWrap" class="img-block hidden">
-          <img id="foodMenuAdminPreview" class="receipt-thumb" alt="معاينة قائمة الطعام" />
-          <div class="actions-row">
-            <button type="button" class="btn btn-danger btn-sm" id="deleteFoodMenuImgBtn">حذف الصورة</button>
-          </div>
-        </div>
-
-        <label for="breakfastMenuFileInput">صورة السندوتشات (صفحة فطار المدارس - من الاستوديو)</label>
-        <input type="file" id="breakfastMenuFileInput" accept="image/*" />
-        <div id="breakfastMenuPreviewWrap" class="img-block hidden">
-          <img id="breakfastMenuAdminPreview" class="receipt-thumb" alt="معاينة فطار المدارس" />
-          <div class="actions-row">
-            <button type="button" class="btn btn-danger btn-sm" id="deleteBreakfastMenuImgBtn">حذف الصورة</button>
-          </div>
-        </div>
-
-        <label style="margin-top:16px;">7 أرقام موبيل للكاش (عدّل أي رقم واختر 3 أرقام للظهور في صفحات الخدمات)</label>
-        <div id="sevenCashInputs"></div>
-
-        <button type="button" class="btn btn-success" style="width:100%; margin-top:14px;" id="saveSettingsBtn">حفظ الإعدادات</button>
-        <div id="settingsMsg"></div>
-      </section>
-    </div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
-    import {
-      getDatabase, ref, set, push, update, remove, onValue
-    } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyChAb52lQPgIJiEJ5o60Gu7iagOpocSO4c",
-      authDomain: "engz-12e0c.firebaseapp.com",
-      databaseURL: "https://engz-12e0c-default-rtdb.firebaseio.com",
-      projectId: "engz-12e0c",
-      storageBucket: "engz-12e0c.firebasestorage.app",
-      messagingSenderId: "45735013973",
-      appId: "1:45735013973:web:c5d9003ac60853c32deedc",
-      measurementId: "G-S8L6NRLWJZ"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const ADMIN_PASSCODE = "3852";
-    const tabs = ["subscribersTab", "requestsTab", "ordersTab", "completedTab", "challengeTab", "settingsTab"];
-
-    let subscribersCache = [];
-    let requestsCache = [];
-    let ordersCache = [];
-    let pendingCancelSubscriber = null;
-    let challengeDraftText = "";
-    let challengeSelectionMode = false;
-
-    let settingsState = {
-      foodMenuImage: "",
-      breakfastMenuImage: "",
-      cashPool: ["", "", "", "", "", "", ""],
-      selectedCashIndexes: [0, 1, 2]
-    };
-
-    function updateNavCounts() {
-      const activeSubsCount = subscribersCache.filter((s) => !s.cancelled).length;
-      const pendingReqsCount = requestsCache.filter((r) => r.status === "pending").length;
-      const activeOrdersCount = ordersCache.filter((o) => o.status !== "completed").length;
-
-      document.getElementById("subscribersCountBadge").textContent = `المشتركين: ${activeSubsCount}`;
-      document.getElementById("requestsCountBadge").textContent = `طلبات التسجيل: ${pendingReqsCount}`;
-      document.getElementById("ordersCountBadge").textContent = `الطلبات: ${activeOrdersCount}`;
+  window.enforceMaxThreeCash = (chk) => {
+    const checked = document.querySelectorAll("#cashInputsContainer input[type='checkbox']:checked");
+    if (checked.length > 3) {
+      chk.checked = false;
+      alert("⚠️ يمكنك تحديد 3 أرقام فقط لتظهر للمستخدمين في صفحة الدفع.");
     }
+  };
 
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+  onValue(ref(db, "settings/cashNumbers"), (snap) => {
+    const list = snap.val() || [];
+    for (let i = 0; i < 7; i++) {
+      if (list[i]) {
+        document.getElementById(`cashNum_${i}`).value = list[i].number || "";
+        document.getElementById(`cashChk_${i}`).checked = !!list[i].active;
+      }
     }
+  });
 
-    function switchAdminTab(tabId) {
-      tabs.forEach((id) => {
-        document.getElementById(id).classList.toggle("hidden", id !== tabId);
-      });
-    }
-
-    document.getElementById("adminUnlockBtn").addEventListener("click", () => {
-      const entered = document.getElementById("adminPassInput").value.trim();
-      const msg = document.getElementById("adminLockMsg");
-      if (entered !== ADMIN_PASSCODE) {
-        msg.innerHTML = `<div class="msg msg-err">كلمة السر غير صحيحة.</div>`;
+  window.saveCashNumbers = () => {
+    const allNumbers = [];
+    const activeNumbers = [];
+    for (let i = 0; i < 7; i++) {
+      const number = document.getElementById(`cashNum_${i}`).value.trim();
+      const active = document.getElementById(`cashChk_${i}`).checked;
+      if (active && !number) {
+        alert(`⚠️ الخانة رقم ${i + 1} محددة بعلامة صح ولكنها فارغة!`);
         return;
       }
-      document.getElementById("adminLockCard").classList.add("hidden");
-      document.getElementById("adminDashboard").classList.remove("hidden");
-      switchAdminTab("subscribersTab");
+      allNumbers.push({ number, active });
+      if (active && number) activeNumbers.push(number);
+    }
+    if (activeNumbers.length === 0) {
+      alert("⚠️ يرجى تحديد رقم واحد على الأقل (بحد أقصى 3 أرقام).");
+      return;
+    }
+    set(ref(db, "settings/cashNumbers"), allNumbers);
+    set(ref(db, "settings/activeCashNumbers"), activeNumbers);
+    alert("✅ تم حفظ الأرقام المحددة بنجاح وستظهر الآن للمشتركين.");
+  };
+
+  // ==========================================
+  // 3. إعدادات التحدي اليومي وخريطة المفاتيح
+  // ==========================================
+  let mapInstance = null;
+  let tempMarker = null;
+  let selectedLatLng = null;
+  let mapMarkersLayer = null;
+
+  function initAdminMap() {
+    mapInstance = L.map("adminMap").setView([27.2579, 33.8116], 13);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap"
+    }).addTo(mapInstance);
+
+    mapMarkersLayer = L.layerGroup().addTo(mapInstance);
+
+    mapInstance.on("click", (e) => {
+      selectedLatLng = e.latlng;
+      document.getElementById("pickedCoords").value = `${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+      if (tempMarker) mapInstance.removeLayer(tempMarker);
+      tempMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mapInstance)
+        .bindPopup("موقع المفتاح الجديد").openPopup();
     });
+  }
+  initAdminMap();
 
-    document.querySelectorAll("[data-admin-tab]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        if (btn.getAttribute("data-admin-tab") !== "subscribersTab") {
-          challengeSelectionMode = false;
-          document.getElementById("challengeSelectionBar").classList.add("hidden");
-          document.getElementById("challengeBanner").classList.add("hidden");
-        }
-        switchAdminTab(btn.getAttribute("data-admin-tab"));
-      });
-    });
+  window.toggleChallengeTypeUI = () => {
+    const type = document.getElementById("challengeTypeSelect").value;
+    document.getElementById("keysConfigBox").style.display = type === "keys" ? "block" : "none";
+    if (type === "keys" && mapInstance) {
+      setTimeout(() => mapInstance.invalidateSize(), 200);
+    }
+  };
 
-    function renderSevenCashForm() {
-      const wrap = document.getElementById("sevenCashInputs");
-      const pool = settingsState.cashPool || ["", "", "", "", "", "", ""];
-      const chosen = settingsState.selectedCashIndexes || [0, 1, 2];
+  onValue(ref(db, "settings/challenge"), (snap) => {
+    const c = snap.val() || {};
+    document.getElementById("maxTeamsInput").value = c.maxTeams || 10;
+    document.getElementById("nextChallengeTimeInput").value = c.nextChallengeTime || "";
+    document.getElementById("challengeTypeSelect").value = c.type || "photo";
+    document.getElementById("challengeTextInput").value = c.description || "";
+    document.getElementById("requiredKeysCount").value = c.requiredKeys || 3;
+    document.getElementById("keyRadiusMeters").value = c.keyRadius || 30;
+    toggleChallengeTypeUI();
+  });
 
-      wrap.innerHTML = Array.from({ length: 7 }, (_, i) => `
-        <div class="cash-pool-row">
-          <strong>#${i + 1}</strong>
-          <input type="tel" class="cash-pool-input" data-idx="${i}" value="${pool[i] || ""}" placeholder="رقم الكاش ${i + 1}" maxlength="11" />
-          <label style="margin:0; font-size:12px; display:flex; align-items:center; gap:4px; cursor:pointer;">
-            <input type="checkbox" class="cash-pick-check" data-idx="${i}" ${chosen.includes(i) ? "checked" : ""} />
-            اختيار
-          </label>
+  window.saveChallengeSettings = () => {
+    const payload = {
+      maxTeams: parseInt(document.getElementById("maxTeamsInput").value) || 10,
+      nextChallengeTime: document.getElementById("nextChallengeTimeInput").value.trim(),
+      type: document.getElementById("challengeTypeSelect").value,
+      description: document.getElementById("challengeTextInput").value.trim(),
+      requiredKeys: parseInt(document.getElementById("requiredKeysCount").value) || 3,
+      keyRadius: parseInt(document.getElementById("keyRadiusMeters").value) || 30,
+      updatedAt: Date.now()
+    };
+    update(ref(db, "settings/challenge"), payload);
+    alert("✅ تم حفظ ونشر إعدادات التحدي بنجاح!");
+  };
+
+  onValue(ref(db, "gpsCoins"), (snap) => {
+    const keys = snap.val() || {};
+    const listEl = document.getElementById("adminKeysList");
+    listEl.innerHTML = "";
+    if (mapMarkersLayer) mapMarkersLayer.clearLayers();
+
+    const radius = parseInt(document.getElementById("keyRadiusMeters").value) || 30;
+
+    Object.entries(keys).forEach(([keyId, k], index) => {
+      listEl.innerHTML += `
+        <div class="key-item">
+          <div>
+            <strong>🗝️ مفتاح #${index + 1}: ${k.label || "موقع محدد"}</strong><br/>
+            <span style="color:var(--muted); font-size:0.8rem;">Lat: ${k.lat}, Lng: ${k.lng}</span>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="deleteMapKey('${keyId}')">حذف</button>
         </div>
-      `).join("");
+      `;
+      if (mapMarkersLayer) {
+        L.marker([k.lat, k.lng]).addTo(mapMarkersLayer).bindPopup(`🗝️ ${k.label || "مفتاح #" + (index + 1)}`);
+        L.circle([k.lat, k.lng], { radius, color: "#f59e0b", fillOpacity: 0.2 }).addTo(mapMarkersLayer);
+      }
+    });
 
-      wrap.querySelectorAll(".cash-pick-check").forEach((chk) => {
-        chk.addEventListener("change", () => {
-          const checkedBoxes = [...wrap.querySelectorAll(".cash-pick-check:checked")];
-          if (checkedBoxes.length > 3) {
-            chk.checked = false;
-            alert("يمكنك اختيار 3 أرقام كاش فقط للظهور في صفحات الخدمات.");
+    if (!listEl.innerHTML) listEl.innerHTML = "<p style='color:var(--muted); font-size:0.85rem;'>لم يتم إضافة مفاتيح بعد. اضغط على الخريطة لإضافة مفتاح.</p>";
+  });
+
+  window.addKeyFromMap = () => {
+    if (!selectedLatLng) {
+      alert("⚠️ اضغط على الخريطة أولاً لتحديد مكان المفتاح.");
+      return;
+    }
+    const label = document.getElementById("manualKeyName").value.trim() || "مفتاح سري";
+    push(ref(db, "gpsCoins"), {
+      lat: selectedLatLng.lat,
+      lng: selectedLatLng.lng,
+      label
+    });
+    document.getElementById("manualKeyName").value = "";
+    document.getElementById("pickedCoords").value = "";
+    if (tempMarker) mapInstance.removeLayer(tempMarker);
+    selectedLatLng = null;
+  };
+
+  window.deleteMapKey = (keyId) => {
+    remove(ref(db, `gpsCoins/${keyId}`));
+  };
+
+  // ==========================================
+  // 4. صفحة صور التحدي + حذف الصور
+  // ==========================================
+  onValue(ref(db, "challengeSubmissions"), (snap) => {
+    const subs = snap.val() || {};
+    const container = document.getElementById("challengePhotosList");
+    container.innerHTML = "";
+
+    const entries = Object.entries(subs).sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+    document.getElementById("badgePhotos").innerText = entries.length;
+
+    entries.forEach(([teamId, item], idx) => {
+      const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString("ar-EG") : "";
+      container.innerHTML += `
+        <div class="card" style="background:#0f172a; border-color:${item.isWinner ? 'var(--success)' : 'var(--card-light)'};">
+          <div class="row-flex" style="justify-content:space-between;">
+            <strong>#${idx + 1} — فريق: ${item.teamName} (📱 ${item.phone})</strong>
+            <span style="color:var(--muted); font-size:0.85rem;">⏱️ وقت الإرسال: ${timeStr}</span>
+          </div>
+          ${item.photo ? `<img src="${item.photo}" class="thumb-img" onclick="openModal('${item.photo}')" />` : `<p style="color:var(--muted); font-size:0.85rem;">تم حذف الصورة.</p>`}
+          <div class="row-flex">
+            ${item.isWinner
+              ? `<span style="color:var(--success); font-weight:bold;">🏆 تم اعتماده كفائز (+10 نقاط)</span>`
+              : `<button class="btn btn-success" onclick="confirmChallengeWinner('${teamId}')">🏆 اعتماد كفائز وإنهاء الجولة</button>`
+            }
+            <button class="btn btn-danger btn-sm" onclick="deleteChallengePhoto('${teamId}')">🗑️ حذف الصورة</button>
+          </div>
+        </div>
+      `;
+    });
+
+    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لم يرسل أي فريق صور التحدي بعد.</p>";
+  });
+
+  window.deleteChallengePhoto = async (teamId) => {
+    if (!confirm("هل تريد حذف صورة التحدي لهذا الفريق لتوفير الذاكرة؟")) return;
+    await remove(ref(db, `challengeSubmissions/${teamId}/photo`));
+    alert("✅ تم حذف صورة التحدي.");
+  };
+
+  window.deleteAllChallengePhotos = async () => {
+    if (!confirm("هل تريد مسح كل صور التحدي المرسلة لتوفير الذاكرة؟")) return;
+    await remove(ref(db, "challengeSubmissions"));
+    alert("✅ تم حذف كل صور التحدي.");
+  };
+
+  window.confirmChallengeWinner = async (winnerTeamId) => {
+    if (!confirm("هل تريد اعتماد هذا الفريق كفائز وإعلان باقي الفرق كخاسرة؟")) return;
+
+    const winnerSnap = await get(ref(db, `teams/${winnerTeamId}`));
+    const winnerData = winnerSnap.val() || {};
+    const currentPoints = winnerData.points || 0;
+
+    await update(ref(db, `teams/${winnerTeamId}`), {
+      status: "won",
+      points: currentPoints + 10
+    });
+
+    await update(ref(db, `challengeSubmissions/${winnerTeamId}`), {
+      isWinner: true
+    });
+
+    const allTeamsSnap = await get(ref(db, "teams"));
+    const allTeams = allTeamsSnap.val() || {};
+    for (const [tId, tData] of Object.entries(allTeams)) {
+      if (tId !== winnerTeamId && tData.status === "in_challenge") {
+        await update(ref(db, `teams/${tId}`), { status: "lost" });
+      }
+    }
+
+    alert("🎉 تم اعتماد الفريق الفائز ومنحه 10 نقاط، وتم إشعار باقي الفرق!");
+  };
+
+  // ==========================================
+  // 5. رابحو المفاتيح
+  // ==========================================
+  onValue(ref(db, "keyWinners"), (snap) => {
+    const winners = snap.val() || {};
+    const container = document.getElementById("keyWinnersList");
+    container.innerHTML = "";
+    const entries = Object.entries(winners).sort((a, b) => (a[1].timestamp || 0) - (b[1].timestamp || 0));
+    document.getElementById("badgeKeys").innerText = entries.length;
+
+    entries.forEach(([teamId, w], idx) => {
+      const timeStr = w.timestamp ? new Date(w.timestamp).toLocaleTimeString("ar-EG") : "";
+      container.innerHTML += `
+        <div class="card" style="background:#0f172a;">
+          <div class="row-flex" style="justify-content:space-between;">
+            <strong>🏆 #${idx + 1} — فريق: ${w.teamName} (📱 ${w.phone})</strong>
+            <span style="color:var(--success);">أتم تجميع ${w.keysCount} مفاتيح — ⏱️ ${timeStr}</span>
+          </div>
+          ${!w.confirmed ? `
+            <button class="btn btn-success btn-sm" style="margin-top:8px;" onclick="confirmChallengeWinner('${teamId}'); update(ref(db, 'keyWinners/${teamId}'), {confirmed:true});">
+              ✅ اعتماد الفوز ومنح المكافأة
+            </button>
+          ` : `<span style="color:var(--primary); font-size:0.85rem;">✔️ تم الاعتماد</span>`}
+        </div>
+      `;
+    });
+
+    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لا يوجد رابحون للمفاتيح حتى الآن.</p>";
+  });
+
+  // ==========================================
+  // 6. المكافآت والتحويلات المرسلة
+  // ==========================================
+  onValue(ref(db, "settings/prizeAmount"), (snap) => {
+    document.getElementById("cashPrizeAmount").value = snap.val() || "";
+  });
+
+  window.savePrizeAmount = () => {
+    const val = document.getElementById("cashPrizeAmount").value.trim();
+    set(ref(db, "settings/prizeAmount"), val);
+    alert("✅ تم حفظ قيمة المكافأة النقدية.");
+  };
+
+  onValue(ref(db, "payoutRequests"), (snap) => {
+    const reqs = snap.val() || {};
+    const container = document.getElementById("payoutRequestsList");
+    container.innerHTML = "";
+    let pendingCount = 0;
+
+    Object.entries(reqs).forEach(([id, r]) => {
+      if (!r.sent) pendingCount++;
+      container.innerHTML += `
+        <div class="key-item">
+          <div>
+            <strong>📱 رقم الاستلام: ${r.walletPhone}</strong> — <span style="color:var(--primary); font-weight:bold;">المبلغ: ${r.amount}</span><br/>
+            <span style="color:var(--muted); font-size:0.82rem;">الفريق: ${r.teamName}</span>
+          </div>
+          ${r.sent
+            ? `<span style="color:var(--success); font-weight:bold;">✅ تم التحويل</span>`
+            : `<button class="btn btn-success btn-sm" onclick="markPayoutSent('${id}')">💸 تأكيد إرسال التحويل</button>`
           }
-        });
-      });
-    }
-
-    function syncMenuPreviews() {
-      const foodWrap = document.getElementById("foodMenuPreviewWrap");
-      const foodPrev = document.getElementById("foodMenuAdminPreview");
-      if (settingsState.foodMenuImage) {
-        foodPrev.src = settingsState.foodMenuImage;
-        foodWrap.classList.remove("hidden");
-      } else {
-        foodPrev.src = "";
-        foodWrap.classList.add("hidden");
-      }
-
-      const brWrap = document.getElementById("breakfastMenuPreviewWrap");
-      const brPrev = document.getElementById("breakfastMenuAdminPreview");
-      if (settingsState.breakfastMenuImage) {
-        brPrev.src = settingsState.breakfastMenuImage;
-        brWrap.classList.remove("hidden");
-      } else {
-        brPrev.src = "";
-        brWrap.classList.add("hidden");
-      }
-    }
-
-    onValue(ref(db, "settings"), (snap) => {
-      if (snap.exists()) {
-        settingsState = { ...settingsState, ...snap.val() };
-      }
-      renderSevenCashForm();
-      syncMenuPreviews();
-    });
-
-    document.getElementById("foodMenuFileInput").addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      settingsState.foodMenuImage = await fileToBase64(file);
-      syncMenuPreviews();
-    });
-
-    document.getElementById("breakfastMenuFileInput").addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      settingsState.breakfastMenuImage = await fileToBase64(file);
-      syncMenuPreviews();
-    });
-
-    document.getElementById("deleteFoodMenuImgBtn").addEventListener("click", async () => {
-      settingsState.foodMenuImage = "";
-      document.getElementById("foodMenuFileInput").value = "";
-      syncMenuPreviews();
-      await update(ref(db, "settings"), { foodMenuImage: "" });
-      document.getElementById("settingsMsg").innerHTML =
-        `<div class="msg msg-ok">تم حذف صورة قائمة الطعام.</div>`;
-    });
-
-    document.getElementById("deleteBreakfastMenuImgBtn").addEventListener("click", async () => {
-      settingsState.breakfastMenuImage = "";
-      document.getElementById("breakfastMenuFileInput").value = "";
-      syncMenuPreviews();
-      await update(ref(db, "settings"), { breakfastMenuImage: "" });
-      document.getElementById("settingsMsg").innerHTML =
-        `<div class="msg msg-ok">تم حذف صورة السندوتشات.</div>`;
-    });
-
-    document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
-      const inputs = [...document.querySelectorAll(".cash-pool-input")];
-      const checks = [...document.querySelectorAll(".cash-pick-check")];
-
-      const pool = inputs.map((inp) => inp.value.trim());
-      const pickedIndexes = checks.filter((c) => c.checked).map((c) => Number(c.getAttribute("data-idx")));
-
-      if (pickedIndexes.length !== 3) {
-        document.getElementById("settingsMsg").innerHTML =
-          `<div class="msg msg-err">يجب تحديد 3 أرقام بالضبط من الـ 7 أرقام للظهور في صفحات الخدمات.</div>`;
-        return;
-      }
-
-      const activeCashNumbers = pickedIndexes.map((idx) => pool[idx] || "");
-
-      await set(ref(db, "settings"), {
-        foodMenuImage: settingsState.foodMenuImage || "",
-        breakfastMenuImage: settingsState.breakfastMenuImage || "",
-        cashPool: pool,
-        selectedCashIndexes: pickedIndexes,
-        activeCashNumbers
-      });
-
-      document.getElementById("settingsMsg").innerHTML =
-        `<div class="msg msg-ok">تم حفظ صور القوائم والأرقام الثلاثة المختارة بنجاح.</div>`;
-    });
-
-    function renderSubscribers() {
-      const box = document.getElementById("subscribersList");
-      const activeSubs = subscribersCache.filter((s) => !s.cancelled);
-      if (!activeSubs.length) {
-        box.innerHTML = "<p>لا يوجد مشتركين حالياً.</p>";
-        return;
-      }
-
-      box.innerHTML = activeSubs.map((sub) => `
-        <div class="item-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-            <div>
-              <strong>${sub.name}</strong> — <span>${sub.phone}</span>
-              ${sub.frozen ? `<span style="color:#b45309; font-weight:bold;"> (مجمد)</span>` : ""}
-            </div>
-            ${challengeSelectionMode
-              ? `<label style="margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
-                   <input type="checkbox" class="challenge-sub-checkbox" data-phone="${sub.phone}" />
-                   إدخال في التحدي
-                 </label>`
-              : `<div class="actions-row" style="margin-top:0;">
-                   <button type="button" class="btn btn-warning btn-sm toggle-freeze-btn" data-id="${sub.id}" data-frozen="${sub.frozen ? "1" : "0"}">
-                     ${sub.frozen ? "فك التجميد" : "تجميد"}
-                   </button>
-                   <button type="button" class="btn btn-danger btn-sm cancel-sub-btn" data-id="${sub.id}" data-name="${sub.name}" data-phone="${sub.phone}">
-                     الغاء الاشتراك
-                   </button>
-                 </div>`
-            }
-          </div>
         </div>
-      `).join("");
-
-      box.querySelectorAll(".toggle-freeze-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const id = btn.getAttribute("data-id");
-          const isFrozen = btn.getAttribute("data-frozen") === "1";
-          await update(ref(db, `subscribers/${id}`), { frozen: !isFrozen });
-        });
-      });
-
-      box.querySelectorAll(".cancel-sub-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          pendingCancelSubscriber = {
-            id: btn.getAttribute("data-id"),
-            name: btn.getAttribute("data-name"),
-            phone: btn.getAttribute("data-phone")
-          };
-          document.getElementById("cancelPromptLine1").textContent =
-            `هل تريد الغاء اشتراك ${pendingCancelSubscriber.name}`;
-          document.getElementById("cancelPromptLine2").textContent =
-            `سيتم حذف المشترك ${pendingCancelSubscriber.name} من صفحه المشتركين`;
-          document.getElementById("cancelConfirmModal").classList.remove("hidden");
-        });
-      });
-    }
-
-    document.getElementById("confirmCancelNoBtn").addEventListener("click", () => {
-      pendingCancelSubscriber = null;
-      document.getElementById("cancelConfirmModal").classList.add("hidden");
+      `;
     });
 
-    document.getElementById("confirmCancelYesBtn").addEventListener("click", async () => {
-      if (!pendingCancelSubscriber) return;
-      const { id, phone } = pendingCancelSubscriber;
-      pendingCancelSubscriber = null;
-      document.getElementById("cancelConfirmModal").classList.add("hidden");
+    document.getElementById("badgePayouts").innerText = pendingCount;
+    if (!container.innerHTML) container.innerHTML = "<p style='color:var(--muted);'>لا توجد طلبات تحويل نقدي حالياً.</p>";
+  });
 
-      await remove(ref(db, `subscribers/${id}`));
-      const bannedRef = push(ref(db, "bannedPhones"));
-      await set(bannedRef, phone);
+  window.markPayoutSent = (id) => {
+    update(ref(db, `payoutRequests/${id}`), { sent: true, sentAt: Date.now() });
+  };
+
+  // ==========================================
+  // 7. وجبات الطعام + زر حذف الصور
+  // ==========================================
+  function compressImage(file, callback) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxW = 800;
+        const scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        callback(canvas.toDataURL("image/jpeg", 0.7));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  window.uploadMealImage = (event, dbKey) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    compressImage(file, (base64) => {
+      set(ref(db, `settings/meals/${dbKey}`), base64);
+      alert("✅ تم رفع وحفظ صورة قائمة الطعام بنجاح!");
     });
+  };
 
-    onValue(ref(db, "subscribers"), (snap) => {
-      subscribersCache = snap.exists()
-        ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
-        : [];
-      updateNavCounts();
-      renderSubscribers();
-    });
+  window.deleteMealImage = async (dbKey) => {
+    if (!confirm("هل تريد حذف صورة قائمة الطعام هذه لتوفير الذاكرة؟")) return;
+    await remove(ref(db, `settings/meals/${dbKey}`));
+    alert("✅ تم حذف صورة قائمة الطعام.");
+  };
 
-    onValue(ref(db, "registrationRequests"), (snap) => {
-      requestsCache = snap.exists()
-        ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
-        : [];
-      updateNavCounts();
+  onValue(ref(db, "settings/meals"), (snap) => {
+    const meals = snap.val() || {};
+    document.getElementById("previewFreeMeal").innerHTML = meals.freeMealImg
+      ? `<img src="${meals.freeMealImg}" class="thumb-img" onclick="openModal('${meals.freeMealImg}')" />`
+      : `<p style="color:var(--muted); font-size:0.85rem;">لا توجد صورة مرفوعة حالياً.</p>`;
 
-      const box = document.getElementById("requestsList");
-      const pendingList = requestsCache.filter((r) => r.status === "pending");
+    document.getElementById("previewHalfMeal").innerHTML = meals.halfMealImg
+      ? `<img src="${meals.halfMealImg}" class="thumb-img" onclick="openModal('${meals.halfMealImg}')" />`
+      : `<p style="color:var(--muted); font-size:0.85rem;">لا توجد صورة مرفوعة حالياً.</p>`;
+  });
 
-      if (!pendingList.length) {
-        box.innerHTML = "<p>لا توجد طلبات تسجيل معلقة حالياً.</p>";
-        return;
-      }
+  window.resetRoundData = async () => {
+    if (!confirm("⚠️ هل تريد مسح صور التحدي ورابحو المفاتيح لبدء جولة تحدي جديدة؟ (لن يتم حذف الفرق المسجلة)")) return;
+    await remove(ref(db, "challengeSubmissions"));
+    await remove(ref(db, "keyWinners"));
+    alert("✅ تم تصفير بيانات الجولة وحذف الصور بنجاح.");
+  };
+</script>
 
-      box.innerHTML = pendingList.map((r) => `
-        <div class="item-card">
-          <div><strong>${r.name}</strong> — <span>${r.phone}</span> (المحاولة ${r.attemptNumber || 1} من 3)</div>
-          ${r.photo
-            ? `<div class="img-block">
-                 <img src="${r.photo}" class="receipt-thumb" alt="صورة المستخدم" />
-                 <div class="actions-row">
-                   <button type="button" class="btn btn-danger btn-sm delete-req-photo-btn" data-id="${r.id}">حذف الصورة</button>
-                 </div>
-               </div>`
-            : ""}
-          <div class="actions-row">
-            <button type="button" class="btn btn-success btn-sm approve-req-btn" data-id="${r.id}" data-name="${r.name}" data-phone="${r.phone}">تأكيد</button>
-            <button type="button" class="btn btn-danger btn-sm reject-req-btn" data-id="${r.id}">رفض</button>
-          </div>
-        </div>
-      `).join("");
-
-      box.querySelectorAll(".delete-req-photo-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const reqId = btn.getAttribute("data-id");
-          await update(ref(db, `registrationRequests/${reqId}`), { photo: "" });
-        });
-      });
-
-      box.querySelectorAll(".approve-req-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const reqId = btn.getAttribute("data-id");
-          const name = btn.getAttribute("data-name");
-          const phone = btn.getAttribute("data-phone");
-
-          await update(ref(db, `registrationRequests/${reqId}`), {
-            status: "approved",
-            decidedAt: new Date().toISOString()
-          });
-
-          const subRef = push(ref(db, "subscribers"));
-          await set(subRef, {
-            name,
-            phone,
-            frozen: false,
-            cancelled: false,
-            approvedAt: new Date().toISOString()
-          });
-        });
-      });
-
-      box.querySelectorAll(".reject-req-btn").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const reqId = btn.getAttribute("data-id");
-          await update(ref(db, `registrationRequests/${reqId}`), {
-            status: "rejected",
-            decidedAt: new Date().toISOString()
-          });
-        });
-      });
-    });
-
-    onValue(ref(db, "orders"), (snap) => {
-      ordersCache = snap.exists()
-        ? Object.entries(snap.val()).map(([id, val]) => ({ id, ...val }))
-        : [];
-      updateNavCounts();
-
-      const activeBox = document.getElementById("activeOrdersList");
-      const completedBox = document.getElementById("completedOrdersList");
-
-      const activeList = ordersCache
-        .filter((o) => o.status !== "completed")
-        .sort((a, b) => Number(a.orderNumber || 0) - Number(b.orderNumber || 0));
-
-      const completedList = ordersCache
-        .filter((o) => o.status === "completed")
-        .sort((a, b) => Number(a.orderNumber || 0) - Number(b.orderNumber || 0));
-
-      if (!activeList.length) {
-        activeBox.innerHTML = "<p>لا توجد طلبات نشطة حالياً.</p>";
-      } else {
-        activeBox.innerHTML = activeList.map((o) => `
-          <div class="item-card">
-            <div><strong>طلب رقم #${o.orderNumber}</strong> — ${o.serviceLabel}</div>
-            <div>المشترك: <strong>${o.subscriberName}</strong> | رقم التليفون: <strong>${o.phone}</strong></div>
-            <div style="margin-top:6px;">الطلب: ${o.details}</div>
-            ${o.receiptImage
-              ? `<div class="img-block">
-                   <img src="${o.receiptImage}" class="receipt-thumb" alt="صورة إيصال التحويل" />
-                   <div class="actions-row">
-                     <button type="button" class="btn btn-danger btn-sm delete-order-img-btn" data-id="${o.id}">حذف الصورة</button>
-                   </div>
-                 </div>`
-              : ""}
-
-            <div class="actions-row">
-              <input type="text" id="replyInput_${o.id}" value="${o.adminMessage || ""}" placeholder="اكتب رسالة أو استفسار للمشترك..." style="flex:1; min-width:200px; margin-top:0;" />
-              <button type="button" class="btn btn-sm send-reply-btn" data-id="${o.id}">ارسال</button>
-            </div>
-
-            <div class="actions-row">
-              <button type="button" class="btn btn-success btn-sm admin-complete-order-btn" data-id="${o.id}">تأكيد استلام الطلب</button>
-              <button type="button" class="btn btn-warning btn-sm admin-freeze-from-order-btn" data-phone="${o.phone}">تجميد</button>
-            </div>
-          </div>
-        `).join("");
-
-        activeBox.querySelectorAll(".delete-order-img-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const id = btn.getAttribute("data-id");
-            await update(ref(db, `orders/${id}`), { receiptImage: "" });
-          });
-        });
-
-        activeBox.querySelectorAll(".send-reply-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const id = btn.getAttribute("data-id");
-            const txt = document.getElementById(`replyInput_${id}`).value.trim();
-            await update(ref(db, `orders/${id}`), { adminMessage: txt });
-            alert("تم إرسال الرسالة للمشترك.");
-          });
-        });
-
-        activeBox.querySelectorAll(".admin-complete-order-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const id = btn.getAttribute("data-id");
-            await update(ref(db, `orders/${id}`), {
-              status: "completed",
-              completedBy: "admin",
-              completedAt: new Date().toISOString()
-            });
-          });
-        });
-
-        activeBox.querySelectorAll(".admin-freeze-from-order-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const phone = btn.getAttribute("data-phone");
-            const targetSub = subscribersCache.find((s) => s.phone === phone && !s.cancelled);
-            if (!targetSub) {
-              alert("هذا المشترك غير موجود في قائمة المشتركين النشطين.");
-              return;
-            }
-            await update(ref(db, `subscribers/${targetSub.id}`), { frozen: true });
-            alert(`تم تجميد عضوية المشترك ${targetSub.name}.`);
-          });
-        });
-      }
-
-      if (!completedList.length) {
-        completedBox.innerHTML = "<p>لا توجد طلبات منتهية حالياً.</p>";
-      } else {
-        completedBox.innerHTML = completedList.map((o) => `
-          <div class="item-card">
-            <div><strong>طلب رقم #${o.orderNumber}</strong> — ${o.serviceLabel}</div>
-            <div>المشترك: <strong>${o.subscriberName}</strong> | رقم التليفون: <strong>${o.phone}</strong></div>
-            <div style="margin-top:4px;">الطلب: ${o.details}</div>
-            ${o.receiptImage
-              ? `<div class="img-block">
-                   <img src="${o.receiptImage}" class="receipt-thumb" alt="صورة إيصال التحويل" />
-                   <div class="actions-row">
-                     <button type="button" class="btn btn-danger btn-sm delete-order-img-btn" data-id="${o.id}">حذف الصورة</button>
-                   </div>
-                 </div>`
-              : ""}
-          </div>
-        `).join("");
-
-        completedBox.querySelectorAll(".delete-order-img-btn").forEach((btn) => {
-          btn.addEventListener("click", async () => {
-            const id = btn.getAttribute("data-id");
-            await update(ref(db, `orders/${id}`), { receiptImage: "" });
-          });
-        });
-      }
-    });
-
-    document.getElementById("clearCompletedBtn").addEventListener("click", async () => {
-      const completedOnly = ordersCache.filter((o) => o.status === "completed");
-      if (!completedOnly.length) return;
-      await Promise.all(completedOnly.map((o) => remove(ref(db, `orders/${o.id}`))));
-    });
-
-    document.getElementById("goSelectChallengeSubscribersBtn").addEventListener("click", () => {
-      const text = document.getElementById("challengeTextArea").value.trim();
-      const msg = document.getElementById("challengeMsg");
-      if (!text) {
-        msg.innerHTML = `<div class="msg msg-err">اكتب نص التحدي أولاً.</div>`;
-        return;
-      }
-      challengeDraftText = text;
-      challengeSelectionMode = true;
-      switchAdminTab("subscribersTab");
-      document.getElementById("challengeSelectionBar").classList.remove("hidden");
-      document.getElementById("challengeBanner").innerHTML =
-        "اختر المشتركين المراد إدخالهم في التحدي ثم اضغط <strong>تأكيد إرسال التحدي</strong>.";
-      document.getElementById("challengeBanner").classList.remove("hidden");
-      renderSubscribers();
-    });
-
-    document.getElementById("selectAllChallengeCheckbox").addEventListener("change", (e) => {
-      const checked = e.target.checked;
-      document.querySelectorAll(".challenge-sub-checkbox").forEach((cb) => {
-        cb.checked = checked;
-      });
-    });
-
-    document.getElementById("cancelChallengeSelectBtn").addEventListener("click", () => {
-      challengeSelectionMode = false;
-      challengeDraftText = "";
-      document.getElementById("challengeSelectionBar").classList.add("hidden");
-      document.getElementById("challengeBanner").classList.add("hidden");
-      renderSubscribers();
-    });
-
-    document.getElementById("confirmChallengeSendBtn").addEventListener("click", async () => {
-      const selectedPhones = [...document.querySelectorAll(".challenge-sub-checkbox:checked")]
-        .map((cb) => cb.getAttribute("data-phone"));
-
-      if (!selectedPhones.length) {
-        alert("اختر مشتركاً واحداً على الأقل لإدخاله في التحدي.");
-        return;
-      }
-
-      const newChallengeRef = push(ref(db, "challenges"));
-      await set(newChallengeRef, {
-        text: challengeDraftText,
-        selectedPhones,
-        createdAt: new Date().toISOString()
-      });
-
-      challengeSelectionMode = false;
-      challengeDraftText = "";
-      document.getElementById("challengeTextArea").value = "";
-      document.getElementById("selectAllChallengeCheckbox").checked = false;
-      document.getElementById("challengeSelectionBar").classList.add("hidden");
-      document.getElementById("challengeBanner").classList.add("hidden");
-      renderSubscribers();
-      alert("تم إرسال التحدي للمشتركين المحددين بنجاح.");
-    });
-  </script>
 </body>
 </html>
