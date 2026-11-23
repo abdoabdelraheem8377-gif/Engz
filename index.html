@@ -80,12 +80,24 @@
       display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
       margin-bottom: 10px;
     }
-    input[type="text"], input[type="tel"], select {
+    input[type="text"], input[type="tel"], select, textarea {
       width: 100%; padding: 11px 12px; border-radius: 10px;
       border: 1.5px solid var(--card-2); background: #0b101d;
       color: var(--text); font-size: 0.95rem; outline: none;
     }
-    input.input-error, select.input-error {
+    textarea.meal-notes-box {
+      min-height: 110px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    .char-counter {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: left;
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+    input.input-error, select.input-error, textarea.input-error {
       border-color: var(--danger) !important;
       box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
     }
@@ -175,6 +187,14 @@
     .meal-menu-img {
       width: 100%; border-radius: 12px; margin-top: 12px;
       cursor: zoom-in; border: 2px solid var(--primary); display: none;
+    }
+    .meal-order-panel {
+      background: #0b101d;
+      border: 1px solid var(--card-2);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+      text-align: right;
     }
     #zoomModal {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92);
@@ -443,8 +463,23 @@
         <div id="payoutConfirmMsg" style="margin-top:10px; text-align:center; color:var(--success); font-weight:bold;"></div>
       </div>
 
-      <!-- صورة الوجبات المجانية -->
-      <img id="freeMealMenuImg" class="meal-menu-img" onclick="zoomImage(this.src)" alt="قائمة الوجبات المجانية" />
+      <!-- صورة الوجبات المجانية + خانة كتابة أنواع وعدد السندوتشات/الوجبات (حتى 500 حرف) -->
+      <div id="freeMealOrderSection" style="display:none;">
+        <img id="freeMealMenuImg" class="meal-menu-img" onclick="zoomImage(this.src)" alt="قائمة الوجبات المجانية" />
+        <div class="meal-order-panel">
+          <label class="field-label" for="freeMealItemsInput">اكتب أنواع وعدد السندوتشات أو الوجبات المجانية المطلوبة (بحد أقصى 500 حرف):</label>
+          <textarea
+            id="freeMealItemsInput"
+            class="meal-notes-box"
+            maxlength="500"
+            placeholder="مثال: 3 سندوتش برجر، 2 وجبة دجاج مقرمش، 4 بطاطس..."
+            oninput="updateCharCounter('freeMealItemsInput', 'freeMealCounter')"
+          ></textarea>
+          <div id="freeMealCounter" class="char-counter">0 / 500</div>
+          <button type="button" class="btn btn-success" onclick="submitMealOrder('free_meal')">تأكيد</button>
+          <div id="freeMealConfirmMsg" style="margin-top:10px; text-align:center; color:var(--success); font-weight:bold;"></div>
+        </div>
+      </div>
     </div>
 
     <!-- حالة الخسارة -->
@@ -454,6 +489,20 @@
         <p style="color:var(--muted); margin:0; font-size:0.9rem;">اضغط على صورة القائمة لتكبيرها</p>
       </div>
       <img id="halfMealMenuImg" class="meal-menu-img" style="display:block;" onclick="zoomImage(this.src)" alt="قائمة الوجبات بنصف الثمن" />
+
+      <div class="meal-order-panel">
+        <label class="field-label" for="halfMealItemsInput">اكتب أنواع وعدد السندوتشات أو الوجبات بنصف الثمن المطلوبة (بحد أقصى 500 حرف):</label>
+        <textarea
+          id="halfMealItemsInput"
+          class="meal-notes-box"
+          maxlength="500"
+          placeholder="مثال: 2 سندوتش شاورما، 2 وجبة كفتة، 1 وجبة عائلية..."
+          oninput="updateCharCounter('halfMealItemsInput', 'halfMealCounter')"
+        ></textarea>
+        <div id="halfMealCounter" class="char-counter">0 / 500</div>
+        <button type="button" class="btn btn-success" onclick="submitMealOrder('half_price_meal')">تأكيد</button>
+        <div id="halfMealConfirmMsg" style="margin-top:10px; text-align:center; color:var(--success); font-weight:bold;"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -490,6 +539,14 @@
   let foundKeyIds = new Set();
   let gpsWatchId = null;
   let activeCashSlots = ["", "", ""];
+
+  window.updateCharCounter = (textareaId, counterId) => {
+    const el = document.getElementById(textareaId);
+    const counter = document.getElementById(counterId);
+    if (!el || !counter) return;
+    const len = el.value.length;
+    counter.innerText = `${len} / 500`;
+  };
 
   window.openMediaSource = (target, mode) => {
     const inputId =
@@ -564,7 +621,6 @@
     }
   };
 
-  // خروج اللاعب من مجموعته الحالية
   window.leaveCurrentGroup = async () => {
     document.getElementById("groupActionError").style.display = "none";
     document.getElementById("groupActionSuccess").style.display = "none";
@@ -597,7 +653,6 @@
     ok.style.display = "block";
   };
 
-  // انضمام اللاعب إلى فريق آخر
   window.joinSelectedGroup = async () => {
     const err = document.getElementById("groupActionError");
     const ok = document.getElementById("groupActionSuccess");
@@ -1125,7 +1180,7 @@
   };
 
   // ==========================================
-  // 7. صفحة المكافآت والنتائج
+  // 7. صفحة المكافآت والنتائج + طلبات الوجبات (حتى 500 حرف)
   // ==========================================
   function showRewardsScreen(mode) {
     showScreen("rewardsScreen");
@@ -1160,17 +1215,49 @@
 
   window.openCashRewardBox = () => {
     document.getElementById("cashRewardBox").style.display = "block";
-    document.getElementById("freeMealMenuImg").style.display = "none";
+    document.getElementById("freeMealOrderSection").style.display = "none";
   };
 
   window.openFreeMealMenu = () => {
     document.getElementById("cashRewardBox").style.display = "none";
+    document.getElementById("freeMealOrderSection").style.display = "block";
     const img = document.getElementById("freeMealMenuImg");
     if (img.getAttribute("src")) {
       img.style.display = "block";
     } else {
-      alert("لم يقم الأدمن برفع صورة قائمة الوجبات المجانية بعد.");
+      img.style.display = "none";
     }
+  };
+
+  window.submitMealOrder = async (orderType) => {
+    const isFree = orderType === "free_meal";
+    const inputEl = document.getElementById(isFree ? "freeMealItemsInput" : "halfMealItemsInput");
+    const msgEl = document.getElementById(isFree ? "freeMealConfirmMsg" : "halfMealConfirmMsg");
+
+    inputEl.classList.remove("input-error");
+    msgEl.innerText = "";
+
+    const itemsText = inputEl.value.trim().slice(0, 500);
+    if (!itemsText) {
+      inputEl.classList.add("input-error");
+      alert("يرجى كتابة أنواع وعدد السندوتشات أو الوجبات أولاً.");
+      return;
+    }
+
+    const primaryMember = currentPlayerMember || currentTeamData?.members?.[0] || { name: "فريق", phone: "" };
+    await push(ref(db, "mealOrders"), {
+      teamId: currentTeamId || null,
+      teamName: currentTeamData?.teamName || primaryMember.name,
+      playerName: primaryMember.name,
+      phone: primaryMember.phone,
+      orderType,
+      itemsDetails: itemsText,
+      createdAt: Date.now()
+    });
+
+    msgEl.innerText = isFree
+      ? "✅ تم تسجيل طلب الوجبات المجانية بنجاح!"
+      : "✅ تم تسجيل طلب الوجبات بنصف الثمن بنجاح!";
   };
 
   window.confirmPayoutRequest = async () => {
